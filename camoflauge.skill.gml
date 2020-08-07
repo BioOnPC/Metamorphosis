@@ -9,7 +9,7 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define step
-    if((floor(current_frame) mod (3 * (room_speed/30))) = 0) {
+    if((floor(current_frame) mod (2 * (room_speed/30))) = 0) {
     	with(enemy) {
     		alarm1++;
     	}

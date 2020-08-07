@@ -12,7 +12,7 @@
 #define step
     with(instances_matching_le(enemy, "my_health", 0)) {
     	with(instances_matching(projectile, "creator", id)) {
-    		superiordelete = 5 + irandom(15);
+    		superiordelete = 3 + irandom(9);
     	}
     }
     
