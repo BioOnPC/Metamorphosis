@@ -1,0 +1,10 @@
+/loadmod metamorphosis
+/loadskill atomicpores
+/loadskill racingthoughts
+/loadskill insurgency
+/loadskill pyromania
+/loadskill cartridgefingers
+/loadskill selectivefocus
+/loadskill musclememory
+/loadskill cancerousgrowths
+/loadskill camoflauge
