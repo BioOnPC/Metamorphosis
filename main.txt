@@ -3,8 +3,9 @@
 /loadskill racingthoughts
 /loadskill insurgency
 /loadskill pyromania
-/loadskill cartridgefingers
+/loadskill magfingers
 /loadskill selectivefocus
 /loadskill musclememory
-/loadskill cancerousgrowths
+/loadskill crystallinegrowths
 /loadskill camoflauge
+/loadskill dividedelbows

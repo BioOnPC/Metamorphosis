@@ -1,12 +1,12 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillAtomicPoresIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillAtomicPoresHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillMuscleMemoryIcon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillMuscleMemoryHUD.png",  1,  8,  8);
 
 #define skill_name    return "MUSCLE MEMORY";
 #define skill_text    return "DODGING @wBULLETS@s GIVES @gRADS@s";
 #define skill_tip     return "SOLID PLAY";
-//#define skill_icon    return global.sprSkillHUD;
-//#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_icon    return global.sprSkillHUD;
+#define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define step
     with(projectile) {

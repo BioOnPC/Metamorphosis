@@ -1,13 +1,13 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillAtomicPoresIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillAtomicPoresHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillSelectiveFocusIcon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillSelectiveFocusHUD.png",  1,  8,  8);
 	global.sprEDelete   = sprite_add("sprites/VFX/sprEDelete.png",  9,  12,  12);
 
 #define skill_name    return "SELECTIVE FOCUS";
 #define skill_text    return "KILLING AN @wENEMY@s#DESTROYS THEIR @wBULLETS";
 #define skill_tip     return "CAN'T FOCUS";
-//#define skill_icon    return global.sprSkillHUD;
-//#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_icon    return global.sprSkillHUD;
+#define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define step
     with(instances_matching_le(enemy, "my_health", 0)) {

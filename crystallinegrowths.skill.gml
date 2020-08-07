@@ -1,13 +1,13 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillAtomicPoresIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillAtomicPoresHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillCrystallineGrowthsIcon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillCrystallineGrowthsHUD.png",  1,  8,  8);
 	global.level_start = false;
 
-#define skill_name    return "CANCEROUS GROWTHS";
+#define skill_name    return "CRYSTALLINE GROWTHS";
 #define skill_text    return "@yAMMO DROPS@s SOMETIMES SPAWN @rHEALTH@s#ADDITIONAL @rHEALTH CHESTS@s";
 #define skill_tip     return "IT NEVER STOPS";
-//#define skill_icon    return global.sprSkillHUD;
-//#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_icon    return global.sprSkillHUD;
+#define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define step
     with(instances_matching(AmmoPickup, "cancergrowth", null)) {

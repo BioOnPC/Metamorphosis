@@ -8,7 +8,7 @@
 #define skill_tip     return "SWAY THE MASSES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMutTriggerFingers);
+//#define skill_take    sound_play(sndMutTriggerFingers);
 #define step
 	if(instance_exists(GenCont) || instance_exists(Menu)){
 		global.level_start = true;
