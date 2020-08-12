@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillMagFingersHUD.png",  1,  8,  8);
 	global.sprCartridge = sprite_add("sprites/VFX/sprFatAmmo.png",  7,  6,  6);
 
-#define skill_name    return "MAG FINGERS";
+#define skill_name    return "MAGAZINE FINGERS";
 #define skill_text    return "@yAMMO PICKUPS@s GIVE MORE AMMO";
 #define skill_tip     return "OVERLOADED";
 #define skill_icon    return global.sprSkillHUD;

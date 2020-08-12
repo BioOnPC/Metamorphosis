@@ -4,7 +4,7 @@
 	global.level_start = false;
 
 #define skill_name    return "CRYSTALLINE GROWTHS";
-#define skill_text    return "@yAMMO DROPS@s SOMETIMES SPAWN @rHEALTH@s#ADDITIONAL @rHEALTH CHESTS@s";
+#define skill_text    return "@yAMMO DROPS@s SOMETIMES SPAWN @rMEDKITS@s#@rMEDKITS@s GIVE TEMPORARY PROTECTION";
 #define skill_tip     return "IT NEVER STOPS";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -13,20 +13,15 @@
     with(instances_matching(AmmoPickup, "cancergrowth", null)) {
     	cancergrowth = 1;
     	if(random(3) < 1) {
-    		with(instance_create(x, y, HPPickup)) num *= 0.5;
+    		instance_create(x, y, HPPickup);
+    	}
+    }
+    
+    with(instances_matching(HPPickup, "crystallinepickup", null)) {
+    	crystallinepickup = 1;
+    	with(obj_create(x, y, "CrystallinePickup")) {
+    		creator = other.id;
     	}
     }
 
-	if(instance_exists(GenCont) || instance_exists(Menu)){
-		global.level_start = true;
-	}
-	else if(global.level_start){
-		global.level_start = false;
-		
-		with(RadChest) {
-			if(random(10) < 1) {
-				var nfloor = instance_nearest(x + (32 * random_range(3, 3)), y + (32 * random_range(3, 3)), Floor);
-				instance_create(nfloor.x + 16, nfloor.y + 16, HealthChest);
-			}
-		}
-	}
+#define obj_create(_x, _y, _obj)                                                        return  mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);

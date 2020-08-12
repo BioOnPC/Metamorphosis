@@ -17,3 +17,43 @@
 			}
 		}
 	}
+	
+#define obj_create(_x, _y, _name)
+	 // this is all yokin. he is a powerful mans
+	if(is_real(_name) && object_exists(_name)){
+		return instance_create(_x, _y, _name);
+	}
+	
+	switch(_name) {
+		case "CrystallinePickup":
+			with(instance_create(_x, _y, CustomObject)) {
+				creator    = noone;
+				
+				on_step    = CrystallinePickup_step;
+				on_destroy = CrystallinePickup_destroy;
+			}
+		
+		break;
+		
+		default: // called with undefined
+			return ["CrystallinePickup"];
+	}
+	
+#define CrystallinePickup_step
+	if(!instance_exists(creator)) {
+		instance_destroy();
+	}
+	
+	else {
+		x = creator.x;
+		y = creator.y;
+	}
+	
+#define CrystallinePickup_destroy
+	var nplayer = instance_nearest(x, y, Player);
+	if(instance_exists(nplayer) and point_distance(x, y, nplayer.x, nplayer.y) < 40) {
+		with(nplayer) {
+			nexthurt = current_frame + (30 / current_time_scale);
+			trace(nexthurt);
+		}
+	}

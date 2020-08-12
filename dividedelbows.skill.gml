@@ -11,7 +11,7 @@
 #define step
     with(projectile) {
     	if(!variable_instance_exists(self, "lstteam")) lstteam = team;
-	    if(lstteam != team) {
+	    if(instance_exists(Player) and lstteam != team and instance_nearest(x, y, Player).team = team) {
 	    	direction += 20;
 	    	image_angle += 20;
 	    	lstteam = team;
