@@ -1,0 +1,9 @@
+// FISH
+/loadskill breach&clear
+
+// CRYSTAL
+/loadskill reprisal
+
+// /loadskill revolutionary // REBEL
+
+/loadmod cultra

@@ -1,6 +1,6 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillMuscleMemoryIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillMuscleMemoryHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 
 #define skill_name    return "MUSCLE MEMORY";
 #define skill_text    return "DODGING @wBULLETS@s GIVES @gRADS@s";
@@ -27,7 +27,7 @@
 		    	}
 		    	
 		    	if(point_distance(x, y, nplayer.x, nplayer.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && musclememory = 1 && nplayer.lsthealth = nplayer.my_health) {
-		    		repeat(damage * (GameCont.level + GameCont.loops)) {
+		    		repeat((damage * (GameCont.level + GameCont.loops)) * skill_get("musclememory")) {
 		    			instance_create(nplayer.x, nplayer.y, Rad);
 		    			with(instance_create(nplayer.x + nplayer.hspeed, nplayer.y + nplayer.vspeed, ChickenB)) image_speed = 0.8;
 		    		}

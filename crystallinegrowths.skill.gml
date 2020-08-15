@@ -1,6 +1,6 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillCrystallineGrowthsIcon.png", 1,  12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillCrystallineGrowthsHUD.png",	 1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1,  12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",	 1,  8,  8);
 	
 	global.sprHPCrystalline    = sprHP;
 	global.sprFatHPCrystalline = sprHP;

@@ -9,3 +9,4 @@
 /loadskill crystallinegrowths
 /loadskill camoflauge
 /loadskill dividedelbows
+/load ultras

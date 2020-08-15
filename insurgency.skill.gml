@@ -1,6 +1,6 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillInsurgencyIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillInsurgencyHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	global.level_start = (instance_exists(GenCont) || instance_exists(Menu));
 
 #define skill_name    return "INSURGENCY";
@@ -16,7 +16,7 @@
 	else if(global.level_start){
 		global.level_start = false;
 		with(instances_matching_le(enemy, "maxhealth", 30)) {
-			if(random(60) < 1) {
+			if(random(60 * (1/(skill_get("insurgency")))) < 1) {
 				 // Fake body!
 				with(instance_create(x, y, Corpse)) {
 					sprite_index = other.spr_dead;
@@ -36,7 +36,7 @@
 		}
 		
 		with(Bandit) {
-			if(random(15) < 1) {
+			if(random(15 * (1/(skill_get("insurgency")))) < 1) {
 				 // Spawn a friend
 				with(instance_create(x, y, Ally)) {
 					if(instance_exists(Player)) {

@@ -1,6 +1,6 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillSelectiveFocusIcon.png", 1,   12,  16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillSelectiveFocusHUD.png",	 1,   8,   8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1,   12,  16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",	 1,   8,   8);
 	
 	 // Projectile Effect Sprites:
 	var p = "sprites/VFX/Selective Focus/";

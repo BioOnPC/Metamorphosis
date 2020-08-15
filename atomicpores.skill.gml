@@ -1,6 +1,6 @@
 #define init
-	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkillAtomicPoresIcon.png", 1, 12, 16);
-	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkillAtomicPoresHUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 
 #define skill_name    return "ATOMIC PORES";
 #define skill_text    return "@wENEMIES@s DROP MORE @gRADS";
@@ -11,7 +11,7 @@
 #define step
     with(instances_matching(enemy, "atomicrads", null)) { // Find all unaffected enemies
         atomicrads = 1;
-        raddrop += ceil(raddrop * 0.10); // Increase rads
+        raddrop += ceil(raddrop * (0.10 * skill_get("atomicpores"))); // Increase rads
     }
     
      // VFX
