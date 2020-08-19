@@ -2,11 +2,11 @@
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1,  12, 16);
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",	 1,  8,  8);
 	
-	global.sprHPCrystalline    = sprHP;
+	global.sprHPCrystalline    = sprite_add("sprites/VFX/sprCrystalHP.png", 7, 6, 7);
 	global.sprFatHPCrystalline = sprHP;
 	
 #define skill_name    return "CRYSTALLINE GROWTHS";
-#define skill_text    return "MORE @rMEDKITS@s#@rMEDKITS@s GIVE @wINVINCIBILITY";
+#define skill_text    return "@wENEMIES@s DROP MORE @rMEDKITS@s#@rMEDKITS@s GIVE @wINVINCIBILITY";
 #define skill_tip     return "IT NEVER STOPS";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -35,8 +35,6 @@
 			? global.sprFatHPCrystalline
 			: global.sprHPCrystalline
 		);
-		
-		image_blend = c_purple;
 	}
 	
 	instance_destroy();

@@ -2,7 +2,10 @@
 /loadskill breach&clear
 
 // CRYSTAL
-/loadskill reprisal
+/loadskill bastion
+
+// EYES
+/loadskill arsenalstyle
 
 // /loadskill revolutionary // REBEL
 
