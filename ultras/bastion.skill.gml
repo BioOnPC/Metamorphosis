@@ -4,7 +4,7 @@
 
 #define skill_name    return "BASTION";
 #define skill_text    return "@wSHIELD STORES REFLECTED BULLETS@s#@wUNSHIELDING@s FIRES STORED BULLETS";
-#define skill_tip     return "UNENDING ARMY";
+#define skill_tip     return "SHRUG IT OFF";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);

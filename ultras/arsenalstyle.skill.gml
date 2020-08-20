@@ -4,7 +4,7 @@
 
 #define skill_name    return "ARSENAL STYLE";
 #define skill_text    return "@wWEAPONS@s PULLED BY @wTELEKINESIS@s#FIRE THEMSELVES";
-#define skill_tip     return "FIRING SQUAD";
+#define skill_tip     return "CONTAIN IT ALL";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);

@@ -7,6 +7,22 @@
 // EYES
 /loadskill arsenalstyle
 
-// /loadskill revolutionary // REBEL
+// YV
+/loadskill VOTE/vote1
+/loadskill VOTE/vote2
+/loadskill VOTE/vote3
+/loadskill VOTE/vote4
+/loadskill VOTE/vote5
+/loadskill VOTE/vote6
+/loadskill vote2bcool
+
+// CHICKEN
+/loadskill strengthindeath
+
+// REBEL
+/loadskill revolutionary
+
+// HORROR
+/loadskill criticalmass
 
 /loadmod cultra

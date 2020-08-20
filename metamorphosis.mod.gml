@@ -11,6 +11,8 @@
 	global.sprMerchantFloor     = sprite_add("sprites/Shop/sprMerchantFloor.png",  4,  0,  0);
 	global.sprMerchantCarpet    = sprite_add("sprites/Shop/sprMerchantCarpet.png",  1,  83,  34);
 	
+	global.criticalmass_diff    = 0;
+	
 #macro mod_current_type script_ref_create(0)[0]
 #macro infinity 1/0
 
@@ -25,8 +27,17 @@
         }
     }
     
+     // Some funky stuff to make sure the prompt acts on step. props to yokin for helping a ton and also letting me steal NTTE code
+    if(array_length(instances_matching(CustomProp, "name", "MutRefresher")) > 0) script_bind_step(prompt_collision, 0);
+    
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
+    	
+    	 // Place down the mutation reselector
+    	if(global.criticalmass_diff > 0 and (GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
+    		var ffloor = instance_furthest(0, 0, Floor);
+    		obj_create(ffloor.x + 16, ffloor.y + 16, "MutRefresher");
+    	}
     	
     	 // place the shop area in the crown vault
     	with(CrownPed) {
@@ -74,7 +85,12 @@
 				}
 			}
     	}
+    	
+    	with(instances_matching_ne(Player, "strengthtimer", null)) { // Chicken ultra
+    		strengthtimer = 210 * skill_get("strengthindeath");
+    	}
     }
+    
 
 #define draw
 	if(skill_get("musclememory") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
@@ -122,9 +138,51 @@
 				
 			}
 			break;
+			
+		case "MutRefresher":
+			o = instance_create(_x, _y, CustomProp);
+			with(o){
+				 // Visual:
+				spr_idle = sprHorrorMenu;
+				spr_hurt = sprHorrorMenu;
+				
+				 // Sounds:
+				snd_hurt = sndGuardianHurt;
+				snd_dead = sndGuardianDead;
+				
+				 // Vars:
+				mask_index = mskNone;
+				maxhealth  = 999;
+				size       = 3;
+				
+				prompt = prompt_create("RESELECT");
+				with(prompt){
+					mask_index = mskBandit;
+					yoff       = -2;
+				}
+			}
+			break;
+		
+		case "Prompt":
+			o = instance_create(_x, _y, CustomObject);
+			with(o){
+				 // Vars:
+				mask_index = mskWepPickup;
+				persistent = true;
+				creator = noone;
+				nearwep = noone;
+				depth = 0; // Priority (0==WepPickup)
+				pick = -1;
+				xoff = 0;
+				yoff = 0;
+				
+				 // Events:
+				on_meet = null;
+			}
+			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["CrystallineEffect", "CrystallinePickup"];
+			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "Prompt"];
 	}
 	
 	 // Instance Stuff:
@@ -262,6 +320,171 @@
 		}
 	}
 	
+#define MutRefresher_step
+	x = xstart;
+	y = ystart;
+	my_health = maxhealth;
+	
+	if(instance_exists(prompt) && player_is_active(prompt.pick)){
+		my_health = 0;
+	}
+
+#define MutRefresher_death
+	sound_play(sndStatueCharge);
+	instance_create(x, y, Portal).type = 2; // Spawn a proto portal
+	
+	 // The following is a bunch of stupid bullshit to make sure you don't lose your custom ultras
+	var _mod = mod_get_names("skill"),
+        _scrt = "skill_ultra",
+        _ultras = {};
+    
+     // Go through and find all custom ultra skills
+    for(var i = 0; i < array_length(_mod); i++){ 
+    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) lq_set(_ultras, _mod[i], skill_get(_mod[i]));
+    }
+	
+	skill_clear();
+	GameCont.skillpoints += GameCont.mutindex;
+	GameCont.mutindex = 0;
+    
+    if(fork()) { // Basically, make sure the game has enough time to process between skill_clear and skill_set that the skills actually get set
+		wait(0);
+		 // Go through all of the skills found before and apply them
+		for(i = 0; i < lq_size(_ultras); i++) {
+			if(lq_get_key(_ultras, i) != "criticalmass") {
+				skill_set(string(lq_get_key(_ultras, i)), lq_get_value(_ultras, i));
+			}
+		}
+	}
+	
+#define Prompt_begin_step
+	with(nearwep) instance_delete(id);
+	
+#define Prompt_end_step
+	 // Follow Creator:
+	var c = creator;
+	if(c != noone){
+		if(instance_exists(c)){
+			if(instance_exists(nearwep)) with(nearwep){
+				x += c.x - other.x;
+				y += c.y - other.y;
+				visible = true;
+			}
+			x = c.x;
+			y = c.y;
+			//image_angle = c.image_angle;
+			//image_xscale = c.image_xscale;
+			//image_yscale = c.image_yscale;
+		}
+		else instance_destroy();
+	}
+	
+#define Prompt_cleanup
+	with(nearwep) instance_delete(id);
+
+#define prompt_create(_text)
+	/*
+		Creates an E key prompt with the given text that targets the current instance
+	*/
+	
+	with(obj_create(x, y, "Prompt")){
+		text    = _text;
+		creator = other;
+		depth   = other.depth;
+		
+		return id;
+	}
+	
+	return noone;
+
+#define prompt_collision
+	 // Prompt Collision:
+	var _inst = instances_matching(CustomObject, "name", "Prompt");
+	with(_inst) pick = -1;
+	_inst = instances_matching(_inst, "visible", true);
+	if(array_length(_inst) > 0){
+		with(Player) if(visible || variable_instance_get(id, "wading", 0) > 0){
+			if(place_meeting(x, y, CustomObject) && !place_meeting(x, y, IceFlower) && !place_meeting(x, y, CarVenusFixed)){
+				var _noVan = true;
+				
+				 // Van Check:
+				if(place_meeting(x, y, Van)){
+					with(instances_meeting(x, y, instances_matching(Van, "drawspr", sprVanOpenIdle))){
+						if(place_meeting(x, y, other)){
+							_noVan = false;
+							break;
+						}
+					}
+				}
+				
+				if(_noVan){
+					// Find Nearest Touching Indicator:
+					var	_nearest  = noone,
+						_maxDis   = null,
+						_maxDepth = null;
+						
+					if(instance_exists(nearwep)){
+						_maxDis   = point_distance(x, y, nearwep.x, nearwep.y);
+						_maxDepth = nearwep.depth;
+					}
+					
+					with(instances_meeting(x, y, _inst)){
+						if(place_meeting(x, y, other) && (!instance_exists(creator) || creator.visible || variable_instance_get(creator, "wading", 0) > 0)){
+							var e = on_meet;
+							if(!is_array(e) || mod_script_call(e[0], e[1], e[2])){
+								if(_maxDepth == null || depth < _maxDepth){
+									_maxDepth = depth;
+									_maxDis   = null;
+								}
+								if(depth == _maxDepth){
+									var _dis = point_distance(x, y, other.x, other.y);
+									if(_maxDis == null || _dis < _maxDis){
+										_maxDis  = _dis;
+										_nearest = id;
+									}
+								}
+							}
+						}
+					}
+					
+					 // Secret IceFlower:
+					with(_nearest){
+						nearwep = instance_create(x + xoff, y + yoff, IceFlower);
+						with(nearwep){
+							name         = other.text;
+							x            = xstart;
+							y            = ystart;
+							xprevious    = x;
+							yprevious    = y;
+							visible      = false;
+							mask_index   = mskNone;
+							sprite_index = mskNone;
+							spr_idle     = mskNone;
+							spr_walk     = mskNone;
+							spr_hurt     = mskNone;
+							spr_dead     = mskNone;
+							spr_shadow   = -1;
+							snd_hurt     = -1;
+							snd_dead     = -1;
+							size         = 0;
+							team         = 0;
+							my_health    = 99999;
+							nexthurt     = current_frame + 99999;
+						}
+						with(other){
+							nearwep = other.nearwep;
+							if(button_pressed(index, "pick")){
+								other.pick = index;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	instance_destroy();
+	
   //				--- OTHER SCRIPTS ---			//
 #define orandom(_num) return irandom_range(-_num, _num);
 
@@ -318,6 +541,25 @@
 			}
 		}
 	}
+	
+	return _inst;
+
+#define instances_meeting(_x, _y, _obj)
+	/*
+		Returns all instances whose bounding boxes overlap the calling instance's bounding box at the given position
+		Much better performance than manually performing 'place_meeting(x, y, other)' on every instance
+	*/
+	
+	var	_tx = x,
+		_ty = y;
+		
+	x = _x;
+	y = _y;
+	
+	var _inst = instances_matching_ne(instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "bbox_right", bbox_left), "bbox_left", bbox_right), "bbox_bottom", bbox_top), "bbox_top", bbox_bottom), "id", id);
+	
+	x = _tx;
+	y = _ty;
 	
 	return _inst;
 
