@@ -21,6 +21,7 @@
     }
     
 	skill_clear(); // Remove all mutations
+	skill_set_active(mut_patience, 0);
 	GameCont.skillpoints += GameCont.mutindex + (skill_get("criticalmass") - 1); // Give you a buncha mutations! This actually gives you one more than normal, plus an additional one for how much skill_get(criticalmass) is over 1
 	GameCont.mutindex = 0;
 	mod_variable_set("mod", "metamorphosis", "criticalmass_diff", GameCont.hard);

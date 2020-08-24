@@ -89,25 +89,6 @@
 #define orandom(_num)
 	return irandom_range(-_num, _num);
 
-#define instances_meeting(_x, _y, _obj)
-	/*
-		Returns all instances whose bounding boxes overlap the calling instance's bounding box at the given position
-		Much better performance than manually performing 'place_meeting(x, y, other)' on every instance
-	*/
-	
-	var	_tx = x,
-		_ty = y;
-		
-	x = _x;
-	y = _y;
-	
-	var _inst = instances_matching_ne(instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "bbox_right", bbox_left), "bbox_left", bbox_right), "bbox_bottom", bbox_top), "bbox_top", bbox_bottom), "id", id);
-	
-	x = _tx;
-	y = _ty;
-	
-	return _inst;
-
 #define variable_instance_get_list(_inst)
     /*
         Returns all of a given instance's variable names and values as a LWO

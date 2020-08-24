@@ -33,10 +33,17 @@
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
     	
-    	 // Place down the mutation reselector
-    	if(global.criticalmass_diff > 0 and (GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
-    		var ffloor = instance_furthest(0, 0, Floor);
-    		obj_create(ffloor.x + 16, ffloor.y + 16, "MutRefresher");
+    	if(global.criticalmass_diff > 0) {
+    		if(!instance_exists(Player)) {
+    			global.criticalmass_diff = 0;
+    			skill_set_active(mut_patience, 1);
+    		}
+    		
+    		 // Place down the mutation reselector
+    		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
+    			var ffloor = instance_furthest(0, 0, Floor);
+    			obj_create(ffloor.x + 16, ffloor.y + 16, "MutRefresher");
+    		}
     	}
     	
     	 // place the shop area in the crown vault
@@ -90,7 +97,6 @@
     		strengthtimer = 210 * skill_get("strengthindeath");
     	}
     }
-    
 
 #define draw
 	if(skill_get("musclememory") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
@@ -321,6 +327,7 @@
 	}
 	
 #define MutRefresher_step
+	if(instance_exists(Nothing) or instance_exists(Nothing2)) instance_delete(self);
 	x = xstart;
 	y = ystart;
 	my_health = maxhealth;

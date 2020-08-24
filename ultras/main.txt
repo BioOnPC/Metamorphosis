@@ -7,6 +7,9 @@
 // EYES
 /loadskill arsenalstyle
 
+// PLANT
+/loadskill predator
+
 // YV
 /loadskill VOTE/vote1
 /loadskill VOTE/vote2
@@ -16,6 +19,12 @@
 /loadskill VOTE/vote6
 /loadskill vote2bcool
 
+// STEROIDS
+/loadskill hugegains
+
+// ROBOT
+/loadskill technician
+
 // CHICKEN
 /loadskill strengthindeath
 
@@ -24,5 +33,8 @@
 
 // HORROR
 /loadskill criticalmass
+
+// ROGUE
+/loadskill superresourceful
 
 /loadmod cultra

@@ -127,7 +127,7 @@
 				 // Guardians:
 				case sprExploGuardianBullet:	s = sprScorpionBulletHit;					break;
 				case sprGuardianBulletSpawn:
-				case sprGuardianBullet:			s = global.sprGuardianBullet;				break;
+				case sprGuardianBullet:			s = global.sprGuardianBulletDelete;				break;
 				case sprBigGuardianBulletSpawn:
 				case sprBigGuardianBullet:		
 				case sprThrone2Bullet:			s = global.sprBigGuardianBulletDelete;		break;

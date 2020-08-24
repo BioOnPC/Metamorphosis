@@ -30,6 +30,7 @@
 						if(!instance_exists(self) or !instance_exists(other)) exit; // Make sure no errors occur because something disappeared
 						repeat(3 * skill_get("arsenalstyle")) { // Repeat three times
 							with(other) { // cheeky way to avoid problems with firing from something other than the player 
+								if(!instance_exists(self)) exit; // Make sure no errors occur because something disappeared
 								 // Decide firing direction
 								if(!instance_exists(nenemy)) aim_dir = point_direction(other.x, other.y, mouse_x[index], mouse_y[index]);
 								else aim_dir = point_direction(other.x, other.y, nenemy.x, nenemy.y);
