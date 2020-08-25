@@ -17,18 +17,20 @@
 			other.my_health = 1; // Make sure the player is still alive
 			
 			 // FOR NEW MODDERS: COMPLETELY FUCK OFF FROM THIS FILE. it is accursed and you will gain nothing but a headache from trying to glean how it works
-			for(findres = 1; findres <= mutindex; findres++) {
-				if(skill_get_at(findres) = "resurrection") { 
-					var last_mut = 0;
-					for(findlast = findres; findlast >= 0; findlast--) {
-						if((!mod_exists("skill", string(skill_get_at(findlast))) or !mod_script_exists("skill", string(skill_get_at(findlast)), "skill_ultra")) and !last_mut) {
-							skill_set(skill_get_at(findlast), 0);
-							last_mut = 1;
+			if(level < 10) { 
+				for(findres = 1; findres <= mutindex; findres++) {
+					if(skill_get_at(findres) = "resurrection") { 
+						var last_mut = 0;
+						for(findlast = findres; findlast >= 0; findlast--) {
+							if((!mod_exists("skill", string(skill_get_at(findlast))) or !mod_script_exists("skill", string(skill_get_at(findlast)), "skill_ultra")) and !last_mut) {
+								skill_set(skill_get_at(findlast), 0);
+								last_mut = 1;
+							}
 						}
 					}
 				}
+				mutindex--;
 			}
-			mutindex--;
 			level--; // Decrease level
 			if(rad > (level * 30)) rad = level * 30; // Reduce rads appropriately
 			
