@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 
 #define skill_name    return "ATOMIC PORES";
-#define skill_text    return "@wENEMIES@s DROP MORE @gRADS";
+#define skill_text    return "@wENEMIES@s DROP MORE @gRADS#HIGHER @gRAD CAPACITY";
 #define skill_tip     return "PUS FILLED";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -12,6 +12,11 @@
     with(instances_matching(enemy, "atomicrads", null)) { // Find all unaffected enemies
         atomicrads = 1;
         raddrop += ceil(raddrop * (0.10 * skill_get("atomicpores"))); // Increase rads
+    }
+    
+    with(instances_matching(GameCont, "atomicrads", null)) { // Check to see if the rad capacity was increased
+    	atomicrads = 1;
+    	radmaxextra += 200;
     }
     
      // VFX

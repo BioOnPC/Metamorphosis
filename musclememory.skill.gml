@@ -14,7 +14,7 @@
 	    	if(!variable_instance_exists(self, "musclememory")) musclememory = 0;
 	    	
 	    	var nplayer = instance_nearest(x, y, Player);
-	    	if(object_index != Flame and object_index != TrapFire and team != nplayer.team) {
+	    	if(!(nplayer.race = "frog" and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
 		    	if(point_distance(x, y, nplayer.x, nplayer.y) < (12 + (sprite_get_width(mask_index) * 0.5)) && musclememory = 0) {
 		    		musclememory = 1;
 		    		

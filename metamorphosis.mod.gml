@@ -102,7 +102,7 @@
 	if(skill_get("musclememory") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
 		with(instances_matching_ne(projectile, "musclememory", null)) {
 			var nplayer = instance_nearest(x, y, Player);
-			if(team != nplayer.team) {
+			if(!(nplayer.race = "frog" and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
 				draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, c_red, 1 - point_distance(x, y, nplayer.x, nplayer.y)/32);
 			}
 		}

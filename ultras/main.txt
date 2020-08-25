@@ -7,6 +7,9 @@
 // EYES
 /loadskill arsenalstyle
 
+// MELTING
+/loadskill viscosity
+
 // PLANT
 /loadskill predator
 
@@ -36,5 +39,11 @@
 
 // ROGUE
 /loadskill superresourceful
+
+// SKELETON
+/loadskill resurrection
+
+// FROG
+/loadskill familiarity
 
 /loadmod cultra
