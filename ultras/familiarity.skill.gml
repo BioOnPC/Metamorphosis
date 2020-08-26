@@ -12,8 +12,6 @@
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 
 #define step
-	
-
 	with(instances_matching(Player, "race", "frog")) {
 		with(instances_matching_le(instances_matching(FrogQueenBall, "team", team), "speed", 0)) {
 			instance_destroy();
@@ -32,6 +30,7 @@
 					instance_create(x, y, AcidStreak).image_angle = ang;
 					ang += 120;
 				}
+				view_shake_at(x, y, 10);
 			}
 			
 			
@@ -42,9 +41,11 @@
 					creator = other;
 					friction = 0.05;
 				}
+				view_shake_at(x, y, frogcharge);
+				sleep(5 * frogcharge);
 				
 				sound_play_pitch(sndBallMamaFire, 0.7);
-				sound_play_pitch(sndFrogPistol, 0.6);
+				sound_play_pitch(sndNukeFire, 1.6 - (frogcharge/100));
 			}
 		}
 	}

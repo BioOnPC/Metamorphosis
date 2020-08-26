@@ -35,6 +35,8 @@
 			if(rad > (level * 30)) rad = level * 30; // Reduce rads appropriately
 			
 			 // EFFECTS
+			sleep(300);
+			view_shake_at(x, y, 30);
 			instance_create(other.x, other.y, TangleKill);
 			sound_play_pitch(sndHorrorPortal, 0.4);
 			sound_play(sndUncurse);

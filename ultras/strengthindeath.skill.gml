@@ -16,7 +16,10 @@
 		if(!variable_instance_exists(self, "strengthtimer")) strengthtimer = 0;
 		
 		 // For when u are headless
-		if(my_health = 0) strengthtimer = 30;
+		if(my_health = 0) {
+			if(strengthtimer = 0) sleep(100);
+			strengthtimer = 30;
+		}
 		
 		 // While strength is active...
 		if(strengthtimer > 0) {

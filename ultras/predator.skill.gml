@@ -17,6 +17,8 @@
 		with(Tangle) {
 			with(instances_meeting(x, y, enemy)) {
 				var tangledmg = 2;
+				sleep(3);
+				view_shake_at(x, y, 4);
 				if(my_health - tangledmg > 0) {
 					projectile_hit_raw(id, tangledmg, 1);
 					sound_play_pitch(sndPlantSnare, 1.8);

@@ -19,6 +19,7 @@
 				sound_play_pitch(sndBloodGamble, 1.4 + (instance_number(Ally)/10));
 				sound_play_pitch(sndBloodHurt, 1 + (instance_number(Ally)/10));
 				with(Ally) {
+					sleep(5);
 					instance_create(x, y, BloodGamble).depth = other.depth - 1;
 					projectile_hit_raw(self, instance_number(Ally), snd_hurt);
 				}
