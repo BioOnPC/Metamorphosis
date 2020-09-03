@@ -10,7 +10,7 @@
 	global.level_start = (instance_exists(GenCont) || instance_exists(Menu));
 
 #define skill_name    return "INSURGENCY";
-#define skill_text    return "@wSOME ENEMIES@s ARE REPLACED BY @wBANDITS#SOME @wBANDITS@s ARE ON YOUR SIDE";
+#define skill_text    return "@wWEAKER ENEMIES@s ARE REPLACED BY @wBANDITS#SOME @wBANDITS@s ARE ON YOUR SIDE";
 #define skill_tip     return "SWAY THE MASSES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -50,7 +50,7 @@
 		}
 		
 		with(Bandit) {
-			if(random(15 * (1/(skill_get("insurgency")))) < 1) {
+			if(random(25 * (1/(skill_get("insurgency")))) < 1) {
 				 // Spawn a friend
 				with(instance_create(x, y, Ally)) {
 					spr_idle = global.sprFlagAllyIdle;

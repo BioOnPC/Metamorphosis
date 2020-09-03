@@ -46,11 +46,12 @@
 
 #define player_tech_fire(_reload, _wep, _b)
 	if(weapon_get_area(_wep) < 9) {
-		if(!weapon_get_auto(_wep)) {
+		if(weapon_get_auto(_wep) = 0) {
 			while(((_b and breload <= 0) or reload <= 0) && (ammo[weapon_get_type(_wep)] >= weapon_get_cost(_wep) || infammo != 0)){
 				player_fire_ext(point_direction(x, y, mouse_x[index], mouse_y[index]), _wep, x, y, team, id);
 				if(infammo = 0) ammo[weapon_get_type(_wep)] -= weapon_get_cost(_wep);
-				if(_b) breload += weapon_get_load(_wep); else reload += weapon_get_load(_wep);
+				 // fuck you jsburg for making me make this use max() why the fuck did you make a gun with 0 reload you fucking idiot
+				if(_b) breload += max(1, weapon_get_load(_wep)); else reload += max(1, weapon_get_load(_wep));
 			}
 		}
 	}

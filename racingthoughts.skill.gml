@@ -23,7 +23,7 @@
                 	}
                 	
                 	else { // Not steroids
-                		breload = max(breload - floor(loadreduce/4), -floor(weapon_get_load(wep)/4));
+                		breload = max(breload - floor(loadreduce/4), -floor(weapon_get_load(bwep)/4));
                 	}
                 }
             }

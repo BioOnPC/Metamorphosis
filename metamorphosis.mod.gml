@@ -11,9 +11,15 @@
 	global.sprMerchantFloor     = sprite_add("sprites/Shop/sprMerchantFloor.png",  4,  0,  0);
 	global.sprMerchantCarpet    = sprite_add("sprites/Shop/sprMerchantCarpet.png",  1,  83,  34);
 	
+	 // SHOPKEEP //
+	global.sprMerchantIdle     = sprite_add("sprites/Shop/sprMerchantIdle.png", 15, 32, 32);
+	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
+	
 	global.criticalmass_diff    = 0;
 	
 #macro mod_current_type script_ref_create(0)[0]
+#macro bbox_center_x (bbox_left + bbox_right + 1) / 2
+#macro bbox_center_y (bbox_top + bbox_bottom + 1) / 2
 #macro infinity 1/0
 
  // Custom Instance Macros:
@@ -27,8 +33,16 @@
         }
     }
     
+    with(instances_matching_gt(GameCont, "loops", 1)) {
+		if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
+			lstloop = loops;
+			skillpoints++;
+			sound_play(sndLevelUp);
+		}
+    }
+    
      // Some funky stuff to make sure the prompt acts on step. props to yokin for helping a ton and also letting me steal NTTE code
-    if(array_length(instances_matching(CustomProp, "name", "MutRefresher")) > 0) script_bind_step(prompt_collision, 0);
+    if(array_length(instances_matching(CustomObject, "name", "Prompt")) > 0) script_bind_step(prompt_collision, 0);
     
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
@@ -42,18 +56,18 @@
     		 // Place down the mutation reselector
     		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
     			var ffloor = instance_furthest(0, 0, Floor);
-    			obj_create(ffloor.x + 16, ffloor.y + 16, "MutRefresher");
+    			obj_create(ffloor.bbox_center_x, ffloor.bbox_center_y, "MutRefresher");
     		}
     	}
     	
     	 // place the shop area in the crown vault
     	with(CrownPed) {
     		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
-    		var ffloor = instance_furthest(x, y, Floor),
+    		var ffloor = instance_furthest(10016, 10016, Floor),
     			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
 			
 			 // Place down floors.
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir), 5, 5);
+			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 64, ffloor.y + lengthdir_y(128, shop_dir) - 64, 5, 5);
 			instance_create(ffloor.x + lengthdir_x(32, shop_dir), ffloor.y + lengthdir_y(32, shop_dir), Floor);
 			
 			 // Make the cool carpet!
@@ -63,7 +77,7 @@
 				wait 3; // Wait to make sure that everything generates
 				
 				with(Floor) { // Resprite floors
-					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 96) {
+					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 128) {
 						sprite_index = global.sprMerchantFloor;
 					}
 				}
@@ -90,6 +104,10 @@
 						instance_delete(self);
 					}
 				}
+				
+				 // Spawn da boys
+				obj_create(ffloor.x + lengthdir_x(128, shop_dir) - 4, ffloor.y + lengthdir_y(128, shop_dir), "Shopkeep");
+				obj_create(ffloor.x + lengthdir_x(128, shop_dir) + 36, ffloor.y + lengthdir_y(128, shop_dir), "Mutator");
 			}
     	}
     	
@@ -144,7 +162,35 @@
 				
 			}
 			break;
-			
+		
+		case "Mutator":
+			o = instance_create(_x, _y, CustomProp);
+			with(o){
+				 // Visual:
+				spr_idle = sprProtoStatueIdle;
+				spr_hurt = sprProtoStatueHurt;
+				spr_dead = sprProtoStatueDoneDie;
+				spr_shadow = shd64B;
+				spr_shadow_y = 6;
+				
+				 // Sounds:
+				snd_hurt = sndStatueHurt;
+				snd_dead = sndStatueDead;
+				
+				 // Vars:
+				mask_index = mskBanditBoss;
+				maxhealth  = 60;
+				my_health  = maxhealth;
+				size       = 2;
+				
+				prompt = prompt_create("@gMODIFY");
+				with(prompt){
+					mask_index = mskReviveArea;
+					yoff = -4;
+				}
+			}
+			break;
+		
 		case "MutRefresher":
 			o = instance_create(_x, _y, CustomProp);
 			with(o){
@@ -187,8 +233,29 @@
 			}
 			break;
 		
+		case "Shopkeep":
+			o = instance_create(_x, _y, CustomProp);
+			with(o){
+				 // Visual:
+				spr_idle = global.sprMerchantIdle;
+				spr_hurt = sprBonePileHurt;
+				spr_dead = sprBonePileDead;
+				spr_shadow = shd24;
+				
+				 // Sounds:
+				snd_hurt = sndHitRock;
+				snd_dead = sndPillarBreak;
+				
+				 // Vars:
+				mask_index = mskBandit;
+				maxhealth  = 20;
+				my_health  = maxhealth;
+				size       = 1;
+			}
+			break;
+		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "Prompt"];
+			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "Prompt", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -325,7 +392,51 @@
 			}
 		}
 	}
+
+#define Mutator_step
+	x = xstart;
+	y = ystart;
 	
+	if(sprite_index = sprProtoStatueDone and image_index >= sprite_get_number(sprite_index) - 1) {
+		spr_idle = sprProtoStatueDoneIdle;
+	}
+	
+	if(instance_exists(prompt) && player_is_active(prompt.pick)){
+		with(prompt.pick) {
+			if(my_health >= 3) {
+				with(other) {
+					spr_idle = sprProtoStatueDone;
+					image_index = 0;
+					spr_hurt = sprProtoStatueDoneHurt;
+					with(prompt) instance_destroy();
+				}
+				
+				with(GameCont) {
+					skillpoints++;
+				}
+				
+				projectile_hit_raw(self, 2, 3);
+				maxhealth -= 2;
+				
+				 // EFFECTS
+				instance_create(x, y, LevelUp);
+				
+				sound_play(sndLevelUp);
+				sound_play_pitch(sndUncurse, 1.4);
+				sound_play_pitch(sndBloodLauncherExplo, 0.7);
+				
+				with(instances_matching(CustomProp, "name", "Shopkeep")) {
+					spr_idle = global.sprMerchantPuff;
+					image_index = 0;
+				}
+			}
+			
+			else {
+				sound_play(sndCursedReminder);
+			}
+		}
+	}
+
 #define MutRefresher_step
 	if(instance_exists(Nothing) or instance_exists(Nothing2)) instance_delete(self);
 	x = xstart;
@@ -388,6 +499,11 @@
 	
 #define Prompt_cleanup
 	with(nearwep) instance_delete(id);
+
+#define Shopkeep_step
+	if(sprite_index = global.sprMerchantPuff and image_index >= sprite_get_number(sprite_index) - 1) {
+		spr_idle = global.sprMerchantIdle;
+	}
 
 #define prompt_create(_text)
 	/*
@@ -571,11 +687,11 @@
 	return _inst;
 
 #define floor_fill(_x, _y, w, h)
-	for(ix = -floor(w/2); ix < ceil(w/2); ix++) {
-		for(iy = -floor(h/2); iy < ceil(h/2); iy++) {
-			instance_create(grid_lock(_x, 32) + (ix * 32) + 16, grid_lock(_y, 32) + (iy * 32) + 16, Floor);
+	for(ix = 0; ix < abs(w); ix++) {
+		for(iy = 0; iy < abs(h); iy++) {
+			instance_create(grid_lock(_x, 32) + (ix * (32 * sign(w))) + 16, grid_lock(_y, 32) + (iy * (32 * sign(h))) + 16, Floor);
 		}
 	}
 
 #define grid_lock(value, grid)
-	return round(value/grid) * grid; // Returns the given value locked to the given grid size
+	return floor(value/grid) * grid; // Returns the given value locked to the given grid size
