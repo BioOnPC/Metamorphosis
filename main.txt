@@ -5,8 +5,10 @@
 /loadskill pyromania
 /loadskill magfingers
 /loadskill selectivefocus
-/loadskill musclememory
+/loadskill grace
 /loadskill crystallinegrowths
 /loadskill camoflauge
 /loadskill dividedelbows
+/loadskill turtleshell
+/loadskill leadeyelids
 /load ultras

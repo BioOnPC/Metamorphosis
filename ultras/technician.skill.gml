@@ -7,13 +7,13 @@
 #define skill_tip     return "HARDWARE UPGRADE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-//#define skill_take    sound_play(sndMutTriggerFingers);
+#define skill_take    sound_play(sndBasicUltra);
 #define skill_ultra   return "robot";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 
 #define step
 	with(Player) {
-		if(button_check(index, "fire")) {
+		if(button_check(index, "fire") and can_shoot) {
 			if(fork()) {
 				wait(0);
 				if(instance_exists(self)) player_tech_fire(reload, wep, 0);
@@ -24,7 +24,7 @@
 		if(weapon_get_area(wep) < 9 and reload > 0) reload -= reloadspeed * 2;
 		
 		if(race = "steroids") {
-			if(canspec and button_check(index, "spec")) {
+			if(canspec and bcan_shoot and button_check(index, "spec")) {
 				if(fork()) {
 					wait(0);
 					if(instance_exists(self)) player_tech_fire(breload, bwep, 1);

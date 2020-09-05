@@ -8,7 +8,7 @@
 #define skill_tip     return "HELL WORLD";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-//#define skill_take    sound_play(sndMutTriggerFingers);
+#define skill_take    sound_play(sndMut);
 #define step
 	with(Corpse) {
 		 // Initialize variable, just make sure the game knows it exists

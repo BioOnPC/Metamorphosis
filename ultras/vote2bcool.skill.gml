@@ -7,10 +7,11 @@
 #define skill_tip     return "U DA BEST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-//#define skill_take    sound_play(sndMutTriggerFingers);
 #define skill_ultra   return "venuz";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 #define skill_take
+	sound_play(sndBasicUltra);
+
 	 // Increase important GameCont variables to account for a new selection of mutations
 	GameCont.skillpoints++;
 	GameCont.endpoints++;

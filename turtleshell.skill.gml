@@ -1,0 +1,26 @@
+#define init
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+
+#define skill_name    return "TURTLE SHELL";
+#define skill_text    return "-1 DAMAGE TAKEN";
+#define skill_tip     return "DON'T GET FLIPPED OVER";
+#define skill_icon    return global.sprSkillHUD;
+#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_take    sound_play(sndMut);
+#define step
+    with(enemy) {
+    	if(variable_instance_exists(self, "meleedamage") and meleedamage > 1 and 
+    	 ((variable_instance_exists(self, "turtledamage") and turtledamage != meleedamage) or !variable_instance_exists(self, "turtledamage"))) {
+    		meleedamage--;
+    		turtledamage = meleedamage;
+    	}
+    }
+    
+    with(projectile) {
+    	if(variable_instance_exists(self, "damage") and damage > 1 and 
+    	 ((variable_instance_exists(self, "turtledamage") and turtledamage != damage) or !variable_instance_exists(self, "turtledamage"))) {
+    		damage--;
+    		turtledamage = damage;
+    	}
+    }

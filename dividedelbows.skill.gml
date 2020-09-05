@@ -7,7 +7,7 @@
 #define skill_tip     return "GET OUTTA HERE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-//#define skill_take    sound_play(sndMutTriggerFingers);
+#define skill_take    sound_play(sndMut);
 #define step
     with(projectile) {
     	if(!variable_instance_exists(self, "lstteam")) lstteam = team;

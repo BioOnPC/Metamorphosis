@@ -56,7 +56,7 @@
     		 // Place down the mutation reselector
     		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
     			var ffloor = instance_furthest(0, 0, Floor);
-    			obj_create(ffloor.bbox_center_x, ffloor.bbox_center_y, "MutRefresher");
+    			with(ffloor) obj_create(bbox_center_x, bbox_center_y, "MutRefresher");
     		}
     	}
     	
@@ -117,13 +117,44 @@
     }
 
 #define draw
-	if(skill_get("musclememory") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
-		with(instances_matching_ne(projectile, "musclememory", null)) {
+	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
+		with(instances_matching_ne(projectile, "grace", null)) {
 			var nplayer = instance_nearest(x, y, Player);
 			if(!(nplayer.race = "frog" and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
 				draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, c_red, 1 - point_distance(x, y, nplayer.x, nplayer.y)/32);
 			}
 		}
+	}
+	
+	with(instances_matching_gt(instances_matching_ne(enemy, "leadsleep", null), "leadsleep", 0)) {
+		draw_set_font(fntL);
+		draw_set_halign(fa_center);
+		if(leadsleep <= room_speed) draw_set_alpha(leadsleep mod (4 * leadsleep));
+		
+		 // TOP
+		draw_set_color(c_black);
+		draw_text_transformed(x + 6, y - 8 + 1 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 20) * 0.1) * 10);
+		
+		draw_set_color(c_white);
+		draw_text_transformed(x + 6, y - 8 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 20) * 0.1) * 10);
+		
+		 // MID
+		draw_set_color(c_black);
+		draw_text_transformed(x, y - 4 + 1 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 10) * 0.1) * 10);
+		
+		draw_set_color(c_white);
+		draw_text_transformed(x, y - 4 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 10) * 0.1) * 10);
+		
+		 // BOTTOM
+		draw_set_color(c_black);
+		draw_text_transformed(x - 6, y + 1 - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), "z", 0.5, 0.5, sin(leadsleep * 0.1) * 10);
+		
+		draw_set_color(c_white);
+		draw_text_transformed(x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), "z", 0.5, 0.5, sin(leadsleep * 0.1) * 10);
+		
+		draw_set_halign(fa_left);
+		draw_set_alpha(1);
+		draw_set_font(fntM)
 	}
 	
 	
@@ -196,7 +227,7 @@
 			with(o){
 				 // Visual:
 				spr_idle = sprHorrorMenu;
-				spr_hurt = sprHorrorMenu;
+				spr_hurt = sprMutant11Dead;
 				
 				 // Sounds:
 				snd_hurt = sndGuardianHurt;
@@ -449,7 +480,6 @@
 
 #define MutRefresher_death
 	sound_play(sndStatueCharge);
-	instance_create(x, y, Portal).type = 2; // Spawn a proto portal
 	
 	 // The following is a bunch of stupid bullshit to make sure you don't lose your custom ultras
 	var _mod = mod_get_names("skill"),
@@ -464,6 +494,9 @@
 	skill_clear();
 	GameCont.skillpoints += GameCont.mutindex;
 	GameCont.mutindex = 0;
+	for(i = 0; i < array_length(GameCont.mutseed) i++) {
+		GameCont.mutseed[i] = random_get_seed();
+	}
     
     if(fork()) { // Basically, make sure the game has enough time to process between skill_clear and skill_set that the skills actually get set
 		wait(0);

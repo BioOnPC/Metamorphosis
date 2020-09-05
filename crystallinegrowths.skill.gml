@@ -10,7 +10,7 @@
 #define skill_tip     return "IT NEVER STOPS";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-
+#define skill_take    sound_play(sndMut);
 #define step
 	script_bind_end_step(end_step, 0);
 

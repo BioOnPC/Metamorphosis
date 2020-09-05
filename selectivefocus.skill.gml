@@ -25,10 +25,8 @@
 #define skill_text    return "@wKILLING ENEMIES @sDESTROYS @rBULLETS#@sFEWER ENEMY BULLETS";
 #define skill_tip     return choose("NO MORE DISTRACIONS", "THE TASK AT HAND", "OUT OF SIGHT OUT OF MIND");
 #define skill_icon    return global.sprSkillHUD;
-
-#define skill_button  
-	sprite_index = global.sprSkillIcon;
-	
+#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_take    sound_play(sndMut);
 #define step
 	script_bind_end_step(end_step, 0);
 	
