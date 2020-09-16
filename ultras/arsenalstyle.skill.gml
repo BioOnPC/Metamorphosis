@@ -45,10 +45,8 @@
 								x = other.x;
 								y = other.y;
 								
-								trace(reload);
 								player_fire(aim_dir);
 								reload = max(cur_load, 0);
-								trace(reload);
 								ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
 								
 								var kick = wkick - cur_kick;
