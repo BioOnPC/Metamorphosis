@@ -4,7 +4,7 @@
 	global.sprReroute   = sprite_add("../../sprites/VFX/sprReroute.png",  														 1,  0,  0);
 
 #define skill_name    return "TECH CONGLOMERATE";
-#define skill_text    return "HOLDING @wENERGY WEAPONS@s#REROUTES @yAMMO GAIN#@wAUTO-POP POP ENERGY WEAPONS";
+#define skill_text    return "HOLDING @wENERGY WEAPONS@s#REROUTES @yAMMO GAIN";
 #define skill_tip     return "BILLIONAIRES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

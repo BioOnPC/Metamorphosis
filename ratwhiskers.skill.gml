@@ -20,13 +20,22 @@
     	 // fun fact! you can just put whatever the fuck you want in here
     	whiskerpickup = ":)";
     	var pickupchoose = [];
-    	pickupchoose[0] = "BonusAmmoPickup";
-    	pickupchoose[1] = "BonusHealthPickup";
-    	//if(random(5) < 1 and array_find_index(obj_create(x, y, ""), "HammerHeadPickup")) array_push(pickupchoose, "HammerHeadPickup");
-    	//if(random(10) < 1 and array_find_index(obj_create(x, y, ""), "OrchidBall")) array_push(pickupchoose, "OrchidBall");
-    	if(random(20) < 1) array_push(pickupchoose, "SpiritPickup");
     	
-    	if(random(6) < skill_get("ratwhiskers")) {
+    	 // this just makes sure whether or not it should be using the old or the new name
+    	if(mod_exists("mod", "temenu"))					   array_push(pickupchoose, "BonusAmmoPickup"  );
+    	else											   array_push(pickupchoose, "OverstockPickup"  );
+    	 // ditto
+    	if(mod_exists("mod", "temenu"))					   array_push(pickupchoose, "BonusHealthPickup");
+    	else											   array_push(pickupchoose, "OverhealPickup"   );
+    	
+    	 // add the hammerhead pickup, if available
+    	if(random(5) < 1 and mod_exists("mod", "temenu"))  array_push(pickupchoose, "HammerHeadPickup" );
+    	 // even more secret, if available
+    	if(random(10) < 1 and mod_exists("mod", "temenu")) array_push(pickupchoose, "OrchidBall"       );
+    	 // add the strong spirit pickup, if available
+    	if(random(20) < 1)								   array_push(pickupchoose, "SpiritPickup"	 );
+    	
+    	if(random(12) < skill_get("ratwhiskers")) {
     		obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
     	}
     }

@@ -626,14 +626,12 @@
 	}
 	
 	instance_destroy();
-	
-#define draw_dark_begin
-	draw_clear($dddddd);
 
 #define draw_dark
 	draw_set_color($808080);
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
+	
 
 #define draw_dark_end
 	draw_set_color($000000);

@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
 #define skill_name    return "POLICE STATE";
-#define skill_text    return "EXPLOSIONS DELETE BULLETS#@wAUTO-POP POP EXPLOSIVE WEAPONS";
+#define skill_text    return "@wEXPLOSIONS@s DELETE @wBULLETS";
 #define skill_tip     return "AUTHORITARIAN";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

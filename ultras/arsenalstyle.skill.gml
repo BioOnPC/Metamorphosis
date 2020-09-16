@@ -18,7 +18,7 @@
 				var nenemy = instance_near(x, y, enemy, 128), 
 					aim_dir = 0;
 					
-				if(instance_seen(x, y, nenemy)) {
+				if(!weapon_is_melee(wep) and instance_seen(x, y, nenemy)) {
 					 // Make sure this only happens once and makes it so weppickups that fire expend their ammo
 					ammo = 0;
 					
@@ -31,6 +31,7 @@
 							if(!instance_exists(self) or !instance_exists(other)) exit; // Make sure no errors occur because something disappeared
 							var repeatshot = ceil(typ_ammo[weapon_get_type(other.wep)] * (2 * skill_get("arsenalstyle"))/weapon_get_cost(other.wep)); // find out how many times to fire (2 ammo pack's worth of ammo)
 							if(repeatshot > 0) repeat(repeatshot) { // Repeat three times
+								if(!instance_exists(self) or !instance_exists(other)) exit; // Make sure no errors occur because something disappeared
 								 // Decide firing direction
 								if(!instance_exists(nenemy)) aim_dir = point_direction(other.x, other.y, mouse_x[index], mouse_y[index]);
 								else aim_dir = point_direction(other.x, other.y, nenemy.x, nenemy.y);

@@ -21,7 +21,7 @@
 			}
 		}
 		
-		if(weapon_get_area(wep) < 9 and reload > reloadspeed) reload -= reloadspeed * 2;
+		if(weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0 and reload > reloadspeed) reload -= reloadspeed * 2;
 		
 		if(race = "steroids") {
 			if(canspec and bcan_shoot and button_check(index, "spec")) {
@@ -34,7 +34,7 @@
 				}
 			}
 			
-			if(weapon_get_area(bwep) < 9 and breload > 0) breload -= reloadspeed * 2;
+			if(weapon_get_area(bwep) < 9 and weapon_get_area(bwep) >= 0 and breload > 0) breload -= reloadspeed * 2;
 		}
 	}
 	

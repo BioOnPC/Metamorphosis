@@ -12,9 +12,11 @@
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 
 #define step
+	script_bind_draw(revolution_draw, 0);
+
 	with(instances_matching(Ally, "revolutionarywep", null)) {
 		var wep_choose = ds_list_create();
-		weapon_get_list(wep_choose, 0, 7);
+		weapon_get_list(wep_choose, 0, 5);
 		
 		while("revolutionarywep" not in self or 
 			  revolutionarywep = -1 or 
@@ -27,7 +29,7 @@
 		}
 		
 		ds_list_destroy(wep_choose);
-		gunspr = weapon_get_sprt(revolutionarywep);
+		gunspr = mskNone;
 		
 		maxhealth = round(maxhealth * 0.75);
 		if(my_health >= maxhealth) my_health = maxhealth;
@@ -71,3 +73,10 @@
 			}
 		}
 	}
+
+#define revolution_draw
+	with(instances_matching_ne(Ally, "revolutionarywep", null)) {
+		draw_sprite_ext(weapon_get_sprite(revolutionarywep), 0, x - lengthdir_x(wkick, gunangle), y - lengthdir_y(wkick, gunangle), image_xscale, image_yscale, gunangle, image_blend, image_alpha);
+	}
+	
+	instance_destroy();

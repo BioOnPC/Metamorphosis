@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
 #define skill_name    return "GRASSROOTS ACTIVISM";
-#define skill_text    return "@wSHELLS@s DUPLICATE ON#THE FIRST BOUNCE#@wAUTO-POP POP SHELL WEAPONS";
+#define skill_text    return "@wSHELLS@s DUPLICATE ON#THE FIRST BOUNCE";
 #define skill_tip     return "RESIST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
