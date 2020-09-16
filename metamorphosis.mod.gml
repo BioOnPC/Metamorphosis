@@ -2,6 +2,7 @@
 #define init
 	 // MUTATION EFFECTS //
 	global.sprMedpack = sprite_add("sprites/VFX/sprFatHP.png",  7,  6,  6);
+	global.sprSleep   = sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
 	
 	 // SHOP SPRITES //
 	global.sprWallMerchantBot   = sprite_add("sprites/Shop/sprWallMerchantBot.png",  6,  0,  0);
@@ -41,27 +42,31 @@
 		}
     }
     
+    if(global.criticalmass_diff > 0) {
+    	if(!instance_exists(Player)) {
+			global.criticalmass_diff = 0;
+			skill_set_active(mut_patience, 1);
+	    }
+	}
+    
      // Some funky stuff to make sure the prompt acts on step. props to yokin for helping a ton and also letting me steal NTTE code
     if(array_length(instances_matching(CustomObject, "name", "Prompt")) > 0) script_bind_step(prompt_collision, 0);
     
      // LEVEL GEN BULLSHIT
-    if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
+    if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= room_speed) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
     	
     	if(global.criticalmass_diff > 0) {
-    		if(!instance_exists(Player)) {
-    			global.criticalmass_diff = 0;
-    			skill_set_active(mut_patience, 1);
-    		}
-    		
     		 // Place down the mutation reselector
-    		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0) {
+    		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0 and array_length(instances_matching(CustomProp, "name", "MutRefresher")) <= 0) {
     			var ffloor = instance_furthest(0, 0, Floor);
     			with(ffloor) obj_create(bbox_center_x, bbox_center_y, "MutRefresher");
     		}
     	}
     	
     	 // place the shop area in the crown vault
-    	with(CrownPed) {
+    	with(instances_matching(CrownPed, "shopping", null)) {
+    		shopping = "i be";
+    		
     		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
     		var ffloor = instance_furthest(10016, 10016, Floor),
     			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
@@ -126,35 +131,19 @@
 		}
 	}
 	
-	with(instances_matching_gt(instances_matching_ne(enemy, "leadsleep", null), "leadsleep", 0)) {
-		draw_set_font(fntL);
-		draw_set_halign(fa_center);
-		if(leadsleep <= room_speed) draw_set_alpha(leadsleep mod (4 * leadsleep));
+	with(instance_rectangle_bbox(view_xview_nonsync - (game_width), 
+								 view_yview_nonsync - (game_height), 
+								 view_xview_nonsync + (game_width), 
+								 view_yview_nonsync + (game_height), 
+								 instances_matching_gt(instances_matching_ne(enemy, "leadsleep", null), "leadsleep", 0))) {
+		var vis = 1;
+		if(leadsleep <= room_speed) vis = leadsleep mod (4 * leadsleep);
 		
-		 // TOP
-		draw_set_color(c_black);
-		draw_text_transformed(x + 6, y - 8 + 1 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 20) * 0.1) * 10);
+		draw_sprite_ext(global.sprSleep, 1, x + 6, y - 8 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), 1, 1, sin((leadsleep + 20) * 0.1) * 10, c_white, vis);
 		
-		draw_set_color(c_white);
-		draw_text_transformed(x + 6, y - 8 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 20) * 0.1) * 10);
+		draw_sprite_ext(global.sprSleep, 1, x, y - 4 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), 1, 1, sin((leadsleep + 10) * 0.1) * 10, c_white, vis);
 		
-		 // MID
-		draw_set_color(c_black);
-		draw_text_transformed(x, y - 4 + 1 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 10) * 0.1) * 10);
-		
-		draw_set_color(c_white);
-		draw_text_transformed(x, y - 4 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), "z", 0.5, 0.5, sin((leadsleep + 10) * 0.1) * 10);
-		
-		 // BOTTOM
-		draw_set_color(c_black);
-		draw_text_transformed(x - 6, y + 1 - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), "z", 0.5, 0.5, sin(leadsleep * 0.1) * 10);
-		
-		draw_set_color(c_white);
-		draw_text_transformed(x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), "z", 0.5, 0.5, sin(leadsleep * 0.1) * 10);
-		
-		draw_set_halign(fa_left);
-		draw_set_alpha(1);
-		draw_set_font(fntM)
+		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), 1, 1, sin(leadsleep * 0.1) * 10, c_white, vis);
 	}
 	
 	
@@ -494,9 +483,6 @@
 	skill_clear();
 	GameCont.skillpoints += GameCont.mutindex;
 	GameCont.mutindex = 0;
-	for(i = 0; i < array_length(GameCont.mutseed) i++) {
-		GameCont.mutseed[i] = random_get_seed();
-	}
     
     if(fork()) { // Basically, make sure the game has enough time to process between skill_clear and skill_set that the skills actually get set
 		wait(0);
@@ -641,6 +627,20 @@
 	
 	instance_destroy();
 	
+#define draw_dark_begin
+	draw_clear($dddddd);
+
+#define draw_dark
+	draw_set_color($808080);
+	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
+	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
+
+#define draw_dark_end
+	draw_set_color($000000);
+	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
+	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
+	
+
   //				--- OTHER SCRIPTS ---			//
 #define orandom(_num) return irandom_range(-_num, _num);
 
@@ -718,6 +718,14 @@
 	y = _ty;
 	
 	return _inst;
+
+#define instance_rectangle_bbox(_x1, _y1, _x2, _y2, _obj)
+	/*
+		Returns all given instances with their bounding box touching a given rectangle
+		Much better performance than manually performing 'place_meeting()' on every instance
+	*/
+	
+	return instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "bbox_right", _x1), "bbox_left", _x2), "bbox_bottom", _y1), "bbox_top", _y2);
 
 #define floor_fill(_x, _y, w, h)
 	for(ix = 0; ix < abs(w); ix++) {

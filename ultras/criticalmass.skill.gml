@@ -24,9 +24,7 @@
 	skill_set_active(mut_patience, 0);
 	GameCont.skillpoints += GameCont.mutindex + (skill_get("criticalmass") - 1); // Give you a buncha mutations! This actually gives you one more than normal, plus an additional one for how much skill_get(criticalmass) is over 1
 	GameCont.mutindex = 0;
-	for(i = 0; i < array_length(GameCont.mutseed) i++) {
-		GameCont.mutseed[i] = random_get_seed();
-	}
+	
 	mod_variable_set("mod", "metamorphosis", "criticalmass_diff", GameCont.hard);
 	
 	if(fork()) { // Basically, make sure the game has enough time to process between skill_clear and skill_set that the skills actually get set

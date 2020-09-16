@@ -16,18 +16,20 @@
 		if(button_check(index, "fire") and can_shoot) {
 			if(fork()) {
 				wait(0);
-				if(instance_exists(self)) player_tech_fire(reload, wep, 0);
+				if(instance_exists(self)) player_tech_fire();
 				exit;
 			}
 		}
 		
-		if(weapon_get_area(wep) < 9 and reload > 0) reload -= reloadspeed * 2;
+		if(weapon_get_area(wep) < 9 and reload > reloadspeed) reload -= reloadspeed * 2;
 		
 		if(race = "steroids") {
 			if(canspec and bcan_shoot and button_check(index, "spec")) {
 				if(fork()) {
 					wait(0);
-					if(instance_exists(self)) player_tech_fire(breload, bwep, 1);
+					player_swap();
+					if(instance_exists(self)) player_tech_fire();
+					player_swap();
 					exit;
 				}
 			}
@@ -44,14 +46,28 @@
 		}
 	}
 
-#define player_tech_fire(_reload, _wep, _b)
-	if(weapon_get_area(_wep) < 9) {
-		if(weapon_get_auto(_wep) = 0) {
-			while(((_b and breload <= 0) or reload <= 0) && (ammo[weapon_get_type(_wep)] >= weapon_get_cost(_wep) || infammo != 0)){
-				player_fire_ext(point_direction(x, y, mouse_x[index], mouse_y[index]), _wep, x, y, team, id);
-				if(infammo = 0) ammo[weapon_get_type(_wep)] -= weapon_get_cost(_wep);
-				 // fuck you jsburg for making me make this use max() why the fuck did you make a gun with 0 reload you fucking idiot
-				if(_b) breload += max(1, weapon_get_load(_wep)); else reload += max(1, weapon_get_load(_wep));
+#define player_tech_fire()
+	if(weapon_get_area(wep) < 9) {
+		if(weapon_get_auto(wep) = 0) {
+			while(reload <= 0 && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) || infammo != 0)){
+				player_fire(point_direction(x, y, mouse_x[index], mouse_y[index]));
 			}
 		}
 	}
+
+#define player_swap()
+	/*
+		Swaps weapons and weapon-related vars
+		Called from a Player object
+	*/
+	
+	with(["wep", "curse", "reload", "wkick", "wepflip", "wepangle", "can_shoot", "interfacepop"]){
+		var _temp = variable_instance_get(other, self);
+		variable_instance_set(other, self, variable_instance_get(other, "b" + self));
+		variable_instance_set(other, "b" + self, _temp);
+	}
+	
+	can_shoot = (reload <= 0);
+	drawempty = 30;
+	swapmove = true;
+	clicked = false;

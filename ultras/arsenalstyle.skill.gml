@@ -26,24 +26,46 @@
 					sound_play_pitch(sndGunGun, 0.4 + random_range((weapon_get_load(wep)/2)/10, weapon_get_load(wep)/10));
 					instance_create(x, y, LaserBrain);
 					
-					if(fork()) { // Fork the script to repeat it a couple of times
-						if(!instance_exists(self) or !instance_exists(other)) exit; // Make sure no errors occur because something disappeared
-						repeat(3 * skill_get("arsenalstyle")) { // Repeat three times
-							with(other) { // cheeky way to avoid problems with firing from something other than the player 
-								if(!instance_exists(self)) exit; // Make sure no errors occur because something disappeared
+					with(other) { // cheeky way to avoid problems with firing from something other than the player 
+						if(fork()) { // Fork the script to repeat it a couple of times
+							if(!instance_exists(self) or !instance_exists(other)) exit; // Make sure no errors occur because something disappeared
+							var repeatshot = ceil(typ_ammo[weapon_get_type(other.wep)] * (2 * skill_get("arsenalstyle"))/weapon_get_cost(other.wep)); // find out how many times to fire (2 ammo pack's worth of ammo)
+							if(repeatshot > 0) repeat(repeatshot) { // Repeat three times
 								 // Decide firing direction
 								if(!instance_exists(nenemy)) aim_dir = point_direction(other.x, other.y, mouse_x[index], mouse_y[index]);
 								else aim_dir = point_direction(other.x, other.y, nenemy.x, nenemy.y);
 								
-								 // Fire
-								player_fire_ext(aim_dir, other.wep, other.x, other.y, team, id);
-							}
-							 // Visually rotate gun to aim direction
-							rotation = aim_dir;
+								var cur_wep  = wep,
+									cur_x    = x,
+									cur_y    = y,
+									cur_kick = wkick,
+									cur_load = reload;
+								
+								wep = other.wep;
+								x = other.x;
+								y = other.y;
+								
+								trace(reload);
+								player_fire(aim_dir);
+								reload = max(cur_load, 0);
+								trace(reload);
+								ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
+								
+								var kick = wkick - cur_kick;
+								wkick -= kick;
+								
+								wep = cur_wep;
+								x = cur_x;
+								y = cur_y;
+								
+								 // Visually rotate gun to aim direction
+								other.rotation = aim_dir;
 							
-							wait weapon_get_load(wep); // Make sure 
+								wait weapon_get_load(cur_wep); // Make sure
+							}
+							
+							exit; // Exit the forked script
 						}
-						exit; // Exit the forked script
 					}
 				}
 			}

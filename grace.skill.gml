@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 
 #define skill_name    return "GRACE";
-#define skill_text    return "DODGING @wBULLETS@s GIVES @gRADS@s";
+#define skill_text    return "HIGHER @wRATE OF FIRE@s#WHILE CLOSE TO @wBULLETS";
 #define skill_tip     return "SOLID PLAY";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -15,7 +15,7 @@
 	    	
 	    	var nplayer = instance_nearest(x, y, Player);
 	    	if(!(nplayer.race = "frog" and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
-		    	if(point_distance(x, y, nplayer.x, nplayer.y) < (12 + (sprite_get_width(mask_index) * 0.5)) && grace = 0) {
+		    	if(point_distance(x, y, nplayer.x, nplayer.y) < (12 + sprite_get_width(mask_index)) && grace = 0) {
 		    		grace = 1;
 		    		
 		    		 // Stolen from defpack snipers. thank u karm and jsburg
@@ -26,12 +26,12 @@
 		    		with(instance_create(x + hspeed, y + vspeed, ChickenB)) image_speed = 0.8;
 		    	}
 		    	
+		    	if(grace and nplayer.reload >= current_time_scale) {
+		    		nplayer.reload -= current_time_scale * max(1 - (point_distance(x, y, nplayer.x, nplayer.y)/(12 + sprite_get_width(mask_index))), 0);
+		    		trace(current_time_scale * max(1 - (point_distance(x, y, nplayer.x, nplayer.y)/(12 + sprite_get_width(mask_index))), 0))
+		    	}
+		    	
 		    	if(point_distance(x, y, nplayer.x, nplayer.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && grace = 1 && nplayer.lsthealth = nplayer.my_health) {
-		    		repeat((damage * GameCont.level) * skill_get("grace")) {
-		    			instance_create(nplayer.x, nplayer.y, Rad);
-		    			with(instance_create(nplayer.x + nplayer.hspeed, nplayer.y + nplayer.vspeed, ChickenB)) image_speed = 0.8;
-		    		}
-		    		
 		    		sound_play_pitch(sndMenuLoadout, 0.8 + random(0.4));
 		    		grace = 0;
 		    	}

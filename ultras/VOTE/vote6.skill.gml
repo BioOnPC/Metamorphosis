@@ -1,17 +1,59 @@
 #define init
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
-	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",    1,  9,  9);
+	global.sprReroute   = sprite_add("../../sprites/VFX/sprReroute.png",  														 1,  0,  0);
 
-#define skill_name    return "BREACH & CLEAR";
-#define skill_text    return "@wFASTER RELOAD@s WHILE ROLLING";
-#define skill_tip     return "IS THIS LEGAL?";
+#define skill_name    return "TECH CONGLOMERATE";
+#define skill_text    return "HOLDING @wENERGY WEAPONS@s#REROUTES @yAMMO GAIN#@wAUTO-POP POP ENERGY WEAPONS";
+#define skill_tip     return "BILLIONAIRES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 
 #define step
-	with(instances_matching_gt(Player, "roll", 0)) { // just make you shoot faster when ur rolling idk
-		if(reload > 0) reload -= (skill_get(mut_throne_butt) ? 0.4 * skill_get(mut_throne_butt) : 0.8); // you shoot faster without thronebutt to make up for the length of the roll
+	with(Player) {
+		if("lst_ammo" not in self) {
+			for(i = 1; i < 5; i++) {
+				lst_ammo[i] = ammo[i];
+			}
+		}
+		
+		if((weapon_get_type(wep) = 5 or (race = "steroids" and weapon_get_type(bwep) = 5)) and ammo[5] < typ_amax[5]) {
+			for(i = 1; i < 5; i++) {
+				if(lst_ammo[i] <= ammo[i]) {
+					var diff   = (ammo[i] - lst_ammo[i]),
+						pickno = round(diff/typ_ammo[i]);
+					
+					if(pickno > 0) {
+						 // find related ammo popup
+						with(instances_matching(PopupText, "conglomerate", null)) {
+							if(string_count(string(diff), mytext) and string_count("NOT ENOUGH", mytext) = 0) {
+								 // this is stupid but im lazy
+								with(other) {
+									with(instance_create(x, y, PopupText)) {
+										if(other.ammo[5] + (pickno * other.typ_ammo[5]) >= other.typ_amax[5]) mytext = "@gMAX@w ENERGY";
+										else mytext = `@1(${global.sprReroute})${pickno * other.typ_ammo[5]} ENERGY`
+									}
+								}
+								
+								
+								instance_destroy();
+							}
+						}
+						
+						ammo[i] -= diff; 
+						ammo[5] += min(pickno * typ_ammo[5], typ_amax[5] - ammo[5]);
+						sound_play_pitch(sndLightningReload, 1.8 + random(0.3));
+						sound_play_pitch(sndPlasmaReloadUpg, 2 + random(0.3));
+					}
+				}
+				
+				lst_ammo[i] = ammo[i];
+			}	
+		}
 	}
-
+	
+	with(instances_matching(PopupText, "conglomerate", null)) {
+		conglomerate = 1;
+	}

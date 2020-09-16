@@ -9,9 +9,18 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_take    sound_play(sndMut);
 #define step
+    if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { 
+		if(fork()) {
+			wait 5;
+			with(enemy) {
+				if(!variable_instance_exists(self, "leadsleep")) leadsleep = 150 + random(30);
+			}
+			exit;
+		}
+    }
+	
 	with(enemy) {
-		if(!variable_instance_exists(self, "leadsleep")) leadsleep = 150 + random(30);
-		if(leadsleep > 0) {
+		if(variable_instance_exists(self, "leadsleep") and leadsleep > 0) {
 			alarm1 += current_time_scale; 
 			leadsleep -= current_time_scale;
 			

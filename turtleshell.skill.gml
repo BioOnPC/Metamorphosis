@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 
 #define skill_name    return "TURTLE SHELL";
-#define skill_text    return "-1 DAMAGE TAKEN";
+#define skill_text    return "ENEMIES DEAL LESS DAMAGE";
 #define skill_tip     return "DON'T GET FLIPPED OVER";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
