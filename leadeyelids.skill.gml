@@ -12,8 +12,9 @@
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { 
 		if(fork()) {
 			wait 5;
-			with(enemy) {
-				if(!variable_instance_exists(self, "leadsleep")) leadsleep = 150 + random(30);
+			with(instances_matching(enemy, "leadsleep", null)) {
+				leadsleep = 150 + random(30);
+				leadalarm = alarm1;
 			}
 			exit;
 		}
@@ -21,7 +22,7 @@
 	
 	with(enemy) {
 		if(variable_instance_exists(self, "leadsleep") and leadsleep > 0) {
-			alarm1 += current_time_scale; 
+			alarm1 = leadalarm;
 			leadsleep -= current_time_scale;
 			
 			if(leadsleep <= 0) {

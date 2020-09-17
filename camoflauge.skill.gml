@@ -11,7 +11,7 @@
 #define step
     if((floor(current_frame) mod (2 * (room_speed/30))) = 0) {
     	with(instances_matching_gt(enemy, "alarm1", current_time_scale)) {
-    		alarm1 += current_time_scale;
+    		alarm1++;
     	}
     }
     
