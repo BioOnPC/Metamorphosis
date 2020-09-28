@@ -22,15 +22,11 @@
 		}
 		
 		 // make sure its possible to POP POP
-		if(race = "venuz" and weapon_get_type(wep) = 1 and weapon_get_auto(wep) >= -1 and (canspec and button_check(index, "spec")) and can_shoot) {
-			if(fork()) {
-				wait(0);
-				while(reload <= 0 && ((ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) and instance_exists(GameCont) and GameCont.rad > weapon_get_rads(wep)) || infammo != 0)){
-					repeat(2 + (2 * skill_get(mut_throne_butt)) + (ultra_get(race, 2) * (skill_get(mut_throne_butt) + 1))) {
-						player_fire(point_direction(x, y, mouse_x[index], mouse_y[index]));
-					}
+		if(race = "venuz" and weapon_get_type(wep) = 1 and weapon_get_auto(wep) > -1 and (canspec and button_check(index, "spec")) and can_shoot) {
+			while(reload <= 0 && ((ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) and instance_exists(GameCont) and GameCont.rad > weapon_get_rads(wep)) || infammo != 0)){
+				repeat(2 + (2 * skill_get(mut_throne_butt)) + (ultra_get(race, 2) * (skill_get(mut_throne_butt) + 1))) {
+					player_fire(point_direction(x, y, mouse_x[index], mouse_y[index]));
 				}
-				exit;
 			}
 		}
 	}

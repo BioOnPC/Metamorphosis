@@ -17,11 +17,15 @@
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 	
 	global.criticalmass_diff    = 0;
-	
+
+ // General Use Macros:
 #macro mod_current_type script_ref_create(0)[0]
 #macro bbox_center_x (bbox_left + bbox_right + 1) / 2
 #macro bbox_center_y (bbox_top + bbox_bottom + 1) / 2
 #macro infinity 1/0
+
+ // Mod Macros:
+#macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
@@ -120,6 +124,15 @@
     		strengthtimer = 210 * skill_get("strengthindeath");
     	}
     }
+    
+     // tip moment
+    with(instances_matching(GenCont, "metamorphosistip", null)) {
+    	metamorphosistip = random(10);
+    	
+    	if(metamorphosistip < 1) {
+    		tip = tip_generate();
+    	}
+    }
 
 #define draw
 	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
@@ -145,7 +158,18 @@
 		
 		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), 1, 1, sin(leadsleep * 0.1) * 10, c_white, vis);
 	}
+
+#define draw_dark
+	draw_set_color($808080);
+	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
+	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
 	
+
+#define draw_dark_end
+	draw_set_color($000000);
+	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
+	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
+
 	
  //				--- OBJECT SCRIPTS ---			//
 #define obj_create(_x, _y, _name)
@@ -626,20 +650,26 @@
 	}
 	
 	instance_destroy();
-
-#define draw_dark
-	draw_set_color($808080);
-	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
-	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
-	
-
-#define draw_dark_end
-	draw_set_color($000000);
-	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
-	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
 	
 
   //				--- OTHER SCRIPTS ---			//
+#define tip_generate
+	var t = [];
+	array_push(t, "SYNERGY");
+	array_push(t, "THIS IS THE RUN");
+	array_push(t, "TRY SOMETHING NEW");
+	array_push(t, "@sTHE VAULTS HAVE " + metacolor + "VISITORS");
+	array_push(t, "FIND NEW COMBINATIONS");
+	array_push(t, "THE META ISN'T EVERYTHING");
+	array_push(t, "TRY WITH @wNT:TE!");
+	array_push(t, "TRY WITH @wMINIMOD!");
+	array_push(t, "TRY WITH @wDEFPACK!");
+	array_push(t, "THE AMMO ECONOMY IS IN SHAMBLES");
+	array_push(t, "@sEVERY MUTANT HAS A NEW " + metacolor + "ULTRA");
+	array_push(t, "SPECIALIZE");
+	
+	return metacolor + t[irandom(array_length(t) - 1)];
+  
 #define orandom(_num) return irandom_range(-_num, _num);
 
 #define instance_near(_x, _y, _obj, _dis)

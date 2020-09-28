@@ -11,5 +11,5 @@
 /loadskill dividedelbows
 /loadskill turtleshell
 /loadskill leadeyelids
-/loadskill ratwhiskers
+/loadskill cheekpouch
 /load ultras

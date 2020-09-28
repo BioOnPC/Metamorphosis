@@ -14,7 +14,11 @@
 			wait 5;
 			with(instances_matching(enemy, "leadsleep", null)) {
 				leadsleep = 150 + random(30);
-				leadalarm = alarm1;
+				leadalarm0 = alarm0;
+				leadalarm1 = alarm1;
+				
+				if("alrm0" in self) leadalrm0 = alrm0;
+				if("alrm1" in self) leadalrm1 = alrm1;
 			}
 			exit;
 		}
@@ -22,7 +26,11 @@
 	
 	with(enemy) {
 		if(variable_instance_exists(self, "leadsleep") and leadsleep > 0) {
-			alarm1 = leadalarm;
+			alarm0 = leadalarm0;
+			alarm1 = leadalarm1;
+			
+			if("alrm0" in self) alrm0 = leadalrm0;
+			if("alrm1" in self) alrm1 = leadalrm1;
 			leadsleep -= current_time_scale;
 			
 			if(leadsleep <= 0) {

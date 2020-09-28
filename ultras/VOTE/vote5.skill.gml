@@ -14,27 +14,24 @@
 	with(instances_matching(Explosion, "policedestroy", null)) {
 		policedestroy = "it sure be";
 		
-		var hbox_w = sprite_get_width(mask_index)/2,
-			hbox_h = sprite_get_height(mask_index)/2;
-		
-		with(instance_rectangle_bbox(x - hbox_w, y - hbox_h, x + hbox_w, y + hbox_h, instances_matching_ne(projectile, "team", team))) {
-			with(other) {
-				image_xscale = sprite_get_width(mask_index)/sprite_get_width(mskPopoExplo);
-				image_yscale = sprite_get_width(mask_index)/sprite_get_height(mskPopoExplo);
-				
-				sprite_index = sprPopoExplo;
-				mask_index   = mskPopoExplo;
-				
-				sound_play_pitch(sndEnergyScrewdriverUpg, 1.4 + random(0.3));
-				sound_play_pitch(sndWallBreakCrystal, 1.4  + random(0.3));
-				sound_play_pitchvol(sndNothingSmallball, 0.8 + random(0.3), 0.6);
-				sound_play_pitchvol(sndEliteInspectorAlarmed, 1.4 + random(0.3), 0.6);
-			}
+		with(instance_create(x, y, PopoExplosion)) {
+			policedestroy = "real";
+			team   = other.team;
+			ang    = other.ang;
+			damage = other.damage;
+			hitid  = other.hitid;
+			force  = other.force;
 			
-			sleep(1);
-			
-			instance_destroy();
+			image_xscale = (sprite_get_width(other.sprite_index)/sprite_get_width(sprPopoExplo));
+			image_yscale = (sprite_get_height(other.sprite_index)/sprite_get_height(sprPopoExplo));
 		}
+		
+		sound_play_pitch(sndEnergyScrewdriverUpg, 1.4 + random(0.3));
+		sound_play_pitch(sndWallBreakCrystal, 1.4  + random(0.3));
+		sound_play_pitchvol(sndNothingSmallball, 0.8 + random(0.3), 0.6);
+		sound_play_pitchvol(sndEliteInspectorAlarmed, 1.4 + random(0.3), 0.6);
+		
+		instance_delete(self);
 	}
 
 #define instance_rectangle_bbox(_x1, _y1, _x2, _y2, _obj)

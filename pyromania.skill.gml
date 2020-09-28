@@ -10,6 +10,8 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_take    sound_play(sndMut);
 #define step
+	with(instances_matching(CustomProjectile, "name", "Fire Bullet")) pyroflammable = true;
+
 	with(Corpse) {
 		 // Initialize variable, just make sure the game knows it exists
 		if(!variable_instance_exists(self, "pyroignite")) pyroignite = 0;
@@ -61,7 +63,7 @@
 		}
 		
 		 // Ignite corpse if they're not ignited!
-		else if((place_meeting(x, y, CustomProjectile) && variable_instance_exists(instance_nearest(x, y, CustomProjectile), "pyroflammable")) || place_meeting(x, y, Flame) || place_meeting(x, y, FlameShell) || place_meeting(x, y, TrapFire) || place_meeting(x, y, Explosion)) {
+		else if((place_meeting(x, y, CustomProjectile) && variable_instance_exists(instance_nearest(x, y, CustomProjectile), "pyroflammable")) || place_meeting(x, y, Flame) || place_meeting(x, y, FlameShell) || place_meeting(x, y, TrapFire) || place_meeting(x, y, Explosion) || place_meeting(x, y, GreenExplosion) || place_meeting(x, y, SmallExplosion)) {
 			pyroignite = (30 + irandom(15)) * skill_get("pyromania");
 		}
 	}

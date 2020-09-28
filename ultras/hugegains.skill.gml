@@ -14,7 +14,7 @@
 #define step
 	with(Player) {
 		if(wep != wep_none and bwep != wep_none and weapon_get_type(wep) = weapon_get_type(bwep)) {
-			if(weapon_get_load(wep) > weapon_get_load(bwep) and reload > 0) reload -= floor(weapon_get_load(wep)/weapon_get_load(bwep)) - reloadspeed;
-			else if(weapon_get_load(bwep) > weapon_get_load(wep) and breload > 0) breload -= floor(weapon_get_load(bwep)/weapon_get_load(wep)) - reloadspeed;
+			if(weapon_get_load(wep) > weapon_get_load(bwep) and reload > 0) 	  reload -= (floor(weapon_get_load(wep)/weapon_get_load(bwep)) - reloadspeed) * current_time_scale;
+			else if(weapon_get_load(bwep) > weapon_get_load(wep) and breload > 0) breload -= (floor(weapon_get_load(bwep)/weapon_get_load(wep)) - reloadspeed) * current_time_scale;
 		}
 	}

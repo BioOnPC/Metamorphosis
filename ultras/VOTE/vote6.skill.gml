@@ -19,8 +19,8 @@
 			}
 		}
 		
-		if((weapon_get_type(wep) = 5 or (race = "steroids" and weapon_get_type(bwep) = 5)) and ammo[5] < typ_amax[5]) {
-			for(i = 1; i < 5; i++) {
+		for(i = 1; i < 5; i++) {
+			if((weapon_get_type(wep) = 5 or (race = "steroids" and weapon_get_type(bwep) = 5)) and ammo[5] < typ_amax[5]) {
 				if(lst_ammo[i] <= ammo[i]) {
 					var diff   = (ammo[i] - lst_ammo[i]),
 						pickno = round(diff/typ_ammo[i]);
@@ -48,9 +48,8 @@
 						sound_play_pitch(sndPlasmaReloadUpg, 2 + random(0.3));
 					}
 				}
-				
-				lst_ammo[i] = ammo[i];
 			}	
+			lst_ammo[i] = ammo[i];
 		}
 	}
 	

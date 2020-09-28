@@ -10,8 +10,20 @@
 #define skill_take    sound_play(sndMut);
 #define step
     if((floor(current_frame) mod (2 * (room_speed/30))) = 0) {
+    	with(instances_matching_gt(enemy, "alarm0", current_time_scale)) {
+    		if(object_index != Van) alarm1++;
+    	}
+    	
     	with(instances_matching_gt(enemy, "alarm1", current_time_scale)) {
-    		alarm1++;
+    		if(object_index != Van) alarm0++;
+    	}
+    	
+    	with(instances_matching_gt(enemy, "alrm0", current_time_scale)) {
+    		alrm0++;
+    	}
+    	
+    	with(instances_matching_gt(enemy, "alrm1", current_time_scale)) {
+    		alrm1++;
     	}
     }
     
