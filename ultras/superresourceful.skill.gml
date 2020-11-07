@@ -6,7 +6,7 @@
 #define skill_text    return "@wENEMIES@s AND @bIDPD@s DROP @bPORTAL STRIKES";
 #define skill_tip     return "ARMS RACE";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take    sound_play(sndBasicUltra);
 #define skill_ultra   return "rogue";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool

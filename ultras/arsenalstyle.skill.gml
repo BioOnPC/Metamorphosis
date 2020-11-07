@@ -6,7 +6,7 @@
 #define skill_text    return "@wWEAPONS@s PULLED BY @wTELEKINESIS@s#FIRE THEMSELVES";
 #define skill_tip     return "CONTAIN IT ALL";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take    sound_play(sndBasicUltra);
 #define skill_ultra   return "eyes";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool

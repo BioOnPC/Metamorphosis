@@ -6,7 +6,7 @@
 #define skill_text    return "@wALLIES@s SPAWN WITH @wLOW TIER GUNS#ALLIES HAVE @rLESS HEALTH";
 #define skill_tip     return "ARMED AND DANGEROUS";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take    sound_play(sndBasicUltra);
 #define skill_ultra   return "rebel";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool

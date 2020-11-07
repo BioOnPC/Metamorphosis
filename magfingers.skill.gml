@@ -18,6 +18,6 @@
     with(instances_matching(Player, "cartridge", null)) {
     	cartridge = 1;
     	for(i = 0; i < 5; i++) {
-    		typ_ammo[i] = ceil(typ_ammo[i] * 1 + (0.4 * skill_get("magfingers")));
+    		typ_ammo[i] = ceil(typ_ammo[i] * (1 + (0.4 * skill_get("magfingers"))));
     	}
     }

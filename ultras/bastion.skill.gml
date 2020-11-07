@@ -6,7 +6,7 @@
 #define skill_text    return "@wSHIELD STORES REFLECTED BULLETS@s#@wUNSHIELDING@s FIRES STORED BULLETS";
 #define skill_tip     return "SHRUG IT OFF";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take    sound_play(sndBasicUltra);
 #define skill_ultra   return "crystal";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool

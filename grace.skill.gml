@@ -26,15 +26,15 @@
 		    		with(instance_create(x + hspeed, y + vspeed, ChickenB)) image_speed = 0.8;
 		    	}
 		    	
-		    	/*if(grace and nplayer.reload >= current_time_scale) {
+		    	if(grace and nplayer.reload >= current_time_scale) {
 		    		nplayer.reload -= current_time_scale * max(1 - (point_distance(x, y, nplayer.x, nplayer.y)/(12 + sprite_get_width(mask_index))), 0);
-		    	}*/
+		    	}
 		    	
-		    	if(nplayer.reload > -(weapon_get_load(nplayer.wep)/2) and point_distance(x, y, nplayer.x, nplayer.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && grace = 1 && nplayer.lsthealth = nplayer.my_health) {
+		    	/*if(nplayer.reload > -(weapon_get_load(nplayer.wep)/2) and point_distance(x, y, nplayer.x, nplayer.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && grace = 1 && nplayer.lsthealth = nplayer.my_health) {
 		    		sound_play_pitch(sndMenuLoadout, 0.8 + random(0.4));
 		    		nplayer.reload -= damage * 2;
 		    		grace = 0;
-		    	}
+		    	}*/
 	    	}
 	    }
 	}

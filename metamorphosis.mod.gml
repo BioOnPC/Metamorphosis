@@ -15,8 +15,6 @@
 	 // SHOPKEEP //
 	global.sprMerchantIdle     = sprite_add("sprites/Shop/sprMerchantIdle.png", 15, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
-	
-	global.criticalmass_diff    = 0;
 
  // General Use Macros:
 #macro mod_current_type script_ref_create(0)[0]
@@ -26,6 +24,7 @@
 
  // Mod Macros:
 #macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
+#macro minicolor `@(color:${make_color_rgb(183, 195, 204)})`;
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
@@ -46,26 +45,20 @@
 		}
     }
     
-    if(global.criticalmass_diff > 0) {
-    	if(!instance_exists(Player)) {
-			global.criticalmass_diff = 0;
-			skill_set_active(mut_patience, 1);
-	    }
-	}
-    
      // Some funky stuff to make sure the prompt acts on step. props to yokin for helping a ton and also letting me steal NTTE code
     if(array_length(instances_matching(CustomObject, "name", "Prompt")) > 0) script_bind_step(prompt_collision, 0);
     
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= room_speed) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
     	
-    	if(global.criticalmass_diff > 0) {
-    		 // Place down the mutation reselector
-    		if((GameCont.hard - global.criticalmass_diff) mod 3 = 0 and array_length(instances_matching(CustomProp, "name", "MutRefresher")) <= 0) {
-    			var ffloor = instance_furthest(0, 0, Floor);
-    			with(ffloor) obj_create(bbox_center_x, bbox_center_y, "MutRefresher");
-    		}
-    	}
+    	 // for horror's ultra
+    	if(skill_get("criticalmass") > 0) {
+			 // Place down the mutation reselector
+			if((GameCont.hard - mod_variable_get("skill", "criticalmass", "diff")) mod 3 = 0 and array_length(instances_matching(CustomProp, "name", "MutRefresher")) <= 0) {
+				var ffloor = instance_furthest(0, 0, Floor);
+				with(ffloor) obj_create(bbox_center_x, bbox_center_y, "MutRefresher");
+			}
+		}
     	
     	 // place the shop area in the crown vault
     	with(instances_matching(CrownPed, "shopping", null)) {
@@ -494,29 +487,7 @@
 #define MutRefresher_death
 	sound_play(sndStatueCharge);
 	
-	 // The following is a bunch of stupid bullshit to make sure you don't lose your custom ultras
-	var _mod = mod_get_names("skill"),
-        _scrt = "skill_ultra",
-        _ultras = {};
-    
-     // Go through and find all custom ultra skills
-    for(var i = 0; i < array_length(_mod); i++){ 
-    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) lq_set(_ultras, _mod[i], skill_get(_mod[i]));
-    }
-	
-	skill_clear();
-	GameCont.skillpoints += GameCont.mutindex;
-	GameCont.mutindex = 0;
-    
-    if(fork()) { // Basically, make sure the game has enough time to process between skill_clear and skill_set that the skills actually get set
-		wait(0);
-		 // Go through all of the skills found before and apply them
-		for(i = 0; i < lq_size(_ultras); i++) {
-			if(lq_get_key(_ultras, i) != "criticalmass") {
-				skill_set(string(lq_get_key(_ultras, i)), lq_get_value(_ultras, i));
-			}
-		}
-	}
+	mod_script_call_nc('skill', 'criticalmass', 'skill_reset', 0);
 	
 #define Prompt_begin_step
 	with(nearwep) instance_delete(id);
@@ -661,15 +632,13 @@
 	array_push(t, "@sTHE VAULTS HAVE " + metacolor + "VISITORS");
 	array_push(t, "FIND NEW COMBINATIONS");
 	array_push(t, "THE META ISN'T EVERYTHING");
-	array_push(t, "TRY WITH @wNT:TE!");
-	array_push(t, "TRY WITH @wMINIMOD!");
-	array_push(t, "TRY WITH @wDEFPACK!");
+	array_push(t, "TRY WITH @w" + choose("NT:TE", minicolor + "MINIMOD", "DEFPACK", "VAGABONDS") + "!");
 	array_push(t, "THE AMMO ECONOMY IS IN SHAMBLES");
 	array_push(t, "@sEVERY MUTANT HAS A NEW " + metacolor + "ULTRA");
 	array_push(t, "SPECIALIZE");
 	
 	return metacolor + t[irandom(array_length(t) - 1)];
-  
+
 #define orandom(_num) return irandom_range(-_num, _num);
 
 #define instance_near(_x, _y, _obj, _dis)
