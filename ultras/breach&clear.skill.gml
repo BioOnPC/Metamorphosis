@@ -14,5 +14,18 @@
 #define step
 	with(instances_matching_gt(Player, "roll", 0)) { // just make you shoot faster when ur rolling idk
 		if(reload > 0) reload -= (skill_get(mut_throne_butt) ? 0.4 * skill_get(mut_throne_butt) : 0.8); // you shoot faster without thronebutt to make up for the length of the roll
+		
+		 // FAST EFFECTS
+		if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
+			with(instance_create(x - (hspeed * 2) + orandom(3), y - (vspeed * 2) + orandom(3), BoltTrail)) {
+				creator = other; 
+				image_angle = other.direction;
+			    image_yscale = 1.4;
+			    image_xscale = other.speed * 4;
+			    image_blend = c_lime;
+			    depth = other.depth;
+			}
+		}
 	}
 
+#define orandom(_num)                                            	    		return	mod_script_call_nc('mod', 'metamorphosis', 'orandom', _num);

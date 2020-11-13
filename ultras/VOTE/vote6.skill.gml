@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",    1,  9,  9);
 	global.sprReroute   = sprite_add("../../sprites/VFX/sprReroute.png",  														 1,  0,  0);
 
-#define skill_name    return "TECH CONGLOMERATE";
+#define skill_name    return "TECH CONGLOMRAT";
 #define skill_text    return "HOLDING @wENERGY WEAPONS@s#REROUTES @yAMMO GAIN";
 #define skill_tip     return "BILLIONAIRES";
 #define skill_icon    return global.sprSkillHUD;

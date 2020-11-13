@@ -2,7 +2,7 @@
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
-#define skill_name    return "ETHICAL CONSUMPTION";
+#define skill_name    return "ETHICL CONSUMSON";
 #define skill_text    return "@wFULL AUTO POP POP@s WITH BULLET WEAPONS#RECYCLE HALF YOUR SPENT @yBULLET AMMO@s";
 #define skill_tip     return "TEAR APART THIS ESTABLISHMENT";
 #define skill_icon    return global.sprSkillHUD;

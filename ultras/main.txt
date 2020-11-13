@@ -46,4 +46,7 @@
 // FROG
 /loadskill familiarity
 
+// PARROT POGGERS
+/loadskill underthewings
+
 /loadmod cultra

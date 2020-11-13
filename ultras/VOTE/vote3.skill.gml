@@ -2,7 +2,7 @@
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
-#define skill_name    return "GRASSROOTS ACTIVISM";
+#define skill_name    return "GRAZZROOT ACTIVSM";
 #define skill_text    return "@wSHELLS@s DUPLICATE ON#THE FIRST BOUNCE";
 #define skill_tip     return "RESIST";
 #define skill_icon    return global.sprSkillHUD;

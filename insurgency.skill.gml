@@ -70,11 +70,15 @@
 		}
 	}
 	
-	script_bind_draw(corpseflag, 0);
+	script_bind_draw(corpseflag, -1);
 
 #define corpseflag
 	with(instances_matching(Corpse, "insurgencyflag", 1)) {
 		draw_sprite(global.sprFlag, current_frame * 0.3, x, y - (4 * image_yscale));
+	}
+	
+	with(instances_matching(Player, "race", "bandit")) {
+		draw_sprite_ext(global.sprFlag, current_frame * 0.3, x - (4 * right), y - 8, (-image_xscale) * right, image_yscale, image_angle, image_blend, image_alpha);
 	}
 	
 	instance_destroy();

@@ -2,7 +2,7 @@
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
-#define skill_name    return "TYRANNY";
+#define skill_name    return "TYRANY";
 #define skill_text    return "@wSTUCK BOLTS@s INCREASE DAMAGE TAKEN#TO @wSTUCK ENEMIES";
 #define skill_tip     return "WOODEN FIST";
 #define skill_icon    return global.sprSkillHUD;

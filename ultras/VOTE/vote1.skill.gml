@@ -2,7 +2,7 @@
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
-#define skill_name    return "ANARCHY (NYI)";
+#define skill_name    return "ANRCY (NYI)";
 #define skill_text    return "???#DELAYED @wPOP POP@s WITH MELEE WEAPONS";
 #define skill_tip     return "";
 #define skill_icon    return global.sprSkillHUD;

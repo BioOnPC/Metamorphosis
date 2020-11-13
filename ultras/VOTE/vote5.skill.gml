@@ -2,7 +2,7 @@
 	global.sprSkillIcon = sprite_add("../../sprites/Icons/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../../sprites/HUD/Ultras/VOTE/sprVote" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
-#define skill_name    return "POLICE STATE";
+#define skill_name    return "POPO STATE";
 #define skill_text    return "@wEXPLOSIONS@s DELETE @wBULLETS";
 #define skill_tip     return "AUTHORITARIAN";
 #define skill_icon    return global.sprSkillHUD;
