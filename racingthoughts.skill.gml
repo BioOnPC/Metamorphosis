@@ -16,6 +16,7 @@
             var loadreduce = maxhealth; // Figure out how big of a bitch this was
             
             with(Player) {
+            	gunshine = 7;
                 if(reload >= 1) reload = max(reload - floor(loadreduce/2), -floor(weapon_get_load(wep)/2));
                 if(breload >= 1) {
                 	if(race = "steroids") {
