@@ -6,7 +6,7 @@
 #define skill_text    return "@wSHELLS@s DUPLICATE ON#THE FIRST BOUNCE";
 #define skill_tip     return "RESIST";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 

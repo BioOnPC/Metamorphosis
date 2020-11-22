@@ -7,7 +7,7 @@
 #define skill_text    return "HOLDING @wENERGY WEAPONS@s#REROUTES @yAMMO GAIN";
 #define skill_tip     return "BILLIONAIRES";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 

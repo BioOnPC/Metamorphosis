@@ -6,7 +6,7 @@
 #define skill_text    return "@wFULL AUTO POP POP@s WITH BULLET WEAPONS#RECYCLE HALF YOUR SPENT @yBULLET AMMO@s";
 #define skill_tip     return "TEAR APART THIS ESTABLISHMENT";
 #define skill_icon    return global.sprSkillHUD;
-#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 //#define skill_take    sound_play(sndMutTriggerFingers);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 
