@@ -636,6 +636,18 @@
 	array_push(t, "THE AMMO ECONOMY IS IN SHAMBLES");
 	array_push(t, "@sEVERY MUTANT HAS A NEW " + metacolor + "ULTRA");
 	array_push(t, "SPECIALIZE");
+	array_push(t, "SOMETHING SPECIAL");
+	array_push(t, "ADAPT");
+	array_push(t, "PARTS OF A WHOLE");
+	array_push(t, "SUM OF ALL THE PARTS");
+	array_push(t, "COMBINATORIAL EXPLOSION");
+	array_push(t, "HOW DID WE GET HERE?");
+	array_push(t, "INNOVATE");
+	array_push(t, "STRANGE ANATOMY");
+	array_push(t, "THANKS FOR PLAYING!");
+	array_push(t, "ADVANCED PHYSIOLOGY");
+	array_push(t, "WE CAN BECOME BETTER");
+	array_push(t, "BECOME STRONGER");
 	
 	return metacolor + t[irandom(array_length(t) - 1)];
 

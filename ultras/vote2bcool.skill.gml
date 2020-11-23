@@ -18,6 +18,7 @@
 		 // Increase important GameCont variables to account for a new selection of mutations
 		GameCont.skillpoints++;
 		GameCont.endpoints++;
+		if(GameCont.area = 0) GameCont.loops--;
 		GameCont.area = 107;
 		GameCont.subarea = 0;
 		with(MusCont) event_perform(ev_alarm, 11);
