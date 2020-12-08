@@ -7,7 +7,9 @@
 #define skill_tip     return "GET IT OVER WITH";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
-//#define skill_take    sound_play(sndMutTriggerFingers);
+#define skill_take    
+	sound_play(sndBasicUltra);
+	skill_set("vote2bcool", 0);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 #define step
 	with(Player) {

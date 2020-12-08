@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",	 1,  8,  8);
 	
 	global.sprHPCrystalline    = sprite_add("sprites/VFX/sprCrystalHP.png", 7, 6, 7);
-	global.sprFatHPCrystalline = sprHP;
+	global.sprFatHPCrystalline = sprite_add("sprites/VFX/sprFatCrystalHP.png", 7, 9, 10);
 	
 #define skill_name    return "CRYSTALLINE GROWTHS";
 #define skill_text    return "@wENEMIES@s DROP MORE @rMEDKITS@s#@rMEDKITS@s GIVE @wINVINCIBILITY";

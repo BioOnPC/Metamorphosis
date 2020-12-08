@@ -21,19 +21,15 @@
     	cheekpouch = ":)";
     	var pickupchoose = [];
     	
-    	 // this just makes sure whether or not it should be using the old or the new name
-    	if(mod_exists("skill", "reroll"))				    array_push(pickupchoose, "BonusAmmoPickup"  );
-    	else											    array_push(pickupchoose, "OverstockPickup"  );
-    	 // ditto
-    	if(mod_exists("skill", "reroll"))				    array_push(pickupchoose, "BonusHealthPickup");
-    	else											    array_push(pickupchoose, "OverhealPickup"   );
+    	array_push(pickupchoose, "BonusAmmoPickup"  );
+    	array_push(pickupchoose, "BonusHealthPickup");
     	
     	 // add the hammerhead pickup, if available
     	if(random(5) < 1 and mod_exists("skill", "reroll")) array_push(pickupchoose, "HammerHeadPickup" );
     	 // even more secret, if available
-    	if(random(10) < 1 and mod_exists("skill", "reroll")) array_push(pickupchoose, "OrchidBall"       );
+    	if(random(10) < 1 and mod_exists("skill", "reroll")) array_push(pickupchoose, "OrchidBall"      );
     	 // add the strong spirit pickup, if available
-    	if(random(20) < 1)								   array_push(pickupchoose, "SpiritPickup"	 );
+    	if(random(20) < 1)								   array_push(pickupchoose, "SpiritPickup"		);
     	
     	if(random(20) < skill_get("ratwhiskers")) {
     		obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);

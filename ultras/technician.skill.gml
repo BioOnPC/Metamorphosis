@@ -21,7 +21,7 @@
 			}
 		}
 		
-		if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) = 1) and reload > reloadspeed) reload -= (reloadspeed * 2) * current_time_scale;
+		if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) != 0) and reload > reloadspeed) reload -= (reloadspeed * 2) * current_time_scale;
 		
 		if(race = "steroids") {
 			if(canspec and bcan_shoot and button_check(index, "spec")) {
@@ -34,20 +34,20 @@
 				}
 			}
 			
-			if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) = 1) and breload > 0) breload -= (reloadspeed * 2) * current_time_scale;
+			if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) != 0) and breload > 0) breload -= (reloadspeed * 2) * current_time_scale;
 		}
 	}
 	
 	if(random(20) < 1) {
 		with(WepPickup) {
-			if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) = 1)) {
+			if(((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) != 0)) {
 				instance_create(x + lengthdir_x(random(sprite_width), rotation), y + lengthdir_y(random(sprite_height), rotation), CaveSparkle).depth = depth - 1;
 			}
 		}
 	}
 
 #define player_tech_fire()
-	if((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) = 1) {
+	if((weapon_get_area(wep) < 9 and weapon_get_area(wep) >= 0) or weapon_get_gold(wep) != 0) {
 		if(weapon_get_auto(wep) = 0) {
 			while(reload <= 0 && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) || infammo != 0)){
 				player_fire(point_direction(x, y, mouse_x[index], mouse_y[index]));
