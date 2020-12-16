@@ -31,7 +31,7 @@
     	 // add the strong spirit pickup, if available
     	if(random(20) < 1)								   array_push(pickupchoose, "SpiritPickup"		);
     	
-    	if(random(20) < skill_get("ratwhiskers")) {
+    	if(random(12) < skill_get(mod_current)) {
     		obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
     	}
     }

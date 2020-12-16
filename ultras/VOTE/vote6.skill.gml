@@ -12,7 +12,7 @@
 	sound_play(sndBasicUltra);
 	skill_set("vote2bcool", 0);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
-
+#define skill_ultra   return -1; // Doesn't show up
 #define step
 	with(Player) {
 		if("lst_ammo" not in self) {

@@ -13,50 +13,12 @@
 
 #define step
 	with(Player) {
-		if(!variable_instance_exists(self, "strengthtimer")) strengthtimer = 0;
-		
 		 // For when u are headless
 		if(my_health = 0) {
-			if(strengthtimer = 0) sleep(100);
-			strengthtimer = 30;
+			if(hastened = 0) sleep(100);
+			haste(30, 0.8);
 		}
-		
-		 // While strength is active...
-		if(strengthtimer > 0) {
-			if(!variable_instance_exists(self, "strength_cur")) strength_cur = 0;
-			if(strength_cur = 0) {
-				reloadspeed += 0.6;
-				maxspeed += 0.8;
-				
-				strength_cur++;
-			}
-			
-			 // FAST EFFECTS
-			if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
-				with(instance_create(x - (hspeed * 2) + orandom(3), y - (vspeed * 2) + orandom(3), BoltTrail)) {
-					creator = other; 
-					image_angle = other.direction;
-				    image_yscale = 1.4;
-				    image_xscale = other.speed * 4;
-				}
-			}
-			
-			
-			strengthtimer -= current_time_scale;
-			
-			 // Reset speeds
-			if(strengthtimer <= 0) {
-				strength_cur = 0;
-				reloadspeed -= 0.6;
-				maxspeed -= 0.8;
-				
-				sound_play_pitch(sndFishWarrantEnd, 1.4);
-				sound_play_pitch(sndChickenThrow, 0.8);
-			}
-		}
-		
-		 // Just a safety measure
-		if(strengthtimer < 0) strengthtimer = 0;
 	}
 
-#define orandom(_num)                                            	    		return	mod_script_call_nc('mod', 'metamorphosis', 'orandom', _num);
+#define orandom(_num)                                            	    		return mod_script_call_nc('mod', 'metamorphosis', 'orandom', _num);
+#define haste(amt, pow)                                            	    		return mod_script_call('mod', 'metamorphosis', 'haste', amt, pow);

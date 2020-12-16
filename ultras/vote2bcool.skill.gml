@@ -3,7 +3,7 @@
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 
 #define skill_name    return "VOTE 2 B COOL";
-#define skill_text    return "@yDECIDE YOUR FUTURE@s";
+#define skill_text    return (random(200) > 1 ? "@yDECIDE YOUR FUTURE@s" : "@y¿QUIERES?");
 #define skill_tip     return "U DA BEST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

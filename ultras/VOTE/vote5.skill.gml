@@ -11,7 +11,7 @@
 	sound_play(sndBasicUltra);
 	skill_set("vote2bcool", 0);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
-
+#define skill_ultra   return -1; // Doesn't show up
 #define step
 	with(instances_matching(Explosion, "policedestroy", null)) {
 		policedestroy = "it sure be";

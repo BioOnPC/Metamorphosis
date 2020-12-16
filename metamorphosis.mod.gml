@@ -5,15 +5,17 @@
 	global.sprSleep   = sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
 	
 	 // SHOP SPRITES //
-	global.sprWallMerchantBot   = sprite_add("sprites/Shop/sprWallMerchantBot.png",  6,  0,  0);
-	global.sprWallMerchantOut   = sprite_add("sprites/Shop/sprWallMerchantOut.png",  1,  4,  4);
-	global.sprWallMerchantTop   = sprite_add("sprites/Shop/sprWallMerchantTop.png",  9,  0,  0);
+	global.sprWallMerchantBot   = sprite_add("sprites/Shop/sprWallMerchantBot.png",  10,  0,  0);
+	global.sprWallMerchantOut   = sprite_add("sprites/Shop/sprWallMerchantOut.png",  1,  4,  12);
+	global.sprWallMerchantTop   = sprite_add("sprites/Shop/sprWallMerchantTop.png",  15,  0,  0);
 	global.sprWallMerchantTrans = sprite_add("sprites/Shop/sprWallMerchantTrans.png",  6,  0,  0);
-	global.sprMerchantFloor     = sprite_add("sprites/Shop/sprMerchantFloor.png",  4,  0,  0);
+	global.sprMerchantFloor     = sprite_add("sprites/Shop/sprMerchantFloor.png",  8,  0,  0);
 	global.sprMerchantCarpet    = sprite_add("sprites/Shop/sprMerchantCarpet.png",  1,  83,  34);
 	
 	 // SHOPKEEP //
 	global.sprMerchantIdle     = sprite_add("sprites/Shop/sprMerchantIdle.png", 15, 32, 32);
+	global.sprMerchantHurt     = sprite_add("sprites/Shop/sprMerchantHurt.png", 4, 32, 32);
+	global.sprMerchantDie      = sprite_add("sprites/Shop/sprMerchantDie.png",  6, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
  // General Use Macros:
@@ -37,7 +39,7 @@
         }
     }
     
-    with(instances_matching_gt(GameCont, "loops", 1)) {
+    with(instances_matching_gt(GameCont, "loops", 1)) { // Free mutation for every loop past the first
 		if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
 			lstloop = loops;
 			skillpoints++;
@@ -45,11 +47,63 @@
 		}
     }
     
+    with(Player) {
+    	if("hastened" not in self) {
+    		hastened = 0;
+    		hastened_power = 0;
+    	}
+    	
+    	if(hastened > 0) {
+    		 // FAST EFFECTS
+			if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
+				with(instance_create(x - (hspeed * 2) + orandom(3), y - (vspeed * 2) + orandom(3), BoltTrail)) {
+					creator = other; 
+					image_angle = other.direction;
+				    image_yscale = 1.4;
+				    image_xscale = other.speed * 4;
+				}
+			}
+			
+			hastened -= current_time_scale;
+    	
+	    	if(hastened <= 0) {
+	    		reloadspeed -= hastened_power;
+	    		maxspeed -= hastened_power;
+	    		hastened_power = 0;
+	    		
+	    		sound_play_pitch(sndLabsTubeBreak, 1.4 + random(0.2));
+				sound_play_pitch(sndSwapGold, 0.8 + random(0.1));
+	    	}
+    	}
+    }
+    
      // Some funky stuff to make sure the prompt acts on step. props to yokin for helping a ton and also letting me steal NTTE code
-    if(array_length(instances_matching(CustomObject, "name", "Prompt")) > 0) script_bind_step(prompt_collision, 0);
+    if(array_length(instances_matching(CustomObject, "name", "MetaPrompt")) > 0) script_bind_step(prompt_collision, 0);
     
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= room_speed) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
+    	
+    	 // crown of evolution
+    	if(instance_exists(GameCont) and GameCont.crown = "evolution" and GameCont.subarea = 1) {
+    		 // Go through and find all custom ultra skills
+    		var _mod = mod_get_names("skill"),
+		        _scrt = "skill_ultra",
+		        _ultras = {};
+		    
+		    for(var i = 0; i < array_length(_mod); i++){ 
+		    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) lq_set(_ultras, _mod[i], skill_get(_mod[i]));
+		    }
+		    
+		     // Reset skills
+			skill_clear();
+		    
+		     // Return ultras lost
+		    for(i = 0; i < lq_size(_ultras); i++) {
+				skill_set(string(lq_get_key(_ultras, i)), lq_get_value(_ultras, i));
+			}
+		    
+		    
+    	}
     	
     	 // for horror's ultra
     	if(skill_get("criticalmass") > 0) {
@@ -69,7 +123,11 @@
     			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
 			
 			 // Place down floors.
+			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
+			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) + 96, 3, 1);
 			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 64, ffloor.y + lengthdir_y(128, shop_dir) - 64, 5, 5);
+			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) - 96, 3, 1);
+			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) + 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
 			instance_create(ffloor.x + lengthdir_x(32, shop_dir), ffloor.y + lengthdir_y(32, shop_dir), Floor);
 			
 			 // Make the cool carpet!
@@ -113,8 +171,8 @@
 			}
     	}
     	
-    	with(instances_matching_ne(Player, "strengthtimer", null)) { // Chicken ultra
-    		strengthtimer = 210 * skill_get("strengthindeath");
+    	with(Player) { // Chicken ultra
+    		haste(210 * skill_get("strengthindeath"), 0.5);
     	}
     }
     
@@ -211,7 +269,7 @@
 				spr_shadow_y = 6;
 				
 				 // Sounds:
-				snd_hurt = sndStatueHurt;
+				snd_hurt = sndRhinoFreakHurt;
 				snd_dead = sndStatueDead;
 				
 				 // Vars:
@@ -252,7 +310,7 @@
 			}
 			break;
 		
-		case "Prompt":
+		case "MetaPrompt":
 			o = instance_create(_x, _y, CustomObject);
 			with(o){
 				 // Vars:
@@ -275,12 +333,12 @@
 			with(o){
 				 // Visual:
 				spr_idle = global.sprMerchantIdle;
-				spr_hurt = sprBonePileHurt;
-				spr_dead = sprBonePileDead;
+				spr_hurt = global.sprMerchantHurt;
+				spr_dead = global.sprMerchantDie;
 				spr_shadow = shd24;
 				
 				 // Sounds:
-				snd_hurt = sndHitRock;
+				snd_hurt = sndRatHit;
 				snd_dead = sndPillarBreak;
 				
 				 // Vars:
@@ -292,7 +350,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "Prompt", "Shopkeep", "Mutator"];
+			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -489,10 +547,10 @@
 	
 	mod_script_call_nc('skill', 'criticalmass', 'skill_reset', 0);
 	
-#define Prompt_begin_step
+#define MetaPrompt_begin_step
 	with(nearwep) instance_delete(id);
 	
-#define Prompt_end_step
+#define MetaPrompt_end_step
 	 // Follow Creator:
 	var c = creator;
 	if(c != noone){
@@ -511,7 +569,7 @@
 		else instance_destroy();
 	}
 	
-#define Prompt_cleanup
+#define MetaPrompt_cleanup
 	with(nearwep) instance_delete(id);
 
 #define Shopkeep_step
@@ -524,7 +582,7 @@
 		Creates an E key prompt with the given text that targets the current instance
 	*/
 	
-	with(obj_create(x, y, "Prompt")){
+	with(obj_create(x, y, "MetaPrompt")){
 		text    = _text;
 		creator = other;
 		depth   = other.depth;
@@ -536,7 +594,7 @@
 
 #define prompt_collision
 	 // Prompt Collision:
-	var _inst = instances_matching(CustomObject, "name", "Prompt");
+	var _inst = instances_matching(CustomObject, "name", "MetaPrompt");
 	with(_inst) pick = -1;
 	_inst = instances_matching(_inst, "visible", true);
 	if(array_length(_inst) > 0){
@@ -650,6 +708,23 @@
 	array_push(t, "BECOME STRONGER");
 	
 	return metacolor + t[irandom(array_length(t) - 1)];
+
+#define haste(amt, pow)
+	if(amt > 0 and pow > 0) {
+		if(hastened < amt) hastened = amt;
+		
+		if(hastened_power = 0) {
+			hastened_power = pow;
+			reloadspeed    += pow;
+			maxspeed	   += pow;
+		}
+		
+		else if(hastened_power < pow) {
+			hastened_power = pow;
+			reloadspeed += pow - hastened_power;
+			maxspeed    += pow - hastened_power;
+		}
+	}
 
 #define orandom(_num) return irandom_range(-_num, _num);
 
