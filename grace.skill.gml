@@ -7,17 +7,17 @@
 #define skill_tip     return "SOLID PLAY";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut);
+#define skill_take    sound_mutation_play();
 #define step
 	if(instance_exists(Player)) {
 	    with(projectile) {
 	    	if(!variable_instance_exists(self, "grace")) grace = 0;
-	    	
+
 	    	var nplayer = instance_nearest(x, y, Player);
 	    	if(!(nplayer.notoxic > 0 and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
 		    	if(grace = 0 && point_distance(x, y, nplayer.x, nplayer.y) < (12 + (sprite_get_width(mask_index) * 0.75))) {
 		    		grace = 1;
-		    		
+
 		    		 // Stolen from defpack snipers. thank u karm and jsburg
 		    		sound_play_pitch(sndSnowTankCooldown, 8);
 					sound_play_pitchvol(sndShielderDeflect, 4, .5);
