@@ -7,7 +7,7 @@
 #define skill_tip     return "SOLID PLAY";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_mutation_play();
+#define skill_take    sound_play(sndMut); //sound_mutation_play();
 #define step
 	if(instance_exists(Player)) {
 	    with(projectile) {

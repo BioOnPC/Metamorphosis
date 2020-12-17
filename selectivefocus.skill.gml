@@ -162,8 +162,6 @@
 			speed		 = other.speed;
 		}
 		
-		sleep(5 * damage);
-		
 		 // Goodbye:
 		instance_delete(id);
 	}
