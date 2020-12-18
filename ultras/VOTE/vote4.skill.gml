@@ -14,7 +14,7 @@
 #define skill_ultra   return -1; // Doesn't show up
 #define step
 	with(enemy) {
-		if(array_length(instances_matching(BoltStick, "target", self)) > 0) {
+		if("my_health" in self and array_length(instances_matching(BoltStick, "target", self)) > 0) {
 			if("tyranny_lsthealth" not in self) tyranny_lsthealth = my_health;
 			
 			if(tyranny_lsthealth > my_health) {

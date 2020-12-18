@@ -13,7 +13,7 @@
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 #define skill_ultra   return -1; // Doesn't show up
 #define step
-	with(instances_matching(instances_matching_ne(projectile, "wallbounce", null), "grassroots", null)) {
+	with(instances_matching(instances_matching(instances_matching_ne(projectile, "wallbounce", null), "creator", Player), "grassroots", null)) {
 		var hbox_w = sprite_get_width(mask_index)/2,
 			hbox_h = sprite_get_height(mask_index)/2;
 		if(array_length(instance_rectangle_bbox(x + hspeed - hbox_w, y + vspeed - hbox_h, x + hspeed + hbox_w, y + vspeed + hbox_h, Wall)) > 0 or
