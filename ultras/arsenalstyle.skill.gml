@@ -18,7 +18,7 @@
 				var nenemy = instance_near(x, y, enemy, 128), 
 					aim_dir = 0;
 					
-				if(!weapon_is_melee(wep) and instance_seen(x, y, nenemy)) {
+				if(!weapon_is_melee(wep) and (weapon_get_type(wep) != 4 or skill_get(mut_boiling_veins)) and instance_seen(x, y, nenemy)) {
 					 // Make sure this only happens once and makes it so weppickups that fire expend their ammo
 					ammo = 0;
 					

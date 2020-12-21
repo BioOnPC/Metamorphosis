@@ -4,7 +4,7 @@
 	global.sprCartridge = sprite_add("sprites/VFX/sprFatAmmo.png",  7,  6,  6);
 
 #define skill_name    return "MAGAZINE FINGERS";
-#define skill_text    return "MORE @yAMMO@s FROM AMMO BOXES";
+#define skill_text    return "GET MORE @yAMMO@s";
 #define skill_tip     return "OVERLOADED";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

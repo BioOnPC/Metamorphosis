@@ -13,32 +13,34 @@
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 #define skill_ultra   return -1; // Doesn't show up
 #define step
-	with(instances_matching(instances_matching(instances_matching_ne(projectile, "wallbounce", null), "creator", Player), "grassroots", null)) {
-		var hbox_w = sprite_get_width(mask_index)/2,
-			hbox_h = sprite_get_height(mask_index)/2;
-		if(array_length(instance_rectangle_bbox(x + hspeed - hbox_w, y + vspeed - hbox_h, x + hspeed + hbox_w, y + vspeed + hbox_h, Wall)) > 0 or
-		   array_length(instance_rectangle_bbox(x - hspeed - hbox_w, y - vspeed - hbox_h, x - hspeed + hbox_w, y - vspeed + hbox_h, Wall)) > 0) {
-			grassroots = "yeah!";
-			sound_play_pitch(sndPillarBreak, 1.4 + random(0.3) + (damage/10));
-			sound_play_pitch(sndPlantSnare, 0.8 + random(0.3)  + (damage/10));
-			sound_play_pitch(sndGuitar, 1.2 + random(0.3)  + (damage/10));
-			sleep(1);
-			
-			direction += 20;
-			image_angle += 20;
-			
-			with(instance_copy(false)){
-				with(variable_instance_get_names(self)){
-					var	_value = variable_instance_get(other, self),
-						_clone = data_clone(_value);
-						
-					if(_value != _clone){
-						variable_instance_set(other, self, _clone);
-					}
-				}
+	with(instances_matching(instances_matching_ne(projectile, "wallbounce", null), "grassroots", null)) {
+		if("creator" in self and instance_exists(creator) and creator.object_index = Player) {
+			var hbox_w = sprite_get_width(mask_index)/2,
+				hbox_h = sprite_get_height(mask_index)/2;
+			if(array_length(instance_rectangle_bbox(x + hspeed - hbox_w, y + vspeed - hbox_h, x + hspeed + hbox_w, y + vspeed + hbox_h, Wall)) > 0 or
+			   array_length(instance_rectangle_bbox(x - hspeed - hbox_w, y - vspeed - hbox_h, x - hspeed + hbox_w, y - vspeed + hbox_h, Wall)) > 0) {
+				grassroots = "yeah!";
+				sound_play_pitch(sndPillarBreak, 1.4 + random(0.3) + (damage/10));
+				sound_play_pitch(sndPlantSnare, 0.8 + random(0.3)  + (damage/10));
+				sound_play_pitch(sndGuitar, 1.2 + random(0.3)  + (damage/10));
+				sleep(1);
 				
-				direction += -40;
-		    	image_angle += -40;
+				direction += 20;
+				image_angle += 20;
+				
+				with(instance_copy(false)){
+					with(variable_instance_get_names(self)){
+						var	_value = variable_instance_get(other, self),
+							_clone = data_clone(_value);
+							
+						if(_value != _clone){
+							variable_instance_set(other, self, _clone);
+						}
+					}
+					
+					direction += -40;
+			    	image_angle += -40;
+				}
 			}
 		}
 	}
