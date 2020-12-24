@@ -12,5 +12,6 @@
 /loadskill turtleshell
 /loadskill leadeyelids
 /loadskill cheekpouch
+/loadskill busybody
 /load ultras
 //loadcrown crowns/evolution
