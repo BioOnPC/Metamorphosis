@@ -8,12 +8,8 @@
 #define skill_tip     return "HELL WORLD";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take(_num)  
-	sound_play(sndMut); //sound_mutation_play();
-	
-	if(_num > 0 and instance_exists(LevCont)) {
-		with(GameCont) wepmuts++;
-	}
+#define skill_wepspec return 1;
+#define skill_take sound_play(sndMut);
 
 #define step
 	with(instances_matching(CustomProjectile, "name", "Fire Bullet")) pyroflammable = true;

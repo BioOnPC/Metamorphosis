@@ -26,7 +26,7 @@
 				c.bastion_projectiles = [];
 			}
 			with(instances_matching(instances_matching(projectile, "team", team), "deflected", 1)){ // Locate projectiles that have been reflected
-				if(point_distance(x, y, other.x, other.y) < 48){ // Double check to make sure they're close to the shield
+				if(("bastion_deflected" not in self or bastion_deflected = false) and point_distance(x, y, other.x, other.y) < 48){ // Double check to make sure they're close to the shield
 					array_push(c.bastion_projectiles, variable_instance_get_list(id)); // Add them to the list
 					
 					 // Effects:
@@ -56,7 +56,7 @@
 						
 						 // Manually Set Specific Variables:
 						with(o){
-							bastion_deflected = false;
+							bastion_deflected = true;
 							
 							var n = 8 + (_num / 3),
 								r = lerp((n * _skill), n, 2/3);
