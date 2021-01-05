@@ -18,7 +18,7 @@
 		if("scartissue" not in self) scartissue = my_health;
 		
 		if(scartissue != my_health) {
-			if(scartissue < my_health) {
+			if(instance_exists(enemy) and scartissue < my_health) {
 				var healamt = my_health - scartissue;
 				
 				my_health -= healamt;

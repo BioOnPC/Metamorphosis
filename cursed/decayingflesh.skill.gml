@@ -30,7 +30,7 @@
 		if("flesh_lsthealth" not in self) flesh_lsthealth = my_health;
 		
 		if(flesh_lsthealth != my_health) {
-			if(flesh_lsthealth > my_health) {
+			if(instance_exists(enemy) and flesh_lsthealth > my_health) {
 				var fleshdmg = flesh_lsthealth - my_health
 				sound_play(sndBloodCannonEnd);
 				
