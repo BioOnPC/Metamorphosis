@@ -17,7 +17,7 @@
 			with(instances_matching_gt(WepPickup, "ammo", 0)) { // Find any weppickup that hasn't been touched yet
 				var nenemy = instance_near(x, y, enemy, 128), 
 					aim_dir = 0;
-					
+				
 				if(!weapon_is_melee(wep) and (weapon_get_type(wep) != 4 or skill_get(mut_boiling_veins)) and instance_seen(x, y, nenemy)) {
 					 // Make sure this only happens once and makes it so weppickups that fire expend their ammo
 					ammo = 0;
@@ -36,31 +36,41 @@
 								if(!instance_exists(nenemy)) aim_dir = point_direction(other.x, other.y, mouse_x[index], mouse_y[index]);
 								else aim_dir = point_direction(other.x, other.y, nenemy.x, nenemy.y);
 								
-								var cur_wep  = wep,
-									cur_x    = x,
-									cur_y    = y,
-									cur_kick = wkick,
-									cur_load = reload;
+								if(crown_current = crwn_protection) {
+									with(instance_create(other.x, other.y, HPPickup)) {
+										motion_add(aim_dir, 4 + random(1));
+										sound_play_pitch(sndHPPickup, 1.8 + random(2));
+										sound_play_pitch(sndGrenadeRifle, 1.4 + random(2));
+									}
+								}
 								
-								wep = other.wep;
-								x = other.x;
-								y = other.y;
-								
-								player_fire(aim_dir);
-								reload = max(cur_load, 0);
-								ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
-								
-								var kick = wkick - cur_kick;
-								wkick -= kick;
-								
-								wep = cur_wep;
-								x = cur_x;
-								y = cur_y;
+								else {
+									var cur_wep  = wep,
+										cur_x    = x,
+										cur_y    = y,
+										cur_kick = wkick,
+										cur_load = reload;
+									
+									wep = other.wep;
+									x = other.x;
+									y = other.y;
+									
+									player_fire(aim_dir);
+									reload = max(cur_load, 0);
+									ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
+									
+									var kick = wkick - cur_kick;
+									wkick -= kick;
+									
+									wep = cur_wep;
+									x = cur_x;
+									y = cur_y;
+								}
 								
 								 // Visually rotate gun to aim direction
 								other.rotation = aim_dir;
 							
-								wait weapon_get_load(cur_wep); // Make sure
+								wait weapon_get_load(cur_wep); // Make sure 
 							}
 							
 							exit; // Exit the forked script

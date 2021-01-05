@@ -33,6 +33,8 @@
 #macro CrystallinePickup instances_matching(CustomObject, "name", "CrystallinePickup")
 	
 #define step
+	script_bind_begin_step(curse_mut, 0);
+
     if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
         with(instances_matching_ne(HPPickup, "sprite_index", global.sprMedpack)) {
             sprite_index = global.sprMedpack;
@@ -187,7 +189,7 @@
 
 #define draw
 	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
-		with(instances_matching_ne(projectile, "grace", null)) {
+		with(instances_matching_gt(instances_matching_ne(projectile, "grace", null), "grace", 0)) {
 			var nplayer = instance_nearest(x, y, Player);
 			if(!(nplayer.race = "frog" and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
 				draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, c_red, 1 - point_distance(x, y, nplayer.x, nplayer.y)/32);
@@ -246,6 +248,7 @@
 			}
 			break;
 		
+		case "AdrenalinePickup":
 		case "CrystallinePickup":
 			o = instance_create(_x, _y, CustomObject);
 			with(o){
@@ -350,7 +353,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -393,7 +396,32 @@
 	
 	 // Important:
 	return o;
+
+#define AdrenalinePickup_step
+	if(!instance_exists(creator)){
+		instance_destroy();
+	}
+	else{
+		x = creator.x;
+		y = creator.y;
+	}
 	
+#define AdrenalinePickup_destroy
+	var _player = instance_nearest(x, y, Player);
+	if(instance_exists(_player) && place_meeting(x, y, _player)){
+		with(_player){
+			var _duration = other.num * 45;
+			infammo += _duration;
+			
+			 // Effects:
+			sleep(30);
+			
+			sound_play_pitch(sndAmmoChest, 1.6 + random(0.4));
+			sound_play_pitch(sndSwapShotgun, 1.2 + random(0.2));
+			sound_play_pitch(sndSwapCursed, 1.8 + random(0.1));
+		}
+	}
+
 #define CrystallineEffect_step
 	if(instance_exists(creator) && creator.nexthurt > current_frame){
 		var _time = creator.nexthurt - current_frame;
@@ -725,6 +753,50 @@
 			maxspeed    += pow - hastened_power;
 		}
 	}
+
+#define current_cursed
+	var c = 0;
+	
+	with(Player) {
+		c += (curse + bcurse) * 10; 
+	}
+	
+	if(crown_current = crwn_curses) c = max(c, 6) * 5;
+	
+	c = random(100) < c;
+	
+	if(skill_get("repentance")) c = 0; // NO MORE CURSED MUTATIONS
+	
+	return c;
+
+#define curse_mut
+	if(array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
+		for(i = 0; i < instance_number(SkillIcon); i++) {
+			with(instances_matching(SkillIcon, "num", i)) {
+				curseified = "maybe!";
+
+				if(current_cursed()) {
+					var _mod = mod_get_names("skill"),
+				        _scrt = "skill_cursed",
+				        _cursed = [];
+				    
+				     // Go through and find all cursed mutations
+				    for(var i = 0; i < array_length(_mod); i++){ 
+				    	if(!skill_get(_mod[i]) and array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0 and mod_script_exists("skill", _mod[i], _scrt) and  mod_script_call("skill", _mod[i], _scrt) > 0) array_push(_cursed, _mod[i]);
+				    }
+				    
+				    if(array_length(_cursed) > 0) {
+				    	skill = _cursed[irandom_range(0, array_length(_cursed) - 1)];
+				    	name = skill_get_name(skill);
+				    	text = skill_get_text(skill);
+				    	mod_script_call("skill", skill, "skill_button");
+				    }
+				}
+			}
+		}
+	}
+	
+	instance_destroy();
 
 #define orandom(_num) return irandom_range(-_num, _num);
 

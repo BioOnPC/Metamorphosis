@@ -13,5 +13,17 @@
 /loadskill leadeyelids
 /loadskill cheekpouch
 /loadskill busybody
+/loadskill secretstash
+//loadskill crowncranium
+
+// CURSED MUTATIONS
+/loadskill cursed/adrenaline
+/loadskill cursed/decayingflesh
+/loadskill cursed/vacuumvacuoles
+/loadskill cursed/scartissue
+/loadskill cursed/displacement
+/loadskill cursed/repentance
+/loadskill cursed/impatience
+
 /load ultras
 //loadcrown crowns/evolution

@@ -18,7 +18,7 @@
     }
     
     with(projectile) {
-    	if(variable_instance_exists(self, "damage") and damage > 1 and 
+    	if(instance_exists(creator) and creator.object_index != Player and variable_instance_exists(self, "damage") and damage > 1 and 
     	 ((variable_instance_exists(self, "turtledamage") and turtledamage != damage) or !variable_instance_exists(self, "turtledamage"))) {
     		damage--;
     		turtledamage = damage;

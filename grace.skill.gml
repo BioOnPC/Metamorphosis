@@ -9,16 +9,15 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_take    sound_play(sndMut); //sound_mutation_play();
 #define step
-	if(instance_exists(Player)) {
-	    with(projectile) {
+	with(Player) {
+	    with(instance_rectangle(x - 24, y - 24, x + 24, y + 24, instances_matching_ne(projectile, "team", team))) {
 	    	if(instance_exists(self)) {
 		    	if(!variable_instance_exists(self, "grace")) grace = 0;
 	
-		    	var nplayer = instance_nearest(x, y, Player);
-		    	if(!(nplayer.notoxic > 0 and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire and team != nplayer.team) {
-			    	if(grace = 0 && point_distance(x, y, nplayer.x, nplayer.y) < (12 + (sprite_get_width(mask_index) * 0.75))) {
-			    		grace = 1;
-	
+		    	
+		    	if(!(other.notoxic > 0 and object_index = ToxicGas) and object_index != Flame and object_index != TrapFire) {
+			    	if(grace = 0 && point_distance(x, y, other.x, other.y) < (12 + (sprite_get_width(mask_index) * 0.75))) {
+			    		grace = other.id;
 			    		 // Stolen from defpack snipers. thank u karm and jsburg
 			    		sound_play_pitch(sndSnowTankCooldown, 8);
 						sound_play_pitchvol(sndShielderDeflect, 4, .5);
@@ -27,24 +26,35 @@
 			    		with(instance_create(x + hspeed, y + vspeed, ChickenB)) image_speed = 0.8;
 			    	}
 		    	}
-		    	
-		    	if(grace = 1 && point_distance(x, y, nplayer.x, nplayer.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && nplayer.lsthealth = nplayer.my_health) {
-		    		sound_play_pitch(sndMenuLoadout, 0.8 + random(0.4));
-		    		grace = 0;
-		    		with(nplayer) {
-		    			haste(other.damage * 20, 0.6);
-		    		}
+	    	}
+	    }
+	    
+	    with(instances_matching(projectile, "grace", id)) {
+		    if(instance_exists(self) and point_distance(x, y, other.x, other.y) > (12 + (sprite_get_width(mask_index) * 1.2)) && other.lsthealth = other.my_health) {
+	    		sound_play_pitch(sndMenuLoadout, 0.8 + random(0.4));
+	    		grace = 0;
+	    		with(other) {
+	    			haste(other.damage * 20, 0.6 * skill_get(mod_current));
+	    		}
 	
-		    		with(projectile) {
-		    			if(instance_exists(self) and point_distance(x, y, nplayer.x, nplayer.y) < 64) {
-							sound_play_pitchvol(sndGoldChest, 6 + random(0.4), .4);
-							sound_play_pitchvol(sndGoldPickup, 1.3 + random(0.4), .4);
-		    				mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
-		    			}
-		    		}
-		    	}
+	    		with(projectile) {
+	    			if(instance_exists(self) and id != other.id and point_distance(x, y, other.x, other.y) < 64) {
+						sound_play_pitchvol(sndGoldChest, 6 + random(0.4), .4);
+						sound_play_pitchvol(sndGoldPickup, 1.3 + random(0.4), .4);
+	    				mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
+	    			}
+	    		}
+	    		
+	    		mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
 	    	}
 	    }
 	}
 	
 #define haste(amt, pow)                                            	    		return mod_script_call('mod', 'metamorphosis', 'haste', amt, pow);
+#define instance_rectangle(_x1, _y1, _x2, _y2, _obj)
+	/*
+		Returns all given instances with their coordinates touching a given rectangle
+		Much better performance than manually performing "point_in_rectangle()" with every instance
+	*/
+	
+	return instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "x", _x1), "x", _x2), "y", _y1), "y", _y2);
