@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	//global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.newLevel = false;
 
 #define skill_name    return "CROWN CRANIUM";
 #define skill_text    return desc_decide();
@@ -88,8 +89,35 @@
 				break;
 		}
 	}
+
+
+#define level_start
+	var raceList = [];
+	with(Player) {
+		if(array_find_index(raceList, race) == -1){
+			array_push(raceList, race);
+		}
+	}
+	for(var i = 0; i < array_length(raceList); i++){
+		switch(raceList[i]){
+			case "steroids":
+				with(Player){
+					for(var i2 = 1; i2 < array_length(ammo); i2++){
+						ammo[i2] += typ_ammo[i2]*2;
+						ammo[i2] = min(ammo[i2], typ_amax[i2]);
+					}
+				}
+				break;
+		}
+	}
+	
 	
 #define step
+	if(instance_exists(GenCont)) global.newLevel = true;
+	else if(global.newLevel){
+		global.newLevel = false;
+		level_start();
+	}
 	var raceList = [];
 	with(Player) {
 		if(array_find_index(raceList, race) == -1){
@@ -117,12 +145,44 @@
 				break;
 			case "crystal":
 				with(Player) {
-				
+					var hp = my_health;
+					if(fork()){
+						wait(0);
+						if(!instance_exists(self)){exit;}
+						if(my_health < hp){
+							if(fork()){
+								repeat(15){
+									if(!instance_exists(self)){exit;}
+									with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
+										move_contact_solid(point_direction(other.x,other.y,x,y), 8);
+									}
+									wait(0);
+								}
+								exit;
+							}
+							with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, projectile)){
+								team = other.team;
+								direction = direction + 180;
+								image_angle = image_angle + 180;
+								instance_create(x,y,Deflect);
+							}
+							for(var i = 0; i < 360; i += 10){
+								with(instance_create(x,y,Dust)){
+									direction = i;
+									speed = 8;
+								}
+							}
+						}
+						exit;
+					}
 				}
 				break;
 			case "eyes":
-				with(Player) {
-				
+				with(Pickup){
+					if(object_index != WepPickup){
+						var p = instance_nearest(x,y,Player);
+						move_contact_solid(point_direction(x,y,p.x,p.y), 1);
+					}
 				}
 				break;
 			case "melting":
@@ -166,9 +226,6 @@
 					}
 				}
 				break;
-			case "steroids":
-			
-				break;
 			case "robot":
 					with(instances_matching_ne(instances_matching_ge(WepPickup, "ammo", 1), "craniumrobot", 1)){
 						craniumrobot = 1;
@@ -189,7 +246,14 @@
 				}
 				break;
 			case "rebel":
-			
+				with(Ally) {
+					var _c = creator;
+					if(fork()){
+						wait(0);
+						if(!instance_exists(self) && !instance_exists(Portal) && irandom(2) == 0){_c.my_health++;}
+						exit;
+					}
+				}
 				break;
 			case "rogue":
 				with(Player) {
@@ -236,9 +300,22 @@
 				}
 				break;
 			case "parrot":
-			
+				with(instances_matching_ne(instances_matching(CustomHitme, "name", "Pet"), "craniumparrot", 1)){
+					if(instance_exists(leader)){
+						craniumparrot = 1;
+						maxspeed*=1.25;
+					}
+				}
 				break;
 		}
 	}
 
+#define instance_rectangle_bbox(_x1, _y1, _x2, _y2, _obj)
+	/*
+		Returns all given instances with their bounding box touching a given rectangle
+		Much better performance than manually performing 'place_meeting()' on every instance
+	*/
+	
+	return instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "bbox_right", _x1), "bbox_left", _x2), "bbox_bottom", _y1), "bbox_top", _y2);
+	
 #define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
