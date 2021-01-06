@@ -351,6 +351,36 @@
 				size       = 1;
 			}
 			break;
+			
+		case "FriendlyNecro":
+			o = instance_create(_x, _y, CustomObject);
+			with(o){
+				image_index = 1;
+				image_speed = 0.4;
+				sprite_index = sprReviveArea;
+			}
+			break;
+			
+		case "FreakFriend":
+			o = instance_create(_x, _y, CustomHitme);
+			with(o){
+				my_health = 4;
+				while(place_meeting(x, y, Wall)){
+					x = other.x+random(12)-6;
+					y = other.y+random(12)-6;
+				}
+				image_speed = 0.4;
+				friction = 0.25;
+				maxspeed = 0.5;
+				sprite_index = sprFreak1Idle;
+				spr_idle = sprFreak1Idle;
+				spr_walk = sprFreak1Walk;
+				spr_hurt = sprFreak1Hurt;
+				snd_hurt = sndFreakHurt;
+				right = 1;
+				wanderDir = direction;
+			}
+			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
 			return ["AdrenalinePickup", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
@@ -515,6 +545,86 @@
 			}
 		}
 	}
+
+#define FriendlyNecro_step
+	if("counter" not in self){
+		counter = 0;
+	}
+	counter += current_time_scale;
+	if(counter >= 60){
+		instance_destroy();
+	}
+	
+#define FriendlyNecro_destroy
+	var _t = team;
+	var _c = creator;
+	with(instances_meeting(x, y, Corpse)){
+		with(obj_create(x,y,"FreakFriend")){
+			team = _t;
+			creator = _c;
+		}
+		instance_create(x,y,ReviveFX);
+		instance_destroy();
+	}
+
+#define FreakFriend_step
+	if(my_health <= 0){instance_destroy();exit;}//make them disappear in a poof
+	//reusing some AI from an older mod!
+	if(collision_line(x, y, creator.x, creator.y, Wall, false, false) == -4){
+		motion_add_ct(point_direction(x, y, creator.x, creator.y), 0.5);
+		wanderDir = direction;
+	}
+	else if(random(4)<1){
+		wanderDir = (direction + point_direction(x,y,creator.x, creator.y)) / 2;
+	}
+	motion_add_ct(wanderDir, 1);
+	speed = min(speed, 4);
+	if(distance_to_object(hitme) < 10){
+		x += 100;
+		var near = instance_nearest(x-100,y,hitme);
+		x -= 100;
+		motion_add_ct(point_direction(near.x, near.y, x, y), 1);
+	}
+	if place_meeting(x + hspeed, y + vspeed, Wall) move_bounce_solid(true);
+    var right = sign(lengthdir_x(1, direction));
+    if(right == 0){right = 1;}
+	if(sprite_index == spr_hurt && image_index == sprite_get_number(spr_hurt) - 1){
+		sprite_index = spr_idle;
+	}
+	if(sprite_index != spr_hurt && sprite_index != spr_dead){
+		if(speed > 0){
+			sprite_index = spr_walk;
+		}else{
+			sprite_index = spr_idle;
+		}
+	}
+	//damage enemies
+	with(instances_meeting(x, y, enemy)){
+		if(projectile_canhit_melee(other) && "canmelee" in self && canmelee && meleedamage > 0){
+			projectile_hit(other, meleedamage);
+		}
+		with(other){
+			if(projectile_canhit_melee(other)){
+				projectile_hit(other, 3);
+				sound_play(sndFreakMelee);
+			}
+		}
+	}
+	
+#define FreakFriend_draw
+    draw_sprite_ext(sprite_index, image_index, x, y, image_xscale * right, image_yscale, image_angle, image_blend, image_alpha);
+	
+#define FreakFriend_hurt(_dmg, _spd, _dir)
+    my_health -= _dmg;
+    nexthurt = current_frame + 5;
+    sprite_index = spr_hurt;
+    image_index = 0;
+    sound_play_hit(snd_hurt, 0.6);
+    motion_add(_dir, _spd);
+
+#define FreakFriend_destroy
+	instance_create(x,y,ReviveFX);
+	sound_play(sndFreakDead);
 
 #define Mutator_step
 	x = xstart;
@@ -707,8 +817,8 @@
 	}
 	
 	instance_destroy();
-	
 
+	
   //				--- OTHER SCRIPTS ---			//
 #define tip_generate
 	var t = [];

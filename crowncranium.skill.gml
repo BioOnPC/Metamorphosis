@@ -129,8 +129,29 @@
 			
 				break;
 			case "plant":
-				with(Player) {
-				
+				if(instance_exists(enemy)){
+					with(Player) {
+						if("craniumplant" not in self){
+							craniumplant = 0;
+						}
+						var _x = x;
+						var _y = y;
+						if(fork()){
+							wait(0);
+							if(!instance_exists(self)){exit;}
+							craniumplant += point_distance(x,y,_x,_y);
+							exit;
+						}
+						//if they've moved the equivalent of 100 tiles (wall width) spawn a sapling
+						if(craniumplant > 100 * 12){
+							craniumplant -= 100 * 12;
+							with(instance_create(x,y,Sapling)){
+								team = other.team;
+								creator = other;
+								raddrop = 0;
+							}
+						}
+					}
 				}
 				break;
 			case "venuz":
@@ -184,7 +205,14 @@
 				}
 				break;
 			case "skeleton":
-			
+				with(instances_matching_le(enemy, "my_health", 0)){
+					if(irandom(4) == 0){
+						with(obj_create(x, y, "FriendlyNecro")){
+							creator = instance_nearest(x, y, Player);
+							team = creator.team;
+						}
+					}
+				}
 				break;
 			case "frog":
 				with(Player) {
@@ -212,3 +240,5 @@
 				break;
 		}
 	}
+
+#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
