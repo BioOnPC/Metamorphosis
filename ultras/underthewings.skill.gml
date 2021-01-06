@@ -15,7 +15,7 @@
 			ntte_pet_max *= _num + 1;
 			if(race = "parrot") {
 				repeat(2) {
-					pet_spawn(x, y, choose("Parrot", "Scorpion", "Slaughter", "Coolguy"));
+					pet_spawn(x, y, choose("Parrot", "Scorpion", "Slaughter", "CoolGuy"));
 				}
 			}
 		}
