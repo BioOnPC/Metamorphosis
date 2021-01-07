@@ -56,37 +56,39 @@
 			array_push(raceList, race);
 		}
 	}
-	for(var i = 0; i < array_length(raceList); i++){
-		switch(raceList[i]){
-			case "horror":
-				var mutList = [];
-				var mutNum = 0;
-				while(skill_get_at(mutNum + 1) != null){
-					if(is_real(skill_get_at(mutNum)) || is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra")){
-						array_push(mutList, skill_get_at(mutNum));
+	repeat(skill_get(mod_current)){
+		for(var i = 0; i < array_length(raceList); i++){
+			switch(raceList[i]){
+				case "horror":
+					var mutList = [];
+					var mutNum = 0;
+					while(skill_get_at(mutNum + 1) != null){
+						if(is_real(skill_get_at(mutNum)) || is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra")){
+							array_push(mutList, skill_get_at(mutNum));
+						}
+						mutNum++;
 					}
-					mutNum++;
-				}
-				repeat(2){
-					var check = true;
-					for(var i = 0; i < array_length(mutList); i++){
-						if(skill_get(mutList[i]) > 0){
-							check = false;
+					repeat(2){
+						var check = true;
+						for(var i = 0; i < array_length(mutList); i++){
+							if(skill_get(mutList[i]) > 0){
+								check = false;
+							}
+						}
+						if(check){
+							break;
+						}
+						var skill = mutList[irandom(array_length(mutList)-1)];
+						while(skill_get(skill) <= 0){
+							skill = mutList[irandom(array_length(mutList)-1)];
+						}
+						skill_set(skill, 0);
+						if(skill != mut_patience){
+							GameCont.skillpoints += 1;
 						}
 					}
-					if(check){
-						break;
-					}
-					var skill = mutList[irandom(array_length(mutList)-1)];
-					while(skill_get(skill) <= 0){
-						skill = mutList[irandom(array_length(mutList)-1)];
-					}
-					skill_set(skill, 0);
-					if(skill != mut_patience){
-						GameCont.skillpoints += 1;
-					}
-				}
-				break;
+					break;
+			}
 		}
 	}
 
@@ -98,16 +100,25 @@
 			array_push(raceList, race);
 		}
 	}
-	for(var i = 0; i < array_length(raceList); i++){
-		switch(raceList[i]){
-			case "steroids":
-				with(Player){
-					for(var i2 = 1; i2 < array_length(ammo); i2++){
-						ammo[i2] += typ_ammo[i2]*2;
-						ammo[i2] = min(ammo[i2], typ_amax[i2]);
+	repeat(skill_get(mod_current)){
+		for(var i = 0; i < array_length(raceList); i++){
+			switch(raceList[i]){
+				case "melting":
+					repeat(5 * (GameCont.loops+1)){
+						with(instance_random(Floor)){
+							obj_create(x, y, "MeatBlob");
+						}
 					}
-				}
-				break;
+					break;
+				case "steroids":
+					with(Player){
+						for(var i2 = 1; i2 < array_length(ammo); i2++){
+							ammo[i2] += typ_ammo[i2]*2;
+							ammo[i2] = min(ammo[i2], typ_amax[i2]);
+						}
+					}
+					break;
+			}
 		}
 	}
 	
@@ -124,189 +135,188 @@
 			array_push(raceList, race);
 		}
 	}
-	for(var i = 0; i < array_length(raceList); i++){
-		switch(raceList[i]){
-			case "fish":
-				with(Player) {
-					with(instances_matching_ne(ChestOpen, "craniumfish", 1)){
-						craniumfish = 1;
-						if(distance_to_point(other.x,other.y) < 16){
-							if(other.infammo <= 0) { // funny effects (yoinked from busybody)
-								sound_play_pitch(sndShotReload, 0.8 + random(0.4));
-								sound_play_pitchvol(sndNadeReload, 0.5 + random(0.2), 1.2);
-								sound_play_pitch(sndShotgunHitWall, 0.7 + random(0.2));
-								sound_play_pitchvol(sndRobotEat, 1.5 + random(0.3), 1.4);
+	repeat(skill_get(mod_current)){
+		for(var i = 0; i < array_length(raceList); i++){
+			switch(raceList[i]){
+				case "fish":
+					with(Player) {
+						with(instances_matching_ne(ChestOpen, "craniumfish", 1)){
+							craniumfish = 1;
+							if(distance_to_point(other.x,other.y) < 16){
+								if(other.infammo <= 0) { // funny effects (yoinked from busybody)
+									sound_play_pitch(sndShotReload, 0.8 + random(0.4));
+									sound_play_pitchvol(sndNadeReload, 0.5 + random(0.2), 1.2);
+									sound_play_pitch(sndShotgunHitWall, 0.7 + random(0.2));
+									sound_play_pitchvol(sndRobotEat, 1.5 + random(0.3), 1.4);
+								}
+								//and apply the infinite ammo. (extends infinite ammo time, as well!)
+								other.infammo += 120;
 							}
-							//and apply the infinite ammo. (extends infinite ammo time, as well!)
-							other.infammo += 120;
 						}
 					}
-				}
-				break;
-			case "crystal":
-				with(Player) {
-					var hp = my_health;
-					if(fork()){
-						wait(0);
-						if(!instance_exists(self)){exit;}
-						if(my_health < hp){
-							if(fork()){
-								repeat(15){
-									if(!instance_exists(self)){exit;}
-									with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
-										move_contact_solid(point_direction(other.x,other.y,x,y), 8);
+					break;
+				case "crystal":
+					with(Player) {
+						var hp = my_health;
+						if(fork()){
+							wait(0);
+							if(!instance_exists(self)){exit;}
+							if(my_health < hp){
+								if(fork()){
+									repeat(15){
+										if(!instance_exists(self)){exit;}
+										with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
+											move_contact_solid(point_direction(other.x,other.y,x,y), 8);
+										}
+										wait(0);
 									}
-									wait(0);
+									exit;
+								}
+								with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, projectile)){
+									team = other.team;
+									direction = direction + 180;
+									image_angle = image_angle + 180;
+									instance_create(x,y,Deflect);
+								}
+								for(var i = 0; i < 360; i += 10){
+									with(instance_create(x,y,Dust)){
+										direction = i;
+										speed = 8;
+									}
+								}
+							}
+							exit;
+						}
+					}
+					break;
+				case "eyes":
+					with(Pickup){
+						if(object_index != WepPickup){
+							var p = instance_nearest(x,y,Player);
+							move_contact_solid(point_direction(x,y,p.x,p.y), 1);
+						}
+					}
+					break;
+				case "plant":
+					if(instance_exists(enemy)){
+						with(Player) {
+							if("craniumplant" not in self){
+								craniumplant = 0;
+							}
+							var _x = x;
+							var _y = y;
+							if(fork()){
+								wait(0);
+								if(!instance_exists(self)){exit;}
+								craniumplant += point_distance(x,y,_x,_y);
+								exit;
+							}
+							//if they've moved the equivalent of 100 tiles (wall width) spawn a sapling
+							if(craniumplant > 100 * 12){
+								craniumplant -= 100 * 12;
+								with(instance_create(x,y,Sapling)){
+									team = other.team;
+									creator = other;
+									raddrop = 0;
+								}
+							}
+						}
+					}
+					break;
+				case "venuz":
+					with(Player) {
+						var modifier = reloadspeed/max(weapon_get_load(wep)/10,1)-reloadspeed;
+						reloadspeed -= modifier;
+						if(fork()){
+							wait(0);
+							if(!instance_exists(self)){exit;}
+							reloadspeed += modifier;
+							exit;
+						}
+					}
+					break;
+				case "robot":
+						with(instances_matching_ne(instances_matching_ge(WepPickup, "ammo", 1), "craniumrobot", 1)){
+							craniumrobot = 1;
+							if(irandom(5) == 0){
+								instance_copy(true);
+							}
+						}
+					break;
+				case "chicken":
+					with(Player) {
+						with(instances_matching_ne(ChestOpen, "craniumchicken", 1)){
+							craniumchicken = 1;
+							if(sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
+								other.chickendeaths--;
+								other.maxhealth++;
+							}
+						}
+					}
+					break;
+				case "rebel":
+					with(Ally) {
+						var _c = creator;
+						if(fork()){
+							wait(0);
+							if(!instance_exists(self) && !instance_exists(Portal) && irandom(2) == 0){_c.my_health++;}
+							exit;
+						}
+					}
+					break;
+				case "rogue":
+					with(Player) {
+						var hp = my_health;
+						if(fork()){
+							wait(0);
+							if(!instance_exists(self)){exit;}
+							if(my_health < hp){
+								rogueammo = min(rogueammo + 1, ultra_get(char_rogue,1) > 0 ? 6 : 3)
+							}
+							exit;
+						}
+					}
+					break;
+				case "skeleton":
+					with(instances_matching_le(enemy, "my_health", 0)){
+						if(irandom(4) == 0){
+							with(obj_create(x, y, "FriendlyNecro")){
+								creator = instance_nearest(x, y, Player);
+								team = creator.team;
+							}
+						}
+					}
+					break;
+				case "frog":
+					with(Player) {
+						if(!(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west")) && ("craniumfrog" not in self ||craniumfrog <= 0)){
+							if(fork()){
+								var prevdir = direction;
+								wait(0);
+								if(!instance_exists(self)){exit;}
+								if(direction != prevdir && !(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west"))){
+									reload = max(reload-4,0);
+									craniumfrog = 5;
 								}
 								exit;
 							}
-							with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, projectile)){
-								team = other.team;
-								direction = direction + 180;
-								image_angle = image_angle + 180;
-								instance_create(x,y,Deflect);
+						}else{
+							if("craniumfrog" not in self){
+								craniumfrog = 0;
 							}
-							for(var i = 0; i < 360; i += 10){
-								with(instance_create(x,y,Dust)){
-									direction = i;
-									speed = 8;
-								}
-							}
-						}
-						exit;
-					}
-				}
-				break;
-			case "eyes":
-				with(Pickup){
-					if(object_index != WepPickup){
-						var p = instance_nearest(x,y,Player);
-						move_contact_solid(point_direction(x,y,p.x,p.y), 1);
-					}
-				}
-				break;
-			case "melting":
-			
-				break;
-			case "plant":
-				if(instance_exists(enemy)){
-					with(Player) {
-						if("craniumplant" not in self){
-							craniumplant = 0;
-						}
-						var _x = x;
-						var _y = y;
-						if(fork()){
-							wait(0);
-							if(!instance_exists(self)){exit;}
-							craniumplant += point_distance(x,y,_x,_y);
-							exit;
-						}
-						//if they've moved the equivalent of 100 tiles (wall width) spawn a sapling
-						if(craniumplant > 100 * 12){
-							craniumplant -= 100 * 12;
-							with(instance_create(x,y,Sapling)){
-								team = other.team;
-								creator = other;
-								raddrop = 0;
-							}
+							craniumfrog--;
 						}
 					}
-				}
-				break;
-			case "venuz":
-				with(Player) {
-					var modifier = reloadspeed/max(weapon_get_load(wep)/10,1)-reloadspeed;
-					reloadspeed -= modifier;
-					if(fork()){
-						wait(0);
-						if(!instance_exists(self)){exit;}
-						reloadspeed += modifier;
-						exit;
-					}
-				}
-				break;
-			case "robot":
-					with(instances_matching_ne(instances_matching_ge(WepPickup, "ammo", 1), "craniumrobot", 1)){
-						craniumrobot = 1;
-						if(irandom(5) == 0){
-							instance_copy(true);
+					break;
+				case "parrot":
+					with(instances_matching_ne(instances_matching(CustomHitme, "name", "Pet"), "craniumparrot", 1)){
+						if(instance_exists(leader)){
+							craniumparrot = 1;
+							maxspeed*=1.25;
 						}
 					}
-				break;
-			case "chicken":
-				with(Player) {
-					with(instances_matching_ne(ChestOpen, "craniumchicken", 1)){
-						craniumchicken = 1;
-						if(sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
-							other.chickendeaths--;
-							other.maxhealth++;
-						}
-					}
-				}
-				break;
-			case "rebel":
-				with(Ally) {
-					var _c = creator;
-					if(fork()){
-						wait(0);
-						if(!instance_exists(self) && !instance_exists(Portal) && irandom(2) == 0){_c.my_health++;}
-						exit;
-					}
-				}
-				break;
-			case "rogue":
-				with(Player) {
-					var hp = my_health;
-					if(fork()){
-						wait(0);
-						if(!instance_exists(self)){exit;}
-						if(my_health < hp){
-							rogueammo = min(rogueammo + 1, ultra_get(char_rogue,1) > 0 ? 6 : 3)
-						}
-						exit;
-					}
-				}
-				break;
-			case "skeleton":
-				with(instances_matching_le(enemy, "my_health", 0)){
-					if(irandom(4) == 0){
-						with(obj_create(x, y, "FriendlyNecro")){
-							creator = instance_nearest(x, y, Player);
-							team = creator.team;
-						}
-					}
-				}
-				break;
-			case "frog":
-				with(Player) {
-					if(!(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west")) && ("craniumfrog" not in self ||craniumfrog <= 0)){
-						if(fork()){
-							var prevdir = direction;
-							wait(0);
-							if(!instance_exists(self)){exit;}
-							if(direction != prevdir && !(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west"))){
-								reload = max(reload-4,0);
-								craniumfrog = 5;
-							}
-							exit;
-						}
-					}else{
-						if("craniumfrog" not in self){
-							craniumfrog = 0;
-						}
-						craniumfrog--;
-					}
-				}
-				break;
-			case "parrot":
-				with(instances_matching_ne(instances_matching(CustomHitme, "name", "Pet"), "craniumparrot", 1)){
-					if(instance_exists(leader)){
-						craniumparrot = 1;
-						maxspeed*=1.25;
-					}
-				}
-				break;
+					break;
+			}
 		}
 	}
 
@@ -317,5 +327,20 @@
 	*/
 	
 	return instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "bbox_right", _x1), "bbox_left", _x2), "bbox_bottom", _y1), "bbox_top", _y2);
+	
+#define instance_random(_obj)
+	/*
+		Returns a random instance of the given object
+		Also accepts an array of instances
+	*/
+	
+	var	_inst = instances_matching(_obj, "", null),
+		_size = array_length(_inst);
+		
+	return (
+		(_size > 0)
+		? _inst[irandom(_size - 1)]
+		: noone
+	);
 	
 #define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);

@@ -14,7 +14,7 @@
 /loadskill cheekpouch
 /loadskill busybody
 /loadskill secretstash
-//loadskill crowncranium
+/loadskill crowncranium
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline

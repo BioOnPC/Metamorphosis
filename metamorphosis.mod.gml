@@ -186,6 +186,10 @@
     		tip = tip_generate();
     	}
     }
+	
+	with(instances_matching(Corpse, "sprite_index", -5)){
+		instance_destroy();
+	}
 
 #define draw
 	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
@@ -379,6 +383,35 @@
 				snd_hurt = sndFreakHurt;
 				right = 1;
 				wanderDir = direction;
+			}
+			break;
+			
+		case "MeatBlob":
+			o = instance_create(_x, _y, CustomProp);
+			with(o){
+				my_health = 12;
+				raddrop = 4;
+				link = -4;
+				sprite_index = sprBloodBall;
+				mask_index = sprBloodBall;
+				spr_idle = sprBloodBall;
+				spr_hurt = sprBloodBall;
+				spr_dead = -5;
+				image_speed = 0;
+				while(place_meeting(x, y, Wall) || place_meeting(x, y, CustomProp)){
+					if(!place_meeting(x, y, Floor)){
+						x = _x;
+						y = _y;
+					}
+					x += random(12)-6;
+					y += random(12)-6;
+				}
+				with(instance_create(x,y,Corpse)){
+					other.link = self;
+					sprite_index = sprBloodBall;
+					visible = false;
+					size = 6;
+				}
 			}
 			break;
 		
@@ -625,7 +658,14 @@
 #define FreakFriend_destroy
 	instance_create(x,y,ReviveFX);
 	sound_play(sndFreakDead);
-
+	
+#define MeatBlob_step
+	if(!instance_exists(link)){raddrop = 0;instance_delete(self);exit;}
+	
+#define MeatBlob_death
+	if(instance_exists(link)){instance_delete(link);}
+	
+	
 #define Mutator_step
 	x = xstart;
 	y = ystart;
