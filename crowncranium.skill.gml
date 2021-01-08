@@ -295,7 +295,7 @@
 								wait(0);
 								if(!instance_exists(self)){exit;}
 								if(direction != prevdir && !(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west"))){
-									reload = max(reload-4,0);
+									reload = max(reload-15,0);
 									craniumfrog = 5;
 								}
 								exit;
