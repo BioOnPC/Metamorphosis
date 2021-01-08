@@ -26,7 +26,7 @@
 			case "fish":	 t += "@wCHESTS@s GIVE @wINFINITE AMMO@s"; break;
 			case "crystal":  t += "@wPUSH ENEMIES AWAY@s AND#@wREFLECT PROJECTILES@s WHEN @rHURT@s"; break;
 			case "eyes":     t += "CONSTANTLY ATTRACT @wDROPS@s"; break;
-			case "melting":  t += "@wENEMIES@s EXPLODE INTO @gRADS@s"; break;
+			case "melting":  t += "@rMEAT@s BLOBS SPAWN IN EACH LEVEL"; break;
 			case "plant":    t += "OCCASIONALLY SPAWN @wSAPLINGS@s#BASED ON @wSPEED@s"; break;
 			case "venuz":    t += "THE HIGHER YOUR @wRELOAD TIME@s,#THE FASTER YOUR @wRELOAD SPEED@s"; break;
 			case "steroids": t += "PORTALS GIVE @yAMMO@s"; break;
