@@ -238,8 +238,8 @@
 				case "robot":
 						with(instances_matching_ne(instances_matching_ge(WepPickup, "ammo", 1), "craniumrobot", 1)){
 							craniumrobot = 1;
-							if(irandom(5) == 0){
-								instance_copy(true);
+							if(irandom(2) == 0){
+								instance_copy(false);
 							}
 						}
 					break;
