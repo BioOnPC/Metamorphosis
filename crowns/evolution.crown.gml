@@ -5,6 +5,7 @@
 	global.sprCrownWalk    = sprite_add("../sprites/crowns/Evolution/sprCrownWalk.png",     6,  8,  8);
 	global.last_took = []; 
 	global.last_race = [];
+	global.level_start = false;
 	
 #define crown_name        return "CROWN OF EVOLUTION";
 #define crown_text        return "GET AN ADDITIONAL @gULTRA MUTATION#@wRANDOMIZE@s MUTATIONS EACH AREA";
