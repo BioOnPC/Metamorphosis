@@ -7,7 +7,7 @@
 #define skill_tip     return "HOARD CREATURE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut);
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 #define skill_avail   return mod_exists("mod", "telib");
 #define step
 	if(!mod_exists("mod", "telib")) {

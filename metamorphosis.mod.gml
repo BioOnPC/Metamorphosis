@@ -1,8 +1,9 @@
  //				--- BASE NTT SCRIPTS ---			//
 #define init
 	 // MUTATION EFFECTS //
-	global.sprMedpack = sprite_add("sprites/VFX/sprFatHP.png",  7,  6,  6);
-	global.sprSleep   = sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
+	global.sprMedpack		= sprite_add("sprites/VFX/sprFatHP.png",  7,  6,  6);
+	global.sprSleep 		= sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
+	global.sprCursedOutline = sprite_add("sprites/Icons/Cursed/sprCursedOutline.png",  5,  17,  23);
 	
 	 // SHOP SPRITES //
 	global.sprWallMerchantBot   = sprite_add("sprites/Shop/sprWallMerchantBot.png",  10,  0,  0);
@@ -34,6 +35,7 @@
 	
 #define step
 	script_bind_begin_step(curse_mut, 0);
+	script_bind_draw(cursed_mut_draw, -1001);
 
     if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
         with(instances_matching_ne(HPPickup, "sprite_index", global.sprMedpack)) {
@@ -84,29 +86,7 @@
     
      // LEVEL GEN BULLSHIT
     if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= room_speed) { // this checks to make sure the level is *mostly* generated, save for *most* props. for example, this will find the Crown Pedestal in the Vaults, but won't find any torches.
-    	
-    	 // crown of evolution
-    	if(instance_exists(GameCont) and GameCont.crown = "evolution" and GameCont.subarea = 1) {
-    		 // Go through and find all custom ultra skills
-    		var _mod = mod_get_names("skill"),
-		        _scrt = "skill_ultra",
-		        _ultras = {};
-		    
-		    for(var i = 0; i < array_length(_mod); i++){ 
-		    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) lq_set(_ultras, _mod[i], skill_get(_mod[i]));
-		    }
-		    
-		     // Reset skills
-			skill_clear();
-		    
-		     // Return ultras lost
-		    for(i = 0; i < lq_size(_ultras); i++) {
-				skill_set(string(lq_get_key(_ultras, i)), lq_get_value(_ultras, i));
-			}
-		    
-		    
-    	}
-    	
+    
     	 // for horror's ultra
     	if(skill_get("criticalmass") > 0) {
 			 // Place down the mutation reselector
@@ -215,6 +195,28 @@
 		
 		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), 1, 1, sin(leadsleep * 0.1) * 10, c_white, vis);
 	}
+
+#define cursed_mut_draw
+	with(SkillIcon) {
+		if(mod_script_exists("skill", string(skill), "skill_cursed") and mod_script_call("skill", string(skill), "skill_cursed") = true) {
+			var hover = 0;
+			for(i = 0; i <= maxp; i++) {
+				if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
+					hover = 1;
+				}
+			}
+			
+			draw_sprite(global.sprCursedOutline, (current_frame * (0.4/current_time_scale)) mod 4, x, y - hover);
+			if(depth != -1002) depth = -1002;
+			if(current_frame * (0.2/current_time_scale)) {
+				with instance_create(x - 12 + 6 * ((current_frame * (0.2/current_time_scale)) mod 4), y - 16 - hover, Curse) {
+					depth = other.depth;
+				}
+			}
+		}
+	}
+	
+	instance_destroy();
 
 #define draw_dark
 	draw_set_color($808080);
@@ -676,7 +678,7 @@
 	
 	if(instance_exists(prompt) && player_is_active(prompt.pick)){
 		with(prompt.pick) {
-			if(my_health >= 3) {
+			if(maxhealth >= 2) {
 				with(other) {
 					spr_idle = sprProtoStatueDone;
 					image_index = 0;
@@ -688,7 +690,7 @@
 					skillpoints++;
 				}
 				
-				projectile_hit_raw(self, 2, 3);
+				projectile_hit_raw(self, min(2, my_health - 1), 3);
 				maxhealth -= 2;
 				
 				 // EFFECTS
@@ -941,6 +943,8 @@
 				    	text = skill_get_text(skill);
 				    	mod_script_call("skill", skill, "skill_button");
 				    }
+				    
+				    sound_play(sndCursedPickup);
 				}
 			}
 		}

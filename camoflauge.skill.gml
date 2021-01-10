@@ -7,7 +7,7 @@
 #define skill_tip     return "HARD TO PIN DOWN";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut);
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 #define step
     if((current_frame % 2) < current_time_scale) {
     	with(instances_matching_gt(enemy, "alarm1", current_time_scale)) {

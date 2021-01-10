@@ -14,11 +14,19 @@
 	sound_play_pitch(sndUncurse, 0.8);
 	
 	var _mod = mod_get_names("skill"),
-        _scrt = "skill_cursed";
+        _scrt = "skill_cursed",
+        _total = 0;
     
      // Go through and find all cursed mutations you have
     for(var i = 0; i < array_length(_mod); i++){ 
-    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) skill_set(_mod[i], 0);
+    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) {
+    		skill_set(_mod[i], 0);
+    		_total++;
+    	}
+    }
+    
+    with(GameCont) {
+    	level -= _total + (level = 10 ? 1 : 0);
     }
     
     with(Player) {
@@ -36,7 +44,7 @@
     	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) array_push(_cursed, _mod[i]);
     }
 
-	return array_length(_cursed) >= 3 ? 1 : 0; // for metamorphosis
+	return array_length(_cursed) >= 2 ? 1 : 0; // for metamorphosis
 
 #define step
 	with(Player) {

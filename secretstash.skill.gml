@@ -10,7 +10,7 @@
 #define skill_tip     return choose("DRINK @wSODA!@s FOREVER", "@q@wRADICAL!");
 //#define skill_icon    return global.sprSkillHUD;
 //#define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut);
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 #define skill_avail   return mod_exists("mod", "defpack tools");
 #define step
 	if(!instance_exists(GenCont)) {

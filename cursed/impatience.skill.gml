@@ -24,7 +24,7 @@
 			    with(SkillIcon) instance_destroy(); // Obliterate all leftover skill icons
 			    LevCont.maxselect = 7; // This is how many skills we're going to make +1.
 			    
-			    for(var i = 1; i <= 4; i++) { // Iterate through all votes
+			    for(var i = 1; i <= 4 + (array_length(instances_matching(Player, "race", "horror")) > 0 ? 1 : 0); i++) { // Iterate through all votes
 			        var _mod = mod_get_names("skill"),
 				        _scrt = "skill_cursed",
 				        _cursed = [];
@@ -46,10 +46,13 @@
 		                text = mod_script_call("skill", skill, "skill_text");
 			        }
 			    }
+			    
+			    with(SkillIcon) num -= (instance_number(mutbutton) - 4)/2
+			    
 			    exit;
 			}
 			
-			skill_set(mod_current, 0);
+			//skill_set(mod_current, 0);
 		}
 		
 		 // If it's selected anywhere that isn't the mutation selection screen
@@ -66,7 +69,7 @@
 			 // Give a random cursed mut
 			skill_set(_cursed[irandom_range(0, array_length(_cursed) - 1)], skill_get(string(mod_current)));
 			 // Remove this blank skill
-			skill_set(mod_current, 0);
+			//skill_set(mod_current, 0);
 		}
 	}
 

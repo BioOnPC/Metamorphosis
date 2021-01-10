@@ -8,7 +8,7 @@
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take    
-	sound_play(sndBasicUltra);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
 	skill_set("vote2bcool", 0);
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 #define skill_ultra   return -1; // Doesn't show up

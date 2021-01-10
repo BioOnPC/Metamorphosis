@@ -7,7 +7,7 @@
 #define skill_tip     return "DON'T GET FLIPPED OVER";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut);
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 #define step
     with(enemy) {
     	if(variable_instance_exists(self, "meleedamage") and meleedamage > 1 and 

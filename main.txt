@@ -12,9 +12,10 @@
 /loadskill turtleshell
 /loadskill leadeyelids
 /loadskill cheekpouch
-/loadskill busybody
+//loadskill busybody
 /loadskill secretstash
 /loadskill crowncranium
+/loadskill linkedlobes
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline
@@ -26,4 +27,4 @@
 /loadskill cursed/impatience
 
 /load ultras
-//loadcrown crowns/evolution
+/loadcrown crowns/evolution

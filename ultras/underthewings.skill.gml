@@ -8,7 +8,7 @@
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take(_num)    
-	sound_play(sndBasicUltra);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
 	if(_num > 0) {
 		mod_variable_set("mod", "ntte", "pet_max", mod_variable_get("mod", "ntte", "pet_max") * (_num + 1));
 		with(instances_matching_ne(Player, "ntte_pet_max", null)){

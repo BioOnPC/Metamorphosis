@@ -40,7 +40,7 @@
 		if(fork()) {
 			wait 30;
 			
-			if(instance_exists(self)) {
+			if(instance_exists(self) and !instance_exists(LevCont)) {
 				 // Update all variables
 				diswep = prevwep;
 				disbwep = prevbwep;

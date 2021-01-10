@@ -12,7 +12,7 @@
 #define skill_take(_num)
 	if(_num > 0) {
 		if(instance_exists(LevCont)){
-			sound_play(sndBasicUltra);
+			if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
 		
 			 // Increase important GameCont variables to account for a new selection of mutations
 			GameCont.skillpoints++;

@@ -7,7 +7,7 @@
 #define skill_tip     return "PUS FILLED";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut); //sound_mutation_play();
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut); //sound_mutation_play();
 
 #define step
     with(instances_matching(enemy, "atomicrads", null)) { // Find all unaffected enemies

@@ -8,7 +8,7 @@
 #define skill_tip     return "FASTEST POPS IN THE WEST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMutTriggerFingers);
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMutTriggerFingers);
 #define step
     with(instances_matching_le(enemy, "my_health", 0)) { // Find all dead enemies
         if(!variable_instance_exists(self, "racingthoughts")) {

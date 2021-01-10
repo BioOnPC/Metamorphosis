@@ -10,7 +10,7 @@
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take(_num)
-	if(_num > 0 and array_length(instances_matching(SkillIcon, "skill", mod_current)) > 0) {
+	if(_num > 0 and array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
 		sound_play(sndStatueCharge);
 		skill_set_active(mut_patience, 0);
 		with(GameCont) global.diff = hard;
@@ -29,7 +29,7 @@
 	var mutNum = 0;
 	while(skill_get_at(mutNum + 1) != null){
 		//check to make sure it's not a modded ultra
-		if(is_real(skill_get_at(mutNum)) || is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra")){
+		if(is_real(skill_get_at(mutNum)) || (is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra"))){
 			array_push(mutList, skill_get_at(mutNum));
 		}
 		mutNum++;

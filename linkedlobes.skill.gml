@@ -30,12 +30,12 @@
 		["Flame", "flame"],
 	];
 	
-#define skill_name    return "CENTRAL LOBE";
+#define skill_name    return "LINKED LOBES";
 #define skill_text    return "@wMERGED WEAPONS@s HAVE AN#ADDITIONAL @wMODIFIER@s";
-#define skill_tip     return "IT'S MERGING ALL THE WAY DOWN";
+#define skill_tip     return "COALESCE";
 //#define skill_icon    return global.sprSkillHUD;
 //#define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut); //sound_mutation_play();
+#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut); //sound_mutation_play();
 #define skill_avail   return mod_exists("mod", "telib");
 
 #define step

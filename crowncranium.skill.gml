@@ -1,12 +1,12 @@
 #define init
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
-	//global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	global.newLevel = false;
 
 #define skill_name    return "CROWN CRANIUM";
 #define skill_text    return desc_decide();
 #define skill_tip     return "HAIL TO THE KING";
-//#define skill_icon    return global.sprSkillHUD;
+#define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_avail   
 	with(instances_matching_gt(Player, "race_id", 16)) {
@@ -49,7 +49,7 @@
 	return t;
 
 #define skill_take    
-	sound_play(sndMut);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 	var raceList = [];
 	with(Player) {
 		if(array_find_index(raceList, race) == -1){
@@ -109,7 +109,8 @@
 							obj_create(x, y, "MeatBlob");
 						}
 					}
-					break;
+				break;
+					
 				case "steroids":
 					with(Player){
 						for(var i2 = 1; i2 < array_length(ammo); i2++){
@@ -117,7 +118,7 @@
 							ammo[i2] = min(ammo[i2], typ_amax[i2]);
 						}
 					}
-					break;
+				break;
 			}
 		}
 	}
@@ -211,9 +212,9 @@
 								craniumplant += point_distance(x,y,_x,_y);
 								exit;
 							}
-							//if they've moved the equivalent of 100 tiles (wall width) spawn a sapling
-							if(craniumplant > 100 * 12){
-								craniumplant -= 100 * 12;
+							//if they've moved the equivalent of 50 tiles (wall width) spawn a sapling
+							if(craniumplant > 50 * 12){
+								craniumplant -= 50 * 12;
 								with(instance_create(x,y,Sapling)){
 									team = other.team;
 									creator = other;
