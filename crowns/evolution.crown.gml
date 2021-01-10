@@ -98,11 +98,11 @@
 	//this is gonna be the list of mutations to reroll
 	var mutList = [];
 	
-	//going down the list of mutations the player has, except for the last one
+	//going down the list of mutations the player has
 	var mutNum = 0;
-	while(skill_get_at(mutNum + 1) != null){
+	while(skill_get_at(mutNum) != null){
 		//check to make sure it's not a modded ultra
-		if(is_real(skill_get_at(mutNum)) || (is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra"))){
+		if(is_real(skill_get_at(mutNum)) || (is_string(skill_get_at(mutNum)) && mod_exists("skill", skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra"))){
 			array_push(mutList, skill_get_at(mutNum));
 		}
 		mutNum++;
