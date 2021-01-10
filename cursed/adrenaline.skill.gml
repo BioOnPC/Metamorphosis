@@ -5,7 +5,7 @@
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
 #define skill_name    return cursecolor + "ADRENALINE";
-#define skill_text    return "@wINFINITE AMMO@s WHEN PICKING UP @yAMMO@s#@rTAKE DAMAGE@s WHEN NOT IN COMBAT";
+#define skill_text    return "@wINFINITE AMMO@s WHEN PICKING UP @yAMMO@s#@rTAKE DAMAGE@s WHILE NOT @wSHOOTING@s";
 #define skill_tip     return "HIGH OCTANE VIOLENCE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -30,20 +30,23 @@
 	}
 	
 	with(Player) {
-		if("adrenalinetimer" not in self) adrenalinetimer = 120;
+		if("adrenalinetimer" not in self) adrenalinetimer = 90;
 		
-		if(reload > 0 or (bwep != wep_none and breload > 0)) adrenalinetimer = 120;
+		if(instance_exists(enemy) and my_health > 1) {
+			if(reload > 0 or (bwep != wep_none and breload > 0)) adrenalinetimer += current_time_scale;
+			adrenalinetimer -= current_time_scale;
+		}
 		
-		if(instance_exists(enemy)) adrenalinetimer -= current_time_scale;
+		else adrenalinetimer = 90;
 		
 		if(adrenalinetimer <= 0) {
 			if(my_health > 1) {
 				projectile_hit(self, 1);
 				lasthit = [sprRabbitPaw, "ANXIETY"];
-				sound_play_pitch(sndBloodHurt, 0.8 + random(0.2));
-				sound_play_pitch(sndCursedChest, 1 + random(0.1));
-				sound_play_pitch(sndWeaponPickup, 0.8 + random(0.4));
-				sound_play_pitch(sndWeaponChest, 1.8 + random(0.4));
+				sound_play_pitchvol(sndBloodHurt, 0.8 + random(0.2), 0.7);
+				sound_play_pitchvol(sndCursedChest, 1 + random(0.1), 0.7);
+				sound_play_pitchvol(sndWeaponPickup, 0.8 + random(0.4), 0.7);
+				sound_play_pitchvol(sndWeaponChest, 1.8 + random(0.4), 0.7);
 			}
 			
 			adrenalinetimer += 50;

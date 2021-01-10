@@ -181,6 +181,10 @@
 		}
 	}
 	
+	with(instances_matching_ne(Player, "adrenalinetimer", null)) {
+		draw_sprite_ext(sprite_index, image_index, x, y, (image_xscale * right) / ((60 - adrenalinetimer)/60), image_yscale / ((60 - adrenalinetimer)/60), image_angle, c_maroon, ((60 - adrenalinetimer)/60) * 0.4);
+	}
+	
 	with(instance_rectangle_bbox(view_xview_nonsync - (game_width), 
 								 view_yview_nonsync - (game_height), 
 								 view_xview_nonsync + (game_width), 
@@ -910,10 +914,10 @@
 	var c = 0;
 	
 	with(Player) {
-		c += (curse + bcurse) * 10; 
+		c += (curse + bcurse) * 20; 
 	}
 	
-	if(crown_current = crwn_curses) c = max(c, 6) * 5;
+	if(crown_current = crwn_curses) c = max(c, 6) * 3;
 	
 	c = random(100) < c;
 	
