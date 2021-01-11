@@ -1,220 +1,209 @@
 /// By Yokin
 /// https://yokin.itch.io/custom-ultras
 
+#define init
+	global.bind_end_step = noone;
+	
 #define step
-    if(instance_exists(EGSkillIcon)){
-        with(instances_matching(LevCont, "custom_ultra", null)){
-            if(!player_is_active(GameCont.endcount)){
-                instance_destroy();
-                break;
-            }
-            custom_ultra = true;
-
-            maxselect = -1;
-            with(mutbutton) instance_destroy();
-
-             // Manually Place Ultras:
-            with(LevCont){
-                var _race = player_get_race(GameCont.endcount);
-                for(var i = 1; i <= ultra_count(_race) + (_race == "skeleton"); i++){
-                    with(instance_create(0, 0, EGSkillIcon)){
-                        num = instance_number(mutbutton) - 1;
-                        race = _race;
-                        skill = i;
-                        name = ultra_get_name(_race, i);
-                        text = ultra_get_text(_race, i);
-                        result = real(`${race_get_id(_race)}${i}`);
-                        creator = other;
-                        alarm0 = num + 1;
-                        ultra_button(_race, i);
-                    }
-                    maxselect++;
-                }
-            }
-
-             // Custom Skill Mod Ultras:
-            var _mod = mod_get_names("skill"),
-                _scrt = "skill_ultra";
-
-            for(var i = 0; i < array_length(_mod); i++){
-                var _skill = _mod[i],
-                    _race = race_get_name(mod_script_call("skill", _skill, _scrt));
-
-                if(array_length(instances_matching(EGSkillIcon, "race", _race)) > 0){
-                    var _num = instance_number(mutbutton),
-                        _name = mod_script_call("skill", _skill, "skill_name"),
-                        _text = mod_script_call("skill", _skill, "skill_text");
-
-                    with(instance_create(0, 0, SkillIcon)){
-                        num = _num;
-                        race = _race;
-                        skill = _skill;
-                        if(!is_undefined(_name)) name = _name;
-                        if(!is_undefined(_text)) text = _text;
-                        creator = other;
-                        alarm0 = num;
-                        mod_script_call("skill", skill, "skill_button");
-                    }
-                    maxselect++;
-                }
-            }
-        }
-    }
-    script_bind_end_step(end_step, 0);
-
+	 // Bind Events:
+	if(!instance_exists(global.bind_end_step)){
+		global.bind_end_step = script_bind_end_step(end_step, 0);
+		with(global.bind_end_step){
+			persistent = true;
+		}
+	}
+	
+	 // Spawning Custom Skill Mod Ultras:
+	if(instance_exists(EGSkillIcon) && instance_exists(LevCont)){
+		var _inst = instances_matching(LevCont, "custom_ultra", null);
+		if(array_length(_inst)){
+			var	_scrt      = "skill_ultra",
+				_skillList = mod_get_names("skill"),
+				_skillNum  = array_length(_skillList);
+				
+			with(_inst){
+				custom_ultra = true;
+				for(var i = 0; i < _skillNum; i++){
+					var _skill = _skillList[i];
+					if(mod_script_exists("skill", _skill, _scrt)){
+						var _race = race_get_name(mod_script_call("skill", _skill, _scrt));
+						if(array_length(instances_matching(EGSkillIcon, "race", _race)) > 0){
+							var	_name = mod_script_call("skill", _skill, "skill_name"),
+								_text = mod_script_call("skill", _skill, "skill_text");
+								
+							maxselect++;
+							
+							with(instance_create(0, 0, SkillIcon)){
+								custom_ultra = other.custom_ultra;
+								num          = other.maxselect;
+								creator      = other;
+								race         = _race;
+								skill        = _skill;
+								alarm0       = num;
+								if(!is_undefined(_name)) name = _name;
+								if(!is_undefined(_text)) text = _text;
+								mod_script_call("skill", skill, "skill_button");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 #define end_step
-    if(instance_exists(EGSkillIcon)){
-        var _end = 0;
-        with(instances_matching_ne(EGSkillIcon, "creator", noone)){
-            if(!instance_exists(creator)){
-                _end = 1;
-                instance_destroy();
-            }
-        }
-
-         // Leave Ultra Screen:
-        if(_end){
-            if(instance_exists(LevCont)){
-                GameCont.endcount++;
-                GameCont.skillpoints++;
-    
-                 // No More Players Need Ultras:
-                if(!player_is_active(GameCont.endcount)){
-                    GameCont.endpoints--;
-                }
-    
-                 // Next Screen:
-                with(mutbutton) instance_destroy();
-                with(LevCont) instance_destroy();
-                if(GameCont.skillpoints > 0 || GameCont.endpoints > 0){
-                    instance_create(0, 0, LevCont);
-                }
-                else instance_create(0, 0, GenCont);
-            }
-            else if(!instance_exists(GenCont)){
-                instance_create(0, 0, GenCont);
-            }
-        }
-    }
-    else with(instances_matching_ne(SkillIcon, "creator", noone)){
-        if(!instance_exists(creator)) instance_destroy();
-    }
-    instance_destroy();
-
-#define ultra_get_name(_race, _index)
-    var _raceIndex = race_get_id(_race);
-    if(_raceIndex <= 16){
-        var _def = {
-             "0:1" : "BLOOD BOND",
-             "0:2" : "GUN BOND",
-             "0:3" : "EXTRA LEVEL",
-             "1:1" : "CONFISCATE",
-             "1:2" : "GUN WARRANT",
-             "2:1" : "FORTRESS",
-             "2:2" : "JUGGERNAUT",
-             "3:1" : "PROJECTILE STYLE",
-             "3:2" : "MONSTER STYLE",
-             "4:1" : "BRAIN CAPACITY",
-             "4:2" : "DETACHMENT",
-             "5:1" : "TRAPPER",
-             "5:2" : "KILLER",
-             "6:1" : "IMA GUN GOD",
-             "6:2" : "BACK 2 BIZNIZ",
-             "7:1" : "AMBIDEXTROUS",
-             "7:2" : "GET LOADED",
-             "8:1" : "REFINED TASTE",
-             "8:2" : "REGURGITATE",
-             "9:1" : "HARDER TO KILL",
-             "9:2" : "DETERMINATION",
-            "10:1" : "PERSONAL GUARD",
-            "10:2" : "RIOT",
-            "11:1" : "STALKER",
-            "11:2" : "ANOMALY",
-            "11:3" : "MELTDOWN",
-            "12:1" : "SUPER PORTAL STRIKE",
-            "12:2" : "SUPER BLAST ARMOR",
-            "13:1" : "ULTRA SPIN",
-            "13:2" : "ULTRA MISSILES",
-            "14:1" : "REDEMPTION",
-            "14:2" : "DAMNATION",
-            "15:1" : "DISTANCE",
-            "15:2" : "INTIMACY",
-            "16:1" : "GAME GOD",
-            "16:2" : "CAR GOD"
-        }
-    
-        return loc(`${_raceIndex}:Ultra:${_index}:Name`, lq_defget(_def, `${_raceIndex}:${_index}`, ""));
-    }
-
-     // Custom Race:
-    else{
-        if(mod_script_exists("race", _race, "race_ultra_name")){
-            return mod_script_call("race", _race, "race_ultra_name", _index);
-        }
-        return "";
-    }
-
-#define ultra_get_text(_race, _index)
-    var _raceIndex = race_get_id(_race);
-    if(_raceIndex <= 16){
-        var _def = {
-             "0:1" : "HP PICKUPS ARE SHARED",
-             "0:2" : "AMMO PICKUPS ARE SHARED",
-             "0:3" : "BECAUSE SOMEONE FORGOT#TO DEFINE ULTRA MUTATION(S)",
-             "1:1" : "@wENEMIES@s SOMETIMES DROP @wCHESTS@s",
-             "1:2" : "@yINFINITE AMMO@s THE FIRST 7 SECONDS#AFTER EXITING A @pPORTAL@s",
-             "2:1" : "+6 MAX @rHP@s",
-             "2:2" : "MOVE WHILE @wSHIELDED@s",
-             "3:1" : "@wTELEKINESIS@s HOLDS YOUR @wPROJECTILES@s",
-             "3:2" : "PUSH NEARBY @wENEMIES@s AWAY#WHEN NOT USING @wTELEKINESIS@s",
-             "4:1" : "BLOW UP @rLOW HP @wENEMIES@s",
-             "4:2" : "3 MORE @gMUTATIONS@s#LOSE HALF OF YOUR @rHP@s",
-             "5:1" : "BIG @wSNARE@s",
-             "5:2" : "@wENEMIES@s KILLED ON YOUR @wSNARE@s#SPAWN @wSAPLINGS@s",
-             "6:1" : "HIGHER @wRATE OF FIRE@s",
-             "6:2" : "FREE @wPOP POP@s UPGRADE",
-             "7:1" : "DOUBLE @wWEAPONS@s FROM @wCHESTS@s",
-             "7:2" : "@yAMMO CHESTS@s CONTAIN ALL @yAMMO TYPES@s",
-             "8:1" : "HIGH TIER @wWEAPONS@s ONLY#AUTO EAT @wWEAPONS@s LEFT BEHIND",
-             "8:2" : "EATING @wWEAPONS@s CAN DROP @wCHESTS@s#AUTO EAT @wWEAPONS@s LEFT BEHIND",
-             "9:1" : "KILLS EXTEND BLEED TIME",
-             "9:2" : "THROWN @wWEAPONS@s CAN TELEPORT BACK#TO YOUR SECONDARY SLOT",
-            "10:1" : "START A LEVEL WITH 2 @wALLIES@s#ALL @wALLIES@s HAVE MORE @rHP@s",
-            "10:2" : "DOUBLE @wALLY@s SPAWNS",
-            "11:1" : "@wENEMIES@s EXPLODE IN @gRADIATION@s ON DEATH",
-            "11:2" : "@pPORTALS@s APPEAR EARLIER",
-            "11:3" : "DOUBLE @gRAD@s CAPACITY",
-            "12:1" : "DOUBLE @bPORTAL STRIKE@s PICKUPS#AND CAPACITY",
-            "12:2" : "SUPER BLAST ARMOR",
-            "13:1" : "IMPROVED SPIN ATTACK",
-            "13:2" : "MISSILES FIRE BULLETS",
-            "14:1" : "BACK IN THE FLESH",
-            "14:2" : "FAST RELOAD AFTER BLOOD GAMBLE",
-            "15:1" : "RADS CAN SPAWN TOXIC GAS",
-            "15:2" : "CONTINUOUSLY SPAWN TOXIC GAS",
-            "16:1" : "PLAY HARD",
-            "16:2" : "FAST LYFE"
-        }
-    
-        return loc(`${_raceIndex}:Ultra:${_index}:Text`, lq_defget(_def, `${_raceIndex}:${_index}`, ""));
-    }
-
-     // Custom Race:
-    else{
-        if(mod_script_exists("race", _race, "race_ultra_text")){
-            return mod_script_call("race", _race, "race_ultra_text", _index);
-        }
-        return "";
-    }
-
-#define ultra_button(_race, _index)
-    sprite_index = sprEGSkillIcon;
-    image_index = image_number - 1;
-
-    var _raceIndex = race_get_id(_race);
-    if(_raceIndex <= 16){
-        image_index = ((_raceIndex - 1) * 3) + (_index - 1);
-    }
-
-     // Custom Race:
-    else mod_script_call("race", _race, "race_ultra_button", _index);
+	if(instance_exists(EGSkillIcon)){
+		var _inst = instances_matching_ne(EGSkillIcon, "creator", noone);
+		if(array_length(_inst)){
+			var _pick = false;
+			
+			 // Check if Custom Ultra Was Picked:
+			with(_inst){
+				if(!instance_exists(creator)){
+					_pick = true;
+					instance_destroy();
+				}
+			}
+			
+			 // Leave Ultra Screen:
+			if(_pick){
+				if(instance_exists(LevCont)){
+					var _raceList = [];
+					
+					 // Determine Ultra Order:
+					for(var i = 0; i < maxp; i++){
+						var _race = player_get_race(i);
+						if(_race != "" && array_find_index(_raceList, _race) < 0){
+							array_push(_raceList, _race);
+						}
+					}
+					var _racePick = _raceList[
+						(GameCont.endcount > 0 && GameCont.endcount < array_length(_raceList))
+						? GameCont.endcount
+						: 0
+					];
+					
+					 // Fixes:
+					GameCont.skillpoints++;
+					if(GameCont.endskill == 0){
+						GameCont.endskill = real(string(race_get_id(_racePick)) + string(ultra_count(_racePick) + 1));
+					}
+					
+					 // Next Ultra:
+					GameCont.ultra_post = true;
+					GameCont.endcount++;
+					if(GameCont.endcount >= array_length(_raceList)){
+						GameCont.endpoints--;
+					}
+					
+					 // Next Screen:
+					with(mutbutton){
+						instance_destroy();
+					}
+					with(LevCont){
+						instance_destroy();
+					}
+					if(GameCont.skillpoints > 0){
+						instance_create(0, 0, LevCont);
+					}
+					else if(GameCont.endpoints > 0){
+						var _lastUltra = 0;
+						
+						 // Temporarily Give Ultra:
+						for(var i = ultra_count(_racePick); i >= 1; i--){
+							_lastUltra = ultra_get(_racePick, i);
+							if(_lastUltra != 0){
+								break;
+							}
+						}
+						if(_lastUltra == 0){
+							game_deactivate();
+							ultra_set(_racePick, 1, 1);
+						}
+						
+						 // Spawn Ultra Screen:
+						instance_create(0, 0, LevCont);
+						var _letterbox = game_letterbox;
+						
+						 // Reset Ultra:
+						if(_lastUltra == 0){
+							ultra_set(_racePick, 1, _lastUltra);
+							game_activate();
+							game_letterbox = _letterbox;
+						}
+					}
+					else if(!instance_exists(GenCont)){
+						instance_create(0, 0, GenCont);
+					}
+				}
+				else if(!instance_exists(GenCont)){
+					instance_create(0, 0, GenCont);
+				}
+			}
+		}
+	}
+	
+	 // Crash Prevention:
+	if(instance_exists(SkillIcon)){
+		var _inst = instances_matching_ne(instances_matching(SkillIcon, "custom_ultra", true), "creator", noone);
+		if(array_length(_inst)) with(_inst){
+			if(!instance_exists(creator)){
+				instance_destroy();
+				with(LevCont){
+					maxselect--;
+				}
+			}
+		}
+	}
+	
+#define game_activate()
+	/*
+		Reactivates all instances and unpauses the game
+	*/
+	
+	with(UberCont) with(self){
+		event_perform(ev_alarm, 2);
+	}
+	
+#define game_deactivate()
+	/*
+		Deactivates all objects, except GmlMods & most controllers
+	*/
+	
+	with(UberCont) with(self){
+		var	_lastIntro = opt_bossintros,
+			_lastLoops = GameCont.loops,
+			_player    = noone;
+			
+		 // Ensure Boss Intro Plays:
+		opt_bossintros = true;
+		GameCont.loops = 0;
+		if(!instance_exists(Player)){
+			_player = instance_create(0, 0, GameObject);
+			with(_player){
+				instance_change(Player, false);
+			}
+		}
+		
+		 // Call Boss Intro:
+		with(instance_create(0, 0, GameObject)){
+			instance_change(BanditBoss, false);
+			with(self){
+				event_perform(ev_alarm, 6);
+			}
+			sound_stop(sndBigBanditIntro);
+			instance_delete(id);
+		}
+		
+		 // Reset:
+		alarm2         = -1;
+		opt_bossintros = _lastIntro;
+		GameCont.loops = _lastLoops;
+		with(_player){
+			instance_delete(id);
+		}
+		
+		 // Unpause Game, Then Deactivate Objects:
+		event_perform(ev_alarm, 2);
+		event_perform(ev_draw, ev_draw_post);
+	}

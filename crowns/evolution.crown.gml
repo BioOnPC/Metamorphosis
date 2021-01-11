@@ -45,10 +45,10 @@
 #define step
 	with(instances_matching([EGSkillIcon, SkillIcon], "evolutioncheck", null)) { // Handler for the additional ultra stuff
 		if((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra"))) {
-			if(ultra_get(race, skill) or skill_get(skill)) {
-				with(instances_matching_gt(mutbutton, "num", num)) {
-					LevCont.maxselect--;
+			if((!is_string(skill) and ultra_get(race, skill)) or skill_get(skill)) {
+				with(instances_matching_gt(instances_matching(mutbutton, "creator", creator), "num", num)) {
 					num--;
+					alarm0--;
 				}
 				
 				if(instance_number(mutbutton) = 1) {
@@ -61,6 +61,7 @@
 					}
 				}
 				
+				if(instance_exists(creator)) creator.maxselect--;
 				instance_destroy();
 			}
 			
@@ -74,7 +75,7 @@
 					
 					wait 1;
 					
-					if(!instance_exists(self) and (ultra_get(_race, _skill) or skill_get(_skill))) {
+					if(!instance_exists(self) and ((!is_string(_skill) and ultra_get(_race, _skill)) or skill_get(_skill))) {
 						array_push(global.last_race, _race);
 						array_push(global.last_took, _skill);
 					}
@@ -128,7 +129,7 @@
 		var _skill = ((i < _skillMax) ? i : _skillMods[i - _skillMax]);
 		
 		if(
-			(skill_get_avail(_skill) or (is_string(_skill) and mod_script_exists("skill", _skill, "skill_cursed") and mod_script_call("skill", _skill, "skill_cursed") = true)) // Made sure to modify this to work with cursed mutations
+			(skill_get_avail(_skill) or (is_string(_skill) and mod_script_exists("skill", _skill, "skill_cursed") and mod_script_call("skill", _skill, "skill_cursed") = true) and mod_script_call("mod", "metamorphosis", "current_cursed") = true) // Made sure to modify this to work with cursed mutations
 			&& _skill != mut_patience
 			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
 		){

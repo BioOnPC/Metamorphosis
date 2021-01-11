@@ -25,7 +25,7 @@
 				
 				if(fork()) {
 					repeat(healamt * 2) {
-						wait 30;
+						wait 45;
 						if(instance_exists(self)) {
 							my_health += min(1, maxhealth - my_health);
 							scartissue = my_health;
