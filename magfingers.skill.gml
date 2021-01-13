@@ -21,3 +21,10 @@
     		typ_ammo[i] = ceil(typ_ammo[i] * (1 + (0.4 * skill_get("magfingers"))));
     	}
     }
+
+#define skill_lose
+	with(instances_matching(Player, "cartridge", 1)) {
+		for(i = 0; i <= 5; i++) {
+    		typ_ammo[i] = floor(typ_ammo[i] * 0.6);
+    	}
+	}
