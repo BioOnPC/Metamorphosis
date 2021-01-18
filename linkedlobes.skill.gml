@@ -44,10 +44,12 @@
 		if(instance_exists(GameCont)) GameCont.skillpoints++;
 		exit;
 	}
-	with(instances_matching_ne(WepPickup, "lobecheck", 1)){
+	with(instances_matching(WepPickup, "lobecheck", null)){
 		lobecheck = 1;
-		if(is_object(wep) && wep.wep == "merge" && "lobecheck" not in wep){
-			wep.lobecheck = 1;
+		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
+			if("linkedlobe" not in wep){
+				wep.linkedlobe = "";
+			}
 			var modifier;
 			var done = 0;
 			while(!done){
@@ -60,15 +62,17 @@
 				}
 				done++;
 			}
-			trace(modifier[0]);
+			//wep.linkedlobe += modifier[0];
 			for(var i = 1; i < array_length(modifier); i++){
 				lq_set(wep.base.proj, "nttemergeproj_" + modifier[i], null);
 			}
 		}
 	}
 	with(Player){
-		if(is_object(wep) && wep.wep == "merge" && "lobecheck" not in wep){
-			wep.lobecheck = 1;
+		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
+			if("linkedlobe" not in wep){
+				wep.linkedlobe = "";
+			}
 			var modifier;
 			var done = 0;
 			while(!done){
@@ -81,7 +85,7 @@
 				}
 				done++;
 			}
-			trace(modifier[0]);
+			//wep.linkedlobe += modifier[0];
 			for(var i = 1; i < array_length(modifier); i++){
 				lq_set(wep.base.proj, "nttemergeproj_" + modifier[i], null);
 			}
