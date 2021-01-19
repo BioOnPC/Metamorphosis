@@ -13,18 +13,18 @@
     with(instances_matching_le(enemy, "my_health", 0)) { // Find all dead enemies
         if(!variable_instance_exists(self, "racingthoughts")) {
             racingthoughts = 1; // Make sure this only happens once
-            var loadreduce = maxhealth * 2; // Figure out how big of a bitch this was
+            var loadreduce = maxhealth; // Figure out how big of a bitch this was
             
             with(Player) {
             	gunshine = 7;
-                if(reload >= 1) reload = max(reload - floor(loadreduce/2), -floor(weapon_get_load(wep)/2));
+                if(reload >= 1) reload = max(reload - floor(loadreduce), -floor(weapon_get_load(wep)));
                 if(breload >= 1) {
                 	if(race = "steroids") {
-                		breload = max(breload - floor(loadreduce/2), -floor(weapon_get_load(wep)/2));
+                		breload = max(breload - floor(loadreduce), -floor(weapon_get_load(wep)));
                 	}
                 	
                 	else { // Not steroids
-                		breload = max(breload - floor(loadreduce/4), -floor(weapon_get_load(bwep)/4));
+                		breload = max(breload - floor(loadreduce/2), -floor(weapon_get_load(bwep)/2));
                 	}
                 }
             }
