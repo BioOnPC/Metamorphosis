@@ -248,7 +248,7 @@
 					with(Player) {
 						with(instances_matching_ne(ChestOpen, "craniumchicken", 1)){
 							craniumchicken = 1;
-							if(sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
+							if(other.chickendeaths > 0 && sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
 								other.chickendeaths--;
 								other.maxhealth++;
 							}
