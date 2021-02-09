@@ -134,10 +134,10 @@
 							
 							 // Spawn Ultra Screen:
 							instance_create(0, 0, LevCont);
-							var _letterbox = game_letterbox;
 							
 							 // Reset Ultra:
 							if(_lastUltra == 0){
+								var _letterbox = game_letterbox;
 								ultra_set(_racePick, 1, _lastUltra);
 								game_activate();
 								game_letterbox = _letterbox;
@@ -180,6 +180,12 @@
 		}
 	}
 	
+#define cleanup
+	 // Delete Script Bindings:
+	with(global.bind_end_step){
+		instance_destroy();
+	}
+	
 #define game_activate()
 	/*
 		Reactivates all instances and unpauses the game
@@ -216,7 +222,7 @@
 				event_perform(ev_alarm, 6);
 			}
 			sound_stop(sndBigBanditIntro);
-			instance_delete(id);
+			instance_delete(self);
 		}
 		
 		 // Reset:
@@ -224,7 +230,7 @@
 		opt_bossintros = _lastIntro;
 		GameCont.loops = _lastLoops;
 		with(_player){
-			instance_delete(id);
+			instance_delete(self);
 		}
 		
 		 // Unpause Game, Then Deactivate Objects:

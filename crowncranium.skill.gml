@@ -167,7 +167,8 @@
 									repeat(15){
 										if(!instance_exists(self)){exit;}
 										with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
-											move_contact_solid(point_direction(other.x,other.y,x,y), 8);
+											motion_add(point_direction(other.x,other.y,x,y), 4);
+											instance_create(x - hspeed, y - vspeed, Dust);
 										}
 										wait(0);
 									}
@@ -179,6 +180,7 @@
 									image_angle = image_angle + 180;
 									instance_create(x,y,Deflect);
 								}
+								
 								for(var i = 0; i < 360; i += 10){
 									with(instance_create(x,y,Dust)){
 										direction = i;
@@ -195,6 +197,7 @@
 						if(object_index != WepPickup){
 							var p = instance_nearest(x,y,Player);
 							move_contact_solid(point_direction(x,y,p.x,p.y), 1);
+							if(irandom(4/current_time_scale) == 0) instance_create(x, y, Dust).depth = depth + 1;
 						}
 					}
 					break;
@@ -204,18 +207,18 @@
 							if("craniumplant" not in self){
 								craniumplant = 0;
 							}
+							
 							var _x = x;
 							var _y = y;
 							if(fork()){
 								wait(0);
-								if(!instance_exists(self)){exit;}
-								craniumplant += point_distance(x,y,_x,_y);
+								if(instance_exists(self)) craniumplant += point_distance(x,y,_x,_y);
 								exit;
 							}
 							//if they've moved the equivalent of 50 tiles (wall width) spawn a sapling
-							if(craniumplant > 50 * 12){
-								craniumplant -= 50 * 12;
-								with(instance_create(x,y,Sapling)){
+							if(craniumplant > 30 * 12){
+								craniumplant -= 30 * 12;
+								with(instance_create(x, y, Sapling)) {
 									team = other.team;
 									creator = other;
 									raddrop = 0;
@@ -239,7 +242,11 @@
 				case "robot":
 						with(instances_matching_ne(instances_matching_ge(WepPickup, "ammo", 1), "craniumrobot", 1)){
 							craniumrobot = 1;
+							
 							if(irandom(2) == 0){
+								sound_play_pitch(sndGunGun, 1.4 + random(0.4));
+								sound_play_pitch(sndBigWeaponChest, 1.6 + random(0.2));
+								instance_create(x, y, GunGun);
 								instance_copy(false);
 							}
 						}
@@ -251,16 +258,34 @@
 							if(other.chickendeaths > 0 && sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
 								other.chickendeaths--;
 								other.maxhealth++;
+								
+								with(instance_create(x, y, Corpse)) {
+									motion_add(random(360), 6 + random(2));
+									sprite_index = sprMutant9HeadIdle;
+									depth = other.depth - 1;
+								}
+								
+								sound_play(sndChickenRegenHead);
 							}
 						}
 					}
 					break;
 				case "rebel":
 					with(Ally) {
-						var _c = creator;
+						var _c = creator,
+							_x = x,
+							_y = y;
 						if(fork()){
 							wait(0);
-							if(!instance_exists(self) && !instance_exists(Portal) && irandom(2) == 0){_c.my_health++;}
+							if(!instance_exists(self) && !instance_exists(Portal) && irandom(2) == 0){
+								with(_c) {
+									if(my_health < maxhealth) my_health++;
+									instance_create(x, y, BloodStreak).image_angle = point_direction(x, y, _x, _y);
+								}
+								sound_play_pitch(asset_get_index("sndPortalFlyby" + string(irandom_range(1, 8))), 1.4 + random(0.4));
+								sound_play_pitch(sndHealthChest, 1.8 + random(0.4));
+								sound_play_pitch(sndBloodlustProc, 0.6 + random(0.2));
+							}
 							exit;
 						}
 					}
@@ -272,7 +297,11 @@
 							wait(0);
 							if(!instance_exists(self)){exit;}
 							if(my_health < hp){
-								rogueammo = min(rogueammo + 1, ultra_get(char_rogue,1) > 0 ? 6 : 3)
+								rogueammo = min(rogueammo + 1, ultra_get(char_rogue,1) > 0 ? 6 : 3);
+								instance_create(x, y, PopupText).mytext = rogueammo = 3 + (ultra_get(char_rogue, 1) * 3) ? "MAX PORTAL STRIKES" : "+1 PORTAL STRIKE"
+								sound_play_pitch(sndRogueCanister, 1.4 + random(0.4));
+								sound_play_pitch(sndWeaponChest, 0.7 + random(0.2));
+								sound_play_pitch(sndSwapMotorized, 0.4 + random(0.2));
 							}
 							exit;
 						}

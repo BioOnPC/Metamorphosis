@@ -15,24 +15,20 @@
 	with(Player) {
 		if(!variable_instance_exists(self, "viscous_lsthealth")) viscous_lsthealth = my_health;
 		if(viscous_lsthealth > my_health) {
-			if(instance_exists(GameCont) and GameCont.rad >= max(1, 100 - ((skill_get("viscosity") - 1) * 25))) {
-				GameCont.rad -= max(1, 100 - ((skill_get("viscosity") - 1) * 25));
-				my_health = viscous_lsthealth;
-				
-				 // EFFECTS
-				sound_play_pitch(sndRadMaggotDie, 0.8);
-				sound_play(sndImpWristKill);
-				
-				var ang = random(360);
-				repeat(3) {
-					instance_create(x, y, AcidStreak).image_angle = ang;
-					ang += 120;
+			var viscdiff = viscous_lsthealth - my_health,
+				visccost = 75 - max((skill_get("viscosity") - 1) * 10, 50);
+			if(instance_exists(GameCont)) {
+				repeat(viscdiff) {
+					if(GameCont.rad >= visccost) {
+						GameCont.rad -= visccost;
+						my_health += viscous_lsthealth;
+						 // EFFECTS
+						sound_play_pitch(sndRadMaggotDie, 0.8);
+						sound_play(sndImpWristKill);
+						
+						instance_create(x, y, AcidStreak).image_angle = random(360);
+					}
 				}
-			}
-			
-			else {
-				sound_play_pitch(sndUltraEmpty, 1.8);
-				sound_play_pitch(sndHPPickup, 0.4);
 			}
 		}
 		

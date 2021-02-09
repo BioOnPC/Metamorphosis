@@ -27,3 +27,5 @@
     	image_alpha -= 0.4;
     }
     
+#define skill_lose
+	with(Player) { image_alpha += 0.4; }

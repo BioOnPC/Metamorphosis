@@ -17,7 +17,7 @@
 	    with(instances_matching(Floor, "stashlocated", null)) {
 	    	stashlocated = "HERE";
 	    	
-	    	if(object_index != FloorExplo and !collision_rectangle(x, y, x + sprite_width, y + sprite_height, hitme, false, false) and (!instance_exists(SodaMachine) and random(20) < 1)) {
+	    	if(object_index != FloorExplo and !collision_rectangle(x, y, x + sprite_width, y + sprite_height, hitme, false, false) and !collision_rectangle(x, y, x + sprite_width, y + sprite_height, chestprop, false, false) and (!instance_exists(SodaMachine) and random(20) < 1)) {
 	    		with(instance_create(x + (sprite_width/2), y + (sprite_height/2), SodaMachine)) {
 	    			spr_idle = global.sprMachine;
 	    			spr_hurt = global.sprMachineHurt;

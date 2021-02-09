@@ -9,6 +9,7 @@
 #define skill_tip     return "CLEANSE THYSELF";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+
 #define skill_take    
 	sound_play(sndMut); //sound_mutation_play();
 	sound_play_pitch(sndUncurse, 0.8);
@@ -34,17 +35,7 @@
     	bcurse = 1;
     }
 
-#define skill_avail   
-	var _mod = mod_get_names("skill"),
-        _scrt = "skill_cursed",
-        _cursed = [];
-    
-     // Go through and find all cursed mutations you have
-    for(var i = 0; i < array_length(_mod); i++){ 
-    	if(skill_get(_mod[i]) and mod_script_exists("skill", _mod[i], _scrt)) array_push(_cursed, _mod[i]);
-    }
-
-	return array_length(_cursed) >= 2 ? 1 : 0; // for metamorphosis
+#define skill_avail   return false;
 
 #define step
 	with(Player) {

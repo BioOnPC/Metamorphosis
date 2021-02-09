@@ -12,6 +12,12 @@
 #define skill_take    sound_play(sndMut); //sound_mutation_play();
 #define skill_avail   return false;
 #define skill_cursed  return true; // for metamorphosis
+#define skill_lose
+	with(Player) {
+		maxhealth *= 2;
+		my_health *= 2;
+	}
+
 
 #define step
 	with(Player){
@@ -40,7 +46,7 @@
 		if(fork()) {
 			wait 30;
 			
-			if(instance_exists(self) and !instance_exists(LevCont)) {
+			if(instance_exists(self) and !instance_exists(LevCont) and !instance_exists(GenCont)) {
 				 // Update all variables
 				diswep = prevwep;
 				disbwep = prevbwep;
