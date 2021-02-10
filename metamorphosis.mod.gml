@@ -939,8 +939,13 @@
 			    
 			     // Go through and find all cursed mutations
 			    for(var i = 0; i < array_length(_mod); i++){ 
-			    	if(!skill_get(_mod[i]) and array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0 and mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) array_push(_cursed, _mod[i]);
-			    	else if(skill_get(_mod[i])) _amtcurse++;
+			    	if(mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) {
+			    		if(!skill_get(_mod[i])) {
+			    			if(array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0) array_push(_cursed, _mod[i]);
+			    		}
+			    		
+			    		else _amtcurse++;
+			    	}
 			    }
 				
 				if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(10) < 1) _repent = 1; 
