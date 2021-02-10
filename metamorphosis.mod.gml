@@ -291,7 +291,7 @@
 				my_health  = maxhealth;
 				size       = 2;
 				
-				prompt = prompt_create("@gMODIFY");
+				prompt = prompt_create("+1 @gMUTATION@w#-2 @rMAX HP@s");
 				with(prompt){
 					mask_index = mskReviveArea;
 					yoff = -4;
@@ -682,7 +682,7 @@
 	
 	if(instance_exists(prompt) && player_is_active(prompt.pick)){
 		with(prompt.pick) {
-			if(maxhealth >= 2) {
+			if(array_length(instances_matching_gt(Player, "maxhealth", 2)) = instance_number(Player)) {
 				with(other) {
 					spr_idle = sprProtoStatueDone;
 					image_index = 0;
@@ -694,8 +694,10 @@
 					skillpoints++;
 				}
 				
-				projectile_hit_raw(self, min(2, my_health - 1), 3);
-				maxhealth -= 2;
+				with(Player) {
+					projectile_hit_raw(self, min(2, my_health - 1), 3);
+					maxhealth -= 2;
+				}
 				
 				 // EFFECTS
 				instance_create(x, y, LevelUp);
