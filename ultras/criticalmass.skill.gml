@@ -36,6 +36,6 @@
 	}
 	//go through the list and set those mutations to 0!
 	for(var i = 0; i < array_length(mutList); i++){
-		skill_set(skill, 0);
+		skill_set(mutList[i], 0);
 		GameCont.skillpoints += 1;
 	}
