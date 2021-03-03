@@ -164,28 +164,29 @@
 							if(!instance_exists(self)){exit;}
 							if(my_health < hp){
 								if(fork()){
-									repeat(15){
+									repeat(10){
 										if(!instance_exists(self)){exit;}
+										for(var i = (current_frame * 10) % 360; i < 360 + ((current_frame * 10) % 360); i += 45){
+											with(instance_create(x,y,CrystTrail)){
+												direction = i;
+												speed = 8;
+											}
+										}
+										with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, projectile)){
+											if(team != other.team){
+												team = other.team;
+												direction = direction + 180;
+												image_angle = image_angle + 180;
+												instance_create(x,y,Deflect);
+											}
+										}
 										with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
 											motion_add(point_direction(other.x,other.y,x,y), 4);
 											instance_create(x - hspeed, y - vspeed, Dust);
 										}
-										wait(0);
+										wait(1);
 									}
 									exit;
-								}
-								with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, projectile)){
-									team = other.team;
-									direction = direction + 180;
-									image_angle = image_angle + 180;
-									instance_create(x,y,Deflect);
-								}
-								
-								for(var i = 0; i < 360; i += 10){
-									with(instance_create(x,y,Dust)){
-										direction = i;
-										speed = 8;
-									}
 								}
 							}
 							exit;
