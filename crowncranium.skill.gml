@@ -168,6 +168,25 @@
 										if(!instance_exists(self)){exit;}
 										for(var i = (current_frame * 10) % 360; i < 360 + ((current_frame * 10) % 360); i += 45){
 											with(instance_create(x,y,CrystTrail)){
+												switch(other.bskin){
+													case 0:
+														image_blend = c_white;
+														break;
+													case 1:
+														image_blend = c_yellow;
+														break;
+													case "red crystal":
+														image_blend = c_red;
+														break;
+													case "tree":
+														image_blend = c_green;
+														break;
+													case "shielder":
+														image_blend = c_blue;
+														break;
+													default:
+														image_blend = c_silver;
+												}
 												direction = i;
 												speed = 8;
 											}
