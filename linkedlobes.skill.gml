@@ -48,7 +48,7 @@
 		lobecheck = 1;
 		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
 			if("linkedlobe" not in wep){
-				wep.linkedlobe = "";
+				wep.linkedlobe = 1;
 			}
 			var modifier;
 			var done = 0;
@@ -71,7 +71,7 @@
 	with(Player){
 		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
 			if("linkedlobe" not in wep){
-				wep.linkedlobe = "";
+				wep.linkedlobe = 1;
 			}
 			var modifier;
 			var done = 0;
