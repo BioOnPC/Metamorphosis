@@ -13,7 +13,7 @@
 
 #define step
 	 // Every five frames...
-	if((floor(current_frame) mod (45 * (room_speed/30))) = 0) {
+	if((floor(current_frame) mod (25 * (room_speed/30))) = 0) {
 		with(Tangle) {
 			with(instances_meeting(x, y, enemy)) {
 				var tangledmg = 2;
@@ -24,8 +24,8 @@
 					sound_play_pitch(sndPlantSnare, 1.8);
 					sound_play_pitch(sndSharpTeeth, 1.4);
 					
-					if(random(3 / skill_get("predator")) < 1) {
-						var tanglepickup = random(5 / skill_get(mut_rabbit_paw)) < 1 ? HPPickup : AmmoPickup;
+					if(random(3) < 1) repeat(skill_get(mod_current) + skill_get(mut_rabbit_paw)) {
+						var tanglepickup = choose(AmmoPickup, AmmoPickup, HPPickup);
 						with(instance_create(x, y, tanglepickup)) {
 							motion_add(random(360), random_range(1, 4));
 						}

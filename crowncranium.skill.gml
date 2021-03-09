@@ -10,7 +10,7 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_avail   
 	with(instances_matching_gt(Player, "race_id", 16)) {
-		if(race != "parrot" and !mod_script_exists("race", race, "race_ch_text")) {
+		if(race != "parrot" and !mod_script_exists("race", race, "race_cc_text")) {
 			return 0;
 		}
 	}
@@ -30,18 +30,18 @@
 			case "plant":    t += "OCCASIONALLY SPAWN @wSAPLINGS@s#BASED ON @wSPEED@s"; break;
 			case "venuz":    t += "THE HIGHER YOUR @wRELOAD TIME@s,#THE FASTER YOUR @wRELOAD SPEED@s"; break;
 			case "steroids": t += "PORTALS GIVE @yAMMO@s"; break;
-			case "robot":    t += "@wWEAPON DROPS@s ARE SOMETIMES @wDOUBLED@s"; break;
+			case "robot":    t += "@wWEAPON DROPS@s ARE#SOMETIMES @wDOUBLED@s"; break;
 			case "chicken":  t += "REGAIN LOST MAX @rHP@s FROM @wALL CHESTS@s"; break;
 			case "rebel":    t += "@rHEAL@s WHEN @wALLIES@s DIE"; break;
 			case "horror":   t += "@wREROLL@s TWO MUTATIONS"; break;
-			case "rogue":    t += "LOSING @rHEALTH@s#GIVES @bSTRIKE AMMO@s"; break;
+			case "rogue":    t += "@wENEMIES@s AND @bIDPD@s#DROP @bPORTAL STRIKES"; break;
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
 			case "frog":     t += "BOUNCING @wRELOADS@s"; break;
 			case "parrot":   t += "@wPETS MOVE FASTER@s"; break;
 			default: t += ""; break;
 		}
 		
-		if(race_id > 16 and mod_script_exists("race", race, "race_ch_text")) t += mod_script_call("race", race, "race_ch_text");
+		if(race_id > 16 and mod_script_exists("race", race, "race_cc_text")) t += mod_script_call("race", race, "race_cc_text");
 		
 		t += "#";
 	}
@@ -216,13 +216,20 @@
 								if(instance_exists(self)) craniumplant += point_distance(x,y,_x,_y);
 								exit;
 							}
-							//if they've moved the equivalent of 50 tiles (wall width) spawn a sapling
-							if(craniumplant > 30 * 12){
-								craniumplant -= 30 * 12;
-								with(instance_create(x, y, Sapling)) {
+							//if they've moved the equivalent of 40 tiles (wall width) spawn a sapling
+							if(craniumplant > 40 * 12){
+								craniumplant -= 40 * 12;
+								repeat(3) {
+									with(instance_create(x, y, Sapling)) {
+										team = other.team;
+										creator = other;
+										raddrop = 0;
+									}
+								}
+								
+								with(instance_create(x, y, MeatExplosion)) {
 									team = other.team;
-									creator = other;
-									raddrop = 0;
+									damage = 0;
 								}
 							}
 						}
@@ -292,19 +299,33 @@
 					}
 					break;
 				case "rogue":
-					with(Player) {
-						var hp = my_health;
-						if(fork()){
-							wait(0);
-							if(!instance_exists(self)){exit;}
-							if(my_health < hp){
-								rogueammo = min(rogueammo + 1, ultra_get(char_rogue,1) > 0 ? 6 : 3);
-								instance_create(x, y, PopupText).mytext = rogueammo = 3 + (ultra_get(char_rogue, 1) * 3) ? "MAX PORTAL STRIKES" : "+1 PORTAL STRIKE"
-								sound_play_pitch(sndRogueCanister, 1.4 + random(0.4));
-								sound_play_pitch(sndWeaponChest, 0.7 + random(0.2));
-								sound_play_pitch(sndSwapMotorized, 0.4 + random(0.2));
+					with(instances_matching_le(enemy, "my_health", 0)) { // Find all dead enemies
+						var strikechance = 0;
+						switch(object_index) {
+							case Grunt: 
+							case PopoFreak: strikechance = 12; break;
+							case Inspector: 
+							case Shielder: strikechance = 8; break;
+							case EliteGrunt: 
+							case EliteShielder: 
+							case EliteInspector: strikechance = 6; break;
+							case Van: strikechance = 1; break;
+							default: strikechance = 48;
+						}
+						
+						if(variable_instance_exists(self, "resourcefulchance")) strikechance = resourcefulchance;
+						
+						if(random(strikechance) < skill_get(mod_current)) { 
+							with(instance_create(x, y, RoguePickup)) alarm0 -= 120;
+							with(instance_create(x, y, SmallExplosion)) {
+								damage = 0;
+								sprite_index = sprPopoExplo;
+								mask_index = mskNone;
+								image_xscale = 0.2;
+								image_yscale = 0.2;
+								sound_play_pitch(sndRogueAim, 1.8);
+								sound_play_pitch(sndRogueCanister, 1.4);
 							}
-							exit;
 						}
 					}
 					break;

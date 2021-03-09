@@ -44,50 +44,52 @@
 		if(instance_exists(GameCont)) GameCont.skillpoints++;
 		exit;
 	}
-	with(instances_matching(WepPickup, "lobecheck", null)){
-		lobecheck = 1;
-		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
-			if("linkedlobe" not in wep){
-				wep.linkedlobe = 1;
-			}
-			var modifier;
-			var done = 0;
-			while(!done){
-				modifier = global.modifiers[irandom(array_length(global.modifiers)-1)];
-				for(var i = 1; i < array_length(modifier); i++){
-					if(lq_get(wep.base.proj, "nttemergeproj_" + modifier[i])){
-						done = -1;
-						break;
-					}
-				}
-				done++;
-			}
-			//wep.linkedlobe += modifier[0];
-			for(var i = 1; i < array_length(modifier); i++){
-				lq_set(wep.base.proj, "nttemergeproj_" + modifier[i], null);
-			}
-		}
-	}
+	
 	with(Player){
-		if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
-			if("linkedlobe" not in wep){
-				wep.linkedlobe = 1;
-			}
-			var modifier;
-			var done = 0;
-			while(!done){
-				modifier = global.modifiers[irandom(array_length(global.modifiers)-1)];
-				for(var i = 1; i < array_length(modifier); i++){
-					if(lq_get(wep.base.proj, "nttemergeproj_" + modifier[i])){
-						done = -1;
-						break;
-					}
-				}
-				done++;
-			}
-			//wep.linkedlobe += modifier[0];
-			for(var i = 1; i < array_length(modifier); i++){
-				lq_set(wep.base.proj, "nttemergeproj_" + modifier[i], null);
-			}
+		add_mod();
+		
+		var dis = 96;
+		with(instance_rectangle(x - dis, y - dis, x + dis, y + dis, instances_matching(WepPickup, "lobecheck", null))) {
+			lobecheck = 1;
+			add_mod();
+			if(is_object(wep) && wep.wep == "merge") name = wep.base.name;
 		}
 	}
+	
+#define add_mod
+	if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
+		if("linkedlobe" not in wep){
+			wep.linkedlobe = 1;
+			
+			sound_play_pitch(sndGunGun, 1.4 + random(0.4));
+			sound_play_pitch(sndBigWeaponChest, 1.6 + random(0.2));
+			instance_create(x, y, GunGun);
+		}
+		
+		var modifier;
+		var done = 0;
+		while(!done){
+			modifier = global.modifiers[irandom(array_length(global.modifiers)-1)];
+			for(var i = 1; i < array_length(modifier); i++){
+				if(lq_get(wep.base.proj, "nttemergeproj_" + modifier[i])){
+					done = -1;
+					break;
+				}
+			}
+			done++;
+		}
+		
+		for(var i = 1; i < array_length(modifier); i++){
+			lq_set(wep.base.proj, "nttemergeproj_" + modifier[i], null);
+		}
+		
+		wep.base.name = string_upper(modifier[0]) + " " + wep.base.name;
+	}
+	
+#define instance_rectangle(_x1, _y1, _x2, _y2, _obj)
+	/*
+		Returns all given instances with their coordinates touching a given rectangle
+		Much better performance than manually performing 'point_in_rectangle()' on every instance
+	*/
+	
+	return instances_matching_le(instances_matching_ge(instances_matching_le(instances_matching_ge(_obj, "x", _x1), "x", _x2), "y", _y1), "y", _y2);

@@ -63,7 +63,7 @@
 	 // Decrement Timer and Delete Bullets:
 	with(instances_matching_gt(projectile, "selectivefocus_destroy_time", 0)){
 		selectivefocus_destroy_time -= current_time_scale;
-		if(selectivefocus_destroy_time <= 0){
+		if(selectivefocus_destroy_time <= 0 and ("name" not in self or name != "CrystalHeartBullet")){
 			selectivefocus_destroy();
 		}
 	}

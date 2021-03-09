@@ -25,6 +25,7 @@
 /loadskill cursed/displacement
 /loadskill cursed/repentance
 /loadskill cursed/impatience
+/loadskill cursed/falseprayer
 
 /load ultras
 /loadcrown crowns/evolution

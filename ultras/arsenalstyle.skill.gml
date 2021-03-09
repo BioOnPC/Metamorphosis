@@ -14,13 +14,15 @@
 #define step
 	with(instances_matching(Player, "race", "eyes")) { // Find players that are playing eyes
 		if(button_check(index, "spec")) { // Is eyes using his active?
-			with(instances_matching_gt(WepPickup, "ammo", 0)) { // Find any weppickup that hasn't been touched yet
+			with(instances_matching(WepPickup, "arsenal", null)) { // Find any weppickup that hasn't been touched yet
+				arsenal = 1;
+			
 				var nenemy = instance_near(x, y, enemy, 128), 
 					aim_dir = 0;
 				
 				if(!weapon_is_melee(wep) and (weapon_get_type(wep) != 4 or skill_get(mut_boiling_veins)) and instance_seen(x, y, nenemy)) {
 					 // Make sure this only happens once and makes it so weppickups that fire expend their ammo
-					ammo = 0;
+					//ammo = 0;
 					
 					 // Effects
 					sound_play_pitch(sndGunGun, 0.4 + random_range((weapon_get_load(wep)/2)/10, weapon_get_load(wep)/10));

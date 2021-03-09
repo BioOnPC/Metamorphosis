@@ -24,8 +24,8 @@
     }
     
     with(instances_matching(Player, "image_alpha", 1)) {
-    	image_alpha -= 0.4;
+    	image_alpha -= 0.2;
     }
     
 #define skill_lose
-	with(Player) { image_alpha += 0.4; }
+	with(Player) { image_alpha += 0.2; }

@@ -36,7 +36,22 @@
 #define step
 	script_bind_begin_step(curse_mut, 0);
 	script_bind_draw(cursed_mut_draw, -1001);
-
+	
+	 // Avoid duplicating ultras by accident
+	with(GameCont) {
+		if("alreadyultra" not in self) {
+			if(level >= 10) alreadyultra = true;
+		} 
+		
+		else if(fork()) {
+			if(level < 10) {
+				wait 0;
+				if(level >= 10 and endpoints > 0) endpoints = 0;
+				exit;
+			}
+		}
+	}
+	
     if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
         with(instances_matching_ne(HPPickup, "sprite_index", global.sprMedpack)) {
             sprite_index = global.sprMedpack;
@@ -929,8 +944,9 @@
 
 #define curse_mut
 	if(!instance_exists(EGSkillIcon) and array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
-		for(i = 0; i < instance_number(SkillIcon); i++) {
-			with(instances_matching(SkillIcon, "num", i)) {
+		var potentialcurse = instances_matching(SkillIcon, "curseified", null);
+		repeat(instance_number(SkillIcon)) {
+			with(potentialcurse[irandom(array_length(potentialcurse) - 1)]) {
 				curseified = "maybe!";
 				
 				var _mod = mod_get_names("skill"),
@@ -973,6 +989,8 @@
 				    }
 				}
 			}
+			
+			potentialcurse = instances_matching(SkillIcon, "curseified", null);
 		}
 	}
 	

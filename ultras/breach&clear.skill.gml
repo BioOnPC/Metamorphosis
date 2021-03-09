@@ -13,7 +13,7 @@
 
 #define step
 	with(instances_matching_gt(Player, "roll", 0)) { // just make you shoot faster when ur rolling idk
-		if(reload > 0) reload -= (skill_get(mut_throne_butt) ? 0.4 * skill_get(mut_throne_butt) : 0.8); // you shoot faster without thronebutt to make up for the length of the roll
+		if(reload > 0) reload -= (skill_get(mut_throne_butt) ? 0.6 * skill_get(mut_throne_butt) : 1); // you shoot faster without thronebutt to make up for the length of the roll
 		
 		 // FAST EFFECTS
 		if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
