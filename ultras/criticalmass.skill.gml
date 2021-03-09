@@ -1,41 +1,61 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
-	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra"   + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 	
 	global.diff = 0;
-
+	
 #define skill_name    return "CRITICAL MASS";
 #define skill_text    return "@gRESELECT YOUR MUTATIONS@s#RESELECT AGAIN @wLATER";
 #define skill_tip     return "ENTROPY UNDONE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
+#define skill_ultra   return "horror";
+#define skill_avail   return false;
+
 #define skill_take(_num)
-	if(_num > 0 and array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+	var _last = variable_instance_get(GameCont, `skill_last_${mod_current}`, 0);
+	variable_instance_set(GameCont, `skill_last_${mod_current}`, _num);
+	
+	 // Out of Patience:
+	skill_set_active(mut_patience, (_num == 0));
+	
+	 // Reroll Mutations:
+	skill_reset(_num - _last);
+	
+	 // Sound:
+	if(_num > 0 && instance_exists(LevCont)){
 		sound_play(sndStatueCharge);
-		skill_set_active(mut_patience, 0);
-		with(GameCont) global.diff = hard;
-		
-		skill_reset(skill_get(mod_current));
 	}
 	
-#define skill_ultra   return "horror";
-#define skill_avail   return 0; // Disable from appearing in normal mutation pool
-#define skill_lose    skill_set_active(mut_patience, 1);
-
+	 // unknown:
+	with(GameCont) global.diff = hard;
+	
+#define skill_lose
+	skill_take(0);
+	
 #define skill_reset(_addMuts)
-	//this is gonna be the list of mutations to reroll
-	var mutList = [];
-	//going down the list of mutations the player has, except for the last one
-	var mutNum = 0;
-	while(skill_get_at(mutNum + 1) != null){
-		//check to make sure it's not a modded ultra
-		if(is_real(skill_get_at(mutNum)) || (is_string(skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra"))){
-			array_push(mutList, skill_get_at(mutNum));
+	/*
+		Rerolls all non-special mutations, plus adds a given number of mutation points
+	*/
+	
+	 // Clear Non-Special Mutations:
+	for(var i = 0; !is_undefined(skill_get_at(i)); i++){
+		var _skill = skill_get_at(i);
+		if(skill_get_active(_skill)){
+			if(
+				!is_string(_skill)
+				|| !mod_script_exists("skill", _skill, "skill_avail")
+				|| mod_script_call("skill", _skill, "skill_avail")
+			){
+				skill_set(_skill, false);
+				GameCont.skillpoints++;
+				i--;
+			}
 		}
-		mutNum++;
 	}
-	//go through the list and set those mutations to 0!
-	for(var i = 0; i < array_length(mutList); i++){
-		skill_set(mutList[i], 0);
-		GameCont.skillpoints += 1;
-	}
+	GameCont.mutindex = 0;
+	
+	 // +Mutation+:
+	GameCont.skillpoints += _addMuts;
+	
+	//mod_variable_set("mod", "metamorphosis", "criticalmass_diff", GameCont.hard);

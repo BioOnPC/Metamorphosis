@@ -1,56 +1,68 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
-	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
-
+	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra"   + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	
 #define skill_name    return "VOTE 2 B COOL";
 #define skill_text    return (random(200) > 1 ? "@yDECIDE YOUR FUTURE@s" : "@y¿QUIERES?");
 #define skill_tip     return "U DA BEST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_ultra   return "venuz";
-#define skill_avail   return 0; // Disable from appearing in normal mutation pool
+#define skill_avail   return false;
+
 #define skill_take(_num)
-	if(_num > 0) {
-		if(instance_exists(LevCont)){
-			if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
-		
-			 // Increase important GameCont variables to account for a new selection of mutations
-			GameCont.skillpoints++;
-			GameCont.endpoints++;
-			if(GameCont.area = 0) GameCont.loops--;
-			GameCont.area = 107;
-			GameCont.subarea = 0;
-			with(MusCont) event_perform(ev_alarm, 11);
-			
-			if(fork()){
-			    wait(0); // Very miniscule pause so the game can catch up
-			    GameCont.endpoints--; // Fix what we did before
-			    with(SkillIcon) instance_destroy(); // Obliterate all leftover skill icons
-			    LevCont.maxselect = 7; // This is how many skills we're going to make +1.
-			    
-			    for(var i = 1; i <= 6; i++) { // Iterate through all votes
-			        var _skill = `vote${i}`; // Find all vote skills
-			        with(instance_create(0, 0, SkillIcon)){ // Make the skill icons
-			            creator = LevCont;
-			            num = instance_number(mutbutton);
-			            alarm0 = num + 3;
-			            skill = _skill;
-			            
-			             // Apply relevant scripts
-			            mod_script_call("skill", _skill, "skill_button");
-			            name = mod_script_call("skill", _skill, "skill_name");
-		                text = mod_script_call("skill", _skill, "skill_text");
-			        }
-			    }
-			    exit;
+	var _last = variable_instance_get(GameCont, `skill_last_${mod_current}`, 0);
+	variable_instance_set(GameCont, `skill_last_${mod_current}`, _num);
+	
+	 // Ultra Point:
+	GameCont.endpoints += (_num - _last);
+	
+	 // Sound:
+	if(_num > 0 && instance_exists(LevCont)){
+		sound_play(sndBasicUltra);
+	}
+	
+#define skill_lose
+	skill_take(0);
+	
+#define step
+	 // Voting Booth:
+	if(instance_exists(LevCont)){
+		var _inst = instances_matching(LevCont, "vote2bcool", null);
+		if(array_length(_inst)){
+			with(_inst){
+				vote2bcool = (
+					GameCont.endpoints > 0
+					&& GameCont.skillpoints <= 0
+					&& GameCont.crownpoints <= 0
+				);
+				if(vote2bcool){
+					 // Delete Mutation Icons:
+					with(instances_matching(mutbutton, "creator", self)){
+						instance_destroy();
+					}
+					
+					 // Spawn Vote Ultras:
+					GameCont.endcount--;
+					maxselect = -1;
+					repeat(6){
+						maxselect++;
+						mod_script_call("mod", "cultra", "custom_ultra_icon_create", "venuz", `vote${maxselect + 1}`, maxselect);
+					}
+					
+					 // Vacation:
+					if(GameCont.area == 0){
+						GameCont.loops--;
+					}
+					GameCont.area    = 107;
+					GameCont.subarea = 0;
+					with(MusCont){
+						alarm_set(11, 1);
+					}
+					with(SpiralCont){
+						type = 4;
+					}
+				}
 			}
-		}
-		
-		 // If it's selected anywhere that isn't the mutation selection screen
-		else {
-			 // Give a random vote
-			skill_set("vote" + string(random_range(1, 6)), skill_get(string(mod_current)));
-			 // Remove this blank skill
-			skill_set(string(mod_current), 0);
 		}
 	}
