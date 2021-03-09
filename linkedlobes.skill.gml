@@ -57,9 +57,9 @@
 	}
 	
 #define add_mod
-	if(is_object(wep) && wep.wep == "merge" && "linkedlobe" not in wep){
-		if("linkedlobe" not in wep){
-			wep.linkedlobe = 1;
+	if(is_object(wep) && wep.wep == "merge" && "base" in wep && "linkedlobe" not in wep.base){
+		if("linkedlobe" not in wep.base){
+			wep.base.linkedlobe = 1;
 			
 			sound_play_pitch(sndGunGun, 1.4 + random(0.4));
 			sound_play_pitch(sndBigWeaponChest, 1.6 + random(0.2));
