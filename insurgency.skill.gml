@@ -24,7 +24,7 @@
 
 		var insurrection = (instance_number(enemy) * 0.4) * (skill_get("insurgency"));
 		while(insurrection > 0 and array_length(instances_matching_le(enemy, "my_health", 30 + (1.5 * GameCont.loops))) > instance_number(Bandit)) {
-			with(instances_matching_le(enemy, "my_health", 30 + (1.5 * GameCont.loops))) {
+			with(instances_matching_le(enemy, "my_health", 32 + (4 * GameCont.loops))) {
 				if(object_index != Bandit and random(100) < 1) {
 					insurrection -= my_health;
 
@@ -40,6 +40,7 @@
 					var nfloor = instance_nearest(x + lengthdir_x(16, dir), y + lengthdir_x(16, dir), Floor);
 					for(i = 0; i < 5; i++) {
 						instance_create(nfloor.x + 16, nfloor.y + 16, Bandit);
+						instance_create(nfloor.x + 16, nfloor.y + 16, PortalClear).mask_index = mskBandit;
 					}
 
 					 // Kill he (with no drops!)

@@ -1,9 +1,11 @@
 #define init
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.level_start = false;
+	global.pouchenemies = [];
 
 #define skill_name    return "CHEEK POUCHES";
-#define skill_text    return "MORE @bSPECIAL PICKUPS";
+#define skill_text    return "@wWEAK ENEMIES@s DROP @bSPECIAL PICKUPS@s";
 #define skill_tip     return "HOARD CREATURE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -15,25 +17,54 @@
 		if(instance_exists(GameCont)) GameCont.skillpoints++;
 		exit;
 	}
+	
+	 // Level Start:
+	if(instance_exists(GenCont) || instance_exists(Menu)){
+		global.level_start = true;
+	}
+	else if(global.level_start){
+		global.level_start = false;
+		
+		global.pouchenemies = [];
+		
+		var hpamt = 8 + (GameCont.loops * 8),
+			availenemies = instances_matching_le(enemy, "my_health", 10 + GameCont.hard);
+		
+		while(hpamt > 0) {
+			if(array_length(availenemies) = 0) exit;
+			else {
+				with(availenemies[irandom(array_length(availenemies) - 1)]) {
+					array_push(global.pouchenemies, id);
+					hpamt -= my_health;
+					
+					
+					with(mod_script_call_nc('mod', 'metamorphosis', 'obj_create', x, y, "CheekPouch")) {
+						creator = other.id;
+					}
+				}
+			}
+		}
+	}
 
-    with(instances_matching([AmmoPickup, HPPickup], "cheekpouch", null)) {
-    	 // fun fact! you can just put whatever the fuck you want in here
-    	cheekpouch = ":)";
+    with(instances_matching_le(global.pouchenemies, "my_health", 0)) {
     	var pickupchoose = [];
     	
-    	array_push(pickupchoose, "BonusAmmoPickup"  );
-    	array_push(pickupchoose, "BonusHealthPickup");
-    	
-    	 // add the hammerhead pickup, if available
-    	if(random(5) < 1 and mod_exists("skill", "reroll")) array_push(pickupchoose, "HammerHeadPickup" );
-    	 // even more secret, if available
-    	if(random(10) < 1 and mod_exists("skill", "reroll")) array_push(pickupchoose, "OrchidBall"      );
-    	 // add the strong spirit pickup, if available
-    	if(random(20) < 1)								   array_push(pickupchoose, "SpiritPickup"		);
-    	
-    	if(random(12) < skill_get(mod_current)) {
-    		obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
+    	repeat(10) {
+    		array_push(pickupchoose, "BonusAmmoPickup"  );
     	}
+    	
+    	array_push(pickupchoose, "BonusHealthPickup");
+    	array_push(pickupchoose, "HammerHeadPickup");
+    	if(my_health > 20) {
+    		array_push(pickupchoose, "OrchidBall");
+    		array_push(pickupchoose, "SpiritPickup");
+    	}
+    	
+    	obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
+    	
+    	sound_play_pitch(sndHammerHeadEnd, 1.4 + random(0.3));
+    	sound_play_pitch(sndEXPChest, 1.7 + random(0.2));
+    	sound_play_pitch(sndHPPickupBig, 1.4 + random(0.2));
     }
     
     

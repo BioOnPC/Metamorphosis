@@ -236,8 +236,8 @@
 								exit;
 							}
 							//if they've moved the equivalent of 40 tiles (wall width) spawn a sapling
-							if(craniumplant > 40 * 12){
-								craniumplant -= 40 * 12;
+							if(craniumplant > 75 * 12){
+								craniumplant -= 75 * 12;
 								repeat(3) {
 									with(instance_create(x, y, Sapling)) {
 										team = other.team;

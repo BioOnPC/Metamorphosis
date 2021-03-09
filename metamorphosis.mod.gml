@@ -272,6 +272,13 @@
 				
 			}
 			break;
+			
+		case "CheekPouch":
+			o = obj_create(_x, _y, "CrystallineEffect");
+			with(o){
+				on_step = script_ref_create(CheekPouch_step);
+			}
+			break;
 		
 		case "AdrenalinePickup":
 		case "CrystallinePickup":
@@ -437,7 +444,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["AdrenalinePickup", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -504,6 +511,37 @@
 			sound_play_pitch(sndSwapShotgun, 1.2 + random(0.2));
 			sound_play_pitch(sndSwapCursed, 1.8 + random(0.1));
 		}
+	}
+
+#define CheekPouch_step
+	if(instance_exists(creator)){
+		var _time = creator.nexthurt - current_frame;
+		
+		blink = (_time < 20 && (_time % 2) == 0);
+		scale = lerp(scale, 1, current_time_scale / 3);
+		depth = creator.depth;
+		
+		 // Effects:
+		if(random(3) < current_time_scale){
+			with(
+				instance_create(
+					random_range(creator.bbox_left, creator.bbox_right), 
+					random_range(creator.bbox_top,  creator.bbox_bottom), 
+					CrystTrail
+				)
+			){
+				sprite_index = (
+					other.blink 
+					? sprCrystTrailB 
+					: sprCrystTrail
+				);
+				
+				speed *= 2/3;
+			}
+		}
+	}
+	else{
+		instance_destroy();
 	}
 
 #define CrystallineEffect_step
