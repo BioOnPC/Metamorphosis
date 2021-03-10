@@ -329,7 +329,7 @@
 							case EliteShielder: 
 							case EliteInspector: strikechance = 6; break;
 							case Van: strikechance = 1; break;
-							default: strikechance = 48;
+							default: strikechance = 72;
 						}
 						
 						if(variable_instance_exists(self, "resourcefulchance")) strikechance = resourcefulchance;
