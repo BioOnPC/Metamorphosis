@@ -276,6 +276,7 @@
 		case "CheekPouch":
 			o = obj_create(_x, _y, "CrystallineEffect");
 			with(o){
+				colors  = [make_color_rgb(54, 121, 255), make_color_rgb(0, 255, 255)];
 				on_step = script_ref_create(CheekPouch_step);
 			}
 			break;
@@ -530,11 +531,7 @@
 					CrystTrail
 				)
 			){
-				sprite_index = (
-					other.blink 
-					? sprCrystTrailB 
-					: sprCrystTrail
-				);
+				image_blend = other.colors[random(array_length(other.colors) - 1)];
 				
 				speed *= 2/3;
 			}
