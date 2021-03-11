@@ -27,7 +27,7 @@
 					if(random(3) < 1) repeat(skill_get(mod_current) + skill_get(mut_rabbit_paw)) {
 						var tanglepickup = choose(AmmoPickup, AmmoPickup, HPPickup);
 						with(instance_create(x, y, tanglepickup)) {
-							motion_add(random(360), random_range(1, 4));
+							motion_add(random(360), 3 + random(2));
 						}
 					}
 				}

@@ -36,7 +36,7 @@
 			case "horror":   t += "@wREROLL@s TWO MUTATIONS"; break;
 			case "rogue":    t += "@wENEMIES@s AND @bIDPD@s#DROP @bPORTAL STRIKES"; break;
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
-			case "frog":     t += "BOUNCING @wRELOADS@s"; break;
+			case "frog":     t += "@wHASTENED@s BOUNCES"; break;
 			case "parrot":   t += "@wPETS MOVE FASTER@s"; break;
 			default: t += ""; break;
 		}
@@ -359,30 +359,41 @@
 					}
 					break;
 				case "frog":
-					with(Player) {
-						if(!(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west")) && ("craniumfrog" not in self ||craniumfrog <= 0)){
+					with(instances_matching(Player, "race", "frog")) {
+						if(("hastened" not in self or hastened = 0) and place_meeting(x + hspeed, y + vspeed, Wall)){
 							if(fork()){
-								var prevdir = direction;
 								wait(0);
-								if(!instance_exists(self)){exit;}
-								if(direction != prevdir){
-									if(!(button_check(index, "nort") || button_check(index, "sout") || button_check(index, "east") || button_check(index, "west"))){
-										reload = max(reload-25,0);
-									}else{
-										reload = max(reload-15,0);
-									}
-									craniumfrog = 5;
+								
+								if(!instance_exists(self)){ exit; }
+								
+								var prevdir = direction;
+								
+								sound_play_pitch(sndFrogEndButt, 1 + random(0.2));
+								sound_play_pitch(sndRoll, 1.4 + random(0.3));
+								sound_play_pitch(sndRocket, 1.6 + random(0.4));
+								sound_play_pitch(sndWrench, 1.4 + random(0.2));
+								
+								with(instance_create(x, y, ImpactWrists)) {
+									depth = other.depth - 1;
+									image_speed += 0.2;
 								}
+								
+								haste(20, 0.4);	
+								
+								repeat(15) {
+									if(!instance_exists(self)){ exit; }
+									
+									move_contact_solid(prevdir, speed/3);
+									direction = prevdir;
+									wait(1);
+								}
+								
 								exit;
 							}
-						}else{
-							if("craniumfrog" not in self){
-								craniumfrog = 0;
-							}
-							craniumfrog--;
 						}
 					}
 					break;
+					
 				case "parrot":
 					with(instances_matching_ne(instances_matching(CustomHitme, "name", "Pet"), "craniumparrot", 1)){
 						if(instance_exists(leader)){
@@ -419,3 +430,4 @@
 	);
 	
 #define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
+#define haste(amt, pow)                                            	    		return mod_script_call('mod', 'metamorphosis', 'haste', amt, pow);

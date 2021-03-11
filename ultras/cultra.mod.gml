@@ -23,7 +23,7 @@
 	if(instance_exists(SkillIcon)){
 		var _inst = instances_matching_le(instances_matching(SkillIcon, "custom_ultra", true), "noinput", 1);
 		if(array_length(_inst)){
-			var _give = false;
+			var _take = false;
 			with(_inst){
 				for(var i = 0; i < maxp; i++){
 					if(player_is_active(i)){
@@ -45,17 +45,18 @@
 							|| (button_pressed(i, "fire") && position_meeting(_mx, _my, self))
 							|| (button_pressed(i, "okay") && "select" in creator && creator.select == num)
 						){
-							_give = true;
+							_take = true;
 							break;
 						}
 					}
 				}
-				if(_give){
+				if(_take){
 					break;
 				}
 			}
-			if(_give){
+			if(_take){
 				GameCont.skillpoints++;
+				GameCont.mutindex--;
 			}
 		}
 	}

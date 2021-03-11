@@ -12,7 +12,7 @@
 #define step
     with(instances_matching(enemy, "atomicrads", null)) { // Find all unaffected enemies
         atomicrads = 1;
-        raddrop += ceil(raddrop * (0.10 * skill_get("atomicpores"))); // Increase rads
+        raddrop += ceil(raddrop * (0.5 * skill_get("atomicpores"))); // Increase rads
     }
 
     with(instances_matching(instances_matching(GameCont, "level", 10), "atomicrads", null)) { // Check to see if the rad capacity was increased
@@ -21,7 +21,7 @@
     }
 
      // VFX
-    with(instances_matching_le(enemy, "my_health", 0)) {
+    with(instances_matching_le(instances_matching_gt(enemy, "raddrop", 0), "my_health", 0)) {
     	repeat(sprite_get_width(sprite_index)/12) {
 	    	with(instance_create(x + random_range(-sprite_get_width(sprite_index)/2, sprite_get_width(sprite_index)/2),
 	    					     y + random_range(-sprite_get_width(sprite_index)/2, sprite_get_width(sprite_index)/2),
