@@ -980,52 +980,54 @@
 #define curse_mut
 	if(!instance_exists(EGSkillIcon) and array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
 		var potentialcurse = instances_matching(SkillIcon, "curseified", null);
-		repeat(instance_number(SkillIcon)) {
-			with(potentialcurse[irandom(array_length(potentialcurse) - 1)]) {
-				curseified = "maybe!";
-				
-				var _mod = mod_get_names("skill"),
-			        _scrt = "skill_cursed",
-			        _cursed = [],
-			        _amtcurse = 0,
-			        _repent = 0;
-			    
-			     // Go through and find all cursed mutations
-			    for(var i = 0; i < array_length(_mod); i++){ 
-			    	if(mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) {
-			    		if(!skill_get(_mod[i])) {
-			    			if(array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0) array_push(_cursed, _mod[i]);
-			    		}
-			    		
-			    		else _amtcurse++;
-			    	}
-			    }
-				
-				if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(10) < 1) _repent = 1; 
-				
-				if(skill_get_active(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
-					var _mut = "";
-				    
-				    if(_repent) {
-				    	_mut = "repentance";
-				    }
-				    
-				    else if(array_length(_cursed) > 0) {
-				    	_mut = _cursed[irandom_range(0, array_length(_cursed) - 1)];
-				    }
-				    
-				    if(_mut != "") {
-				    	skill = _mut;
-				    	name = skill_get_name(skill);
-				    	text = skill_get_text(skill);
-				    	mod_script_call("skill", skill, "skill_button");
-				    	
-				    	sound_play(sndCursedPickup);
-				    }
+		if(instance_number(SkillIcon) > 0){
+			repeat(instance_number(SkillIcon)) {
+				with(potentialcurse[irandom(array_length(potentialcurse) - 1)]) {
+					curseified = "maybe!";
+					
+					var _mod = mod_get_names("skill"),
+						_scrt = "skill_cursed",
+						_cursed = [],
+						_amtcurse = 0,
+						_repent = 0;
+					
+					 // Go through and find all cursed mutations
+					for(var i = 0; i < array_length(_mod); i++){ 
+						if(mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) {
+							if(!skill_get(_mod[i])) {
+								if(array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0) array_push(_cursed, _mod[i]);
+							}
+							
+							else _amtcurse++;
+						}
+					}
+					
+					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(10) < 1) _repent = 1; 
+					
+					if(skill_get_active(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
+						var _mut = "";
+						
+						if(_repent) {
+							_mut = "repentance";
+						}
+						
+						else if(array_length(_cursed) > 0) {
+							_mut = _cursed[irandom_range(0, array_length(_cursed) - 1)];
+						}
+						
+						if(_mut != "") {
+							skill = _mut;
+							name = skill_get_name(skill);
+							text = skill_get_text(skill);
+							mod_script_call("skill", skill, "skill_button");
+							
+							sound_play(sndCursedPickup);
+						}
+					}
 				}
+				
+				potentialcurse = instances_matching(SkillIcon, "curseified", null);
 			}
-			
-			potentialcurse = instances_matching(SkillIcon, "curseified", null);
 		}
 	}
 	
