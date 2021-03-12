@@ -41,7 +41,7 @@
 		 // check to make sure this was spawned by an ally. names can be deceiving!!
 		if(instance_exists(creator) and creator.object_index = Ally) {
 			with(creator) {
-				if(instance_exists(creator) and creator.object_index = Player and creator.ammo[weapon_get_type(revolutionarywep)] >= weapon_get_cost(revolutionarywep)) {
+				if(instance_exists(creator) and creator.object_index = Player) {
 					 // THIS IS A LOT OF CREATORS!! this one is the player though! need to do a player_fire function to not cause compatability problems
 					with(creator) {
 						var cur_wep  = wep,
@@ -53,9 +53,10 @@
 						x = other.x;
 						y = other.y;
 						
+						ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
 						player_fire(other.gunangle);
 						reload -= weapon_get_load(wep);
-						ammo[weapon_get_type(wep)] += weapon_get_cost(wep);
+						
 						
 						var kick = wkick - cur_kick;
 						wkick -= kick;
@@ -66,7 +67,7 @@
 						y = cur_y;
 					}
 					
-					alarm1 += round((weapon_get_load(revolutionarywep) * 1.8)/(skill_get("technician") + 1));
+					alarm1 = round((weapon_get_load(revolutionarywep) * 1.2)/(skill_get(mut_throne_butt) + skill_get("technician") + 1));
 					
 					with(other) instance_delete(self);
 				}

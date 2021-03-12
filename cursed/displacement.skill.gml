@@ -5,11 +5,17 @@
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
 #define skill_name    return cursecolor + "DISPLACEMENT";
-#define skill_text    return "@pSPLIT YOURSELF IN TWO@s";
+#define skill_text    return "@dSPLIT YOURSELF IN TWO@s";
 #define skill_tip     return choose("THIS CAN'T BE RIGHT", "TWO OF THEM");
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    sound_play(sndMut); //sound_mutation_play();
+#define skill_take    
+	sound_play(sndMut); //sound_mutation_play();
+	with(Player) {
+		my_health = ceil(my_health/2);
+		maxhealth = ceil(maxhealth/2);
+	}
+	
 #define skill_avail   return false;
 #define skill_cursed  return true; // for metamorphosis
 #define skill_lose
@@ -20,23 +26,38 @@
 
 
 #define step
+	script_bind_draw(displacement_draw, -4);
+
 	with(Player){
 		if("diswep" not in self) {
 			diswep = wep;
 			disbwep = bwep;
 			disang = gunangle;
 			disbang = bwepangle;
+			diswepa = wepangle;
+			diskick = wkick;
+			disbkick = bwkick;
+			disflip = wepflip;
+			disbflip = bwepflip;
+			dissprite = sprite_index;
+			disindex = image_index;
+			disright = right;
 			disx = x;
 			disy = y;
-			
-			my_health = ceil(my_health/2);
-			maxhealth = ceil(maxhealth/2);
 		}
 		
 		var prevwep = wep,
 			prevbwep = bwep,
 			prevang = gunangle,
 			prevbang = bwepangle,
+			prevwepa = wepangle,
+			prevflip = wepflip,
+			prevbflip = bwepflip,
+			prevkick = wkick,
+			prevbkick = bwkick,
+			prevright = right,
+			prevsprite = sprite_index,
+			previndex = image_index,
 			prevx = x,
 			prevy = y,
 			auto = (race == "steroids" and weapon_get_auto(wep) >= 0) or weapon_get_auto(wep), // THIS WHOLE SHIT'S STOLEN FROM YOKIN, LET IT BE KNOWN
@@ -52,6 +73,14 @@
 				disbwep = prevbwep;
 				disang = prevang;
 				disbang = prevbang;
+				diswepa = prevwepa;
+				diskick = prevkick;
+				disbkick = prevbkick;
+				disflip = prevflip;
+				disbflip = prevbflip;
+				disright = prevright;
+				dissprite = prevsprite;
+				disindex = previndex;
 				disx = prevx;
 				disy = prevy;
 				
@@ -59,16 +88,54 @@
 			    
 			    if(prevfire) {
 			        player_fire_ext_real(disang, diswep, disbwep, disx, disy, false);
+			        repeat(6) {
+				        with(instance_create(disx, disy, Smoke)) {
+				        	motion_add(other.disang + (random_range(20, -20) * other.accuracy), random_range(2, 4));
+				        	image_xscale = 0.4;
+				        	image_yscale = 0.4;
+				        	image_alpha = 0.4;
+				        }
+			        }
 			    }
 			    
 			    if(prevbfire){
-			    	player_fire_ext_real(disang, diswep, disbwep, disx, disy, true);
+			    	player_fire_ext_real(disbang, diswep, disbwep, disx, disy, true);
 			    }
 			    
 			    infammo -= 1;
 			}
 		}
 	}
+
+#define displacement_draw
+	with(instances_matching_ne(Player, "diswep", null)) {
+		draw_set_fog(true, c_black, 0, 0);
+		
+		var a = 0.4,
+			sx = disx + (sin(current_frame/8) * 5),
+			sy = disy + (sin((current_frame)/16) * 5);
+		
+		if(disbwep != 0){
+	        var f = ((weapon_get_type(disbwep) == 0) ? disbflip : disright);
+	
+	         // Dual Wielding:
+	        if(race == "steroids") draw_weapon(weapon_get_sprite(disbwep), sx, sy - (image_yscale * 4), image_yscale * disang, image_yscale * disbang, disbkick, sign(-image_yscale) * f, 0, a);
+	
+	         // Back Weapon:
+	        else draw_sprite_ext(weapon_get_sprite(disbwep), 0, sx - (disright * 2), sy, 1, f, 90 + (15 * disright), 0, a);
+	    }
+	
+	     // Self & Wep:
+	    draw_weapon(weapon_get_sprite(diswep), sx, sy, disang, diswepa, diskick, image_yscale * ((weapon_get_type(diswep) == 0) ? disflip : disright), 0, a);
+	    draw_sprite_ext(dissprite, disindex, sx, sy, image_xscale * disright, image_yscale, image_angle, 0, a);
+	    
+	    draw_set_fog(false, c_white, 0, 0);
+	}
+	
+	instance_destroy();
+
+#define draw_weapon(_sprite, _x, _y, _ang, _meleeAng, _wkick, _flip, _blend, _alpha)
+	draw_sprite_ext(_sprite, 0, _x - lengthdir_x(_wkick, _ang), _y - lengthdir_y(_wkick, _ang), 1, _flip, _ang + (_meleeAng * (1 - (_wkick / 20))), _blend, _alpha);
 	
 #define player_fire_ext_real(_ang, _wep, _bwep, _x, _y, offhand)
 	with(instance_create(_x, _y,FireCont)){ // thank you gepsilon for letting me use your code
