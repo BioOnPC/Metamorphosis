@@ -383,8 +383,10 @@
 								repeat(15) {
 									if(!instance_exists(self)){ exit; }
 									
-									move_contact_solid(prevdir, speed/3);
-									direction = prevdir;
+									if(speed < 5){
+										move_contact_solid(prevdir, speed/3);
+										direction = prevdir;
+									}
 									wait(1);
 								}
 								
