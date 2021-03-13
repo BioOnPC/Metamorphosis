@@ -515,7 +515,7 @@
 	}
 
 #define CheekPouch_step
-	if(instance_exists(creator)){
+	if(instance_exists(creator) && "nexthurt" in creator){
 		var _time = creator.nexthurt - current_frame;
 		
 		blink = (_time < 20 && (_time % 2) == 0);
