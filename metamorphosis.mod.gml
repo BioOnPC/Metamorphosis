@@ -46,7 +46,7 @@
 		else if(fork()) {
 			if(level < 10) {
 				wait 0;
-				if(level >= 10 and endpoints > 0) endpoints = 0;
+				if(instance_exists(GameCont) && level >= 10 and endpoints > 0) endpoints = 0;
 				exit;
 			}
 		}
