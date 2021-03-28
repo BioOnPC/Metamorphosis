@@ -386,6 +386,7 @@
 				bottom_off = 0;
 				
 				click = 0;
+				p_hover = { p1 : 0, p2 : 0, p3 : 0, p4 : 0 };
 				hover = 0;
 				shift = 0;
 				splat = 0;
@@ -556,7 +557,7 @@
 	var _player = instance_nearest(x, y, Player);
 	if(instance_exists(_player) && place_meeting(x, y, _player)){
 		with(_player){
-			var _duration = other.num * 45;
+			var _duration = (other.num * 45) * skill_get("adrenaline");
 			infammo += _duration;
 			
 			 // Effects:
@@ -845,6 +846,17 @@
 	
 	if(shift > 0) shift -= current_time_scale;
 	if(shift < 0) shift = 0;
+	
+	var _hover = 0;
+	
+	for(var i = 0; i < maxp; i++) {
+		if(lq_get(p_hover, `p${i}`)) {
+			hover = 1;
+			_hover++;
+		}
+	}
+	
+	if(_hover = 0) hover = 0;
 	
 	if(hover and splat < (sprite_get_number(sprMainMenuSplat) - 1)) {
 		splat += current_time_scale;

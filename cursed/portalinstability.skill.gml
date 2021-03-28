@@ -4,7 +4,7 @@
 
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
-#define skill_name    return cursecolor + "MALFUNCTIONING EQUIPMENT";
+#define skill_name    return cursecolor + "PORTAL INSTABILITY";
 #define skill_text    return "@bEXPLOSIVELY TELEPORT@s EVERY 7 SECONDS";
 #define skill_tip     return "NEED AN I.T.";
 #define skill_icon    return global.sprSkillHUD;
@@ -15,7 +15,18 @@
 
 #define step
 	with(Player) {
-		if("tele" not in self) tele = 30 * 7;
+		if("tele" not in self) {
+			tele = 30 * 7;
+		}
+		
+		if("televisual" not in self or !instance_exists(televisual)) {
+			with(mod_script_call_nc('mod', 'metamorphosis', 'obj_create', x, y, "CheekPouch")) {
+				creator = other.id;
+				other.televisual = id;
+			}
+		}
+		
+		else with(televisual) depth = other.depth + 1;
 		
 		if(tele > 0) {
 			if(!instance_exists(GenCont) and !instance_exists(LevCont)) tele -= current_time_scale;
@@ -40,6 +51,16 @@
 				y = telefloory;
 				xprevious = x;
 				yprevious = y;
+				
+				if(fork()) {
+					wait 6;
+					
+					if("televisual" in self and instance_exists(televisual)) {
+						televisual.scale = 4;
+					}
+					
+					exit;
+				}
 				
 				sound_play_pitch(sndFreakPopoRevive, 0.7 + random(0.2));
 				sound_play_pitch(sndSwapEnergy, 0.6 + random(0.2));

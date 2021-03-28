@@ -159,30 +159,20 @@
 
 #define option_vars(index, drawx, drawy)
 	if(visible) {
-		if(array_length(mouse_in_rectangle(-1, drawx - left_off, drawy - top_off, drawx + right_off, drawy + bottom_off, 0)) > 0) {
+		if(array_length(mouse_in_rectangle(index, drawx - left_off, drawy - top_off, drawx + right_off, drawy + bottom_off, 0)) > 0) {
 			if(button_pressed(index, "fire")) {
 				click = 1;
 				script_ref_call(on_click);
 			}
 			
-			else if(click) {
-				click = 0;
-				script_ref_call(on_release);
-			}
+			else click = 0;
 			
-			if(!hover) sound_play(sndHover);
-			hover = 1;
+			if(!lq_get(p_hover, `p${index}`)) sound_play(sndHover);
+			lq_set(p_hover, `p${index}`, 1);
 		}
 		
 		else {
-			if(click) {
-				click = 0;
-				script_ref_call(on_release);
-			}
-			
-			if(hover) {
-				hover = 0;
-			}
+			lq_set(p_hover, `p${index}`, 0);
 		}
 	}
 

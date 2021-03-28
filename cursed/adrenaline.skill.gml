@@ -33,7 +33,7 @@
 		if("adrenalinetimer" not in self) adrenalinetimer = 90;
 		
 		if(instance_exists(enemy) and my_health > 1) {
-			if(reload > 0 or (bwep != wep_none and breload > 0)) adrenalinetimer += current_time_scale;
+			if(reload > 0 or (bwep != wep_none and breload > 0)) adrenalinetimer += current_time_scale * 1.20;
 			adrenalinetimer -= current_time_scale;
 		}
 		

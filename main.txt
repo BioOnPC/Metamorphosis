@@ -28,7 +28,8 @@
 /loadskill cursed/repentance
 /loadskill cursed/impatience
 /loadskill cursed/falseprayer
-/loadskill cursed/malfunctioningequipment
+/loadskill cursed/portalinstability
+/loadskill cursed/recycling
 
 /load ultras
 /loadcrown crowns/evolution
