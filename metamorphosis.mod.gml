@@ -1158,6 +1158,7 @@
 	var s = SETTING;
 	lq_set(s, opt, val);
 	mod_variable_set("mod", "metamorphosis_options", "settings", s);
+	metamorphosis_save();
 
 #define option_get(opt)
 	var s = lq_get(SETTING, opt);
