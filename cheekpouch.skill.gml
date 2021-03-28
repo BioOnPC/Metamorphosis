@@ -27,7 +27,7 @@
 		
 		global.pouchenemies = [];
 		
-		var hpamt = 8 + (GameCont.loops * 8),
+		var hpamt = (8 + (GameCont.loops * 8) * (skill_get("insurgency") + 1)),
 			availenemies = instances_matching_le(enemy, "my_health", 10 + GameCont.hard);
 		
 		while(hpamt > 0) {
@@ -50,7 +50,7 @@
     	var pickupchoose = [];
     	
     	repeat(10) {
-    		array_push(pickupchoose, "BonusAmmoPickup"  );
+    		array_push(pickupchoose, "BonusAmmoPickup");
     	}
     	
     	array_push(pickupchoose, "BonusHealthPickup");

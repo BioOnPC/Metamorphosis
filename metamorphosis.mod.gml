@@ -28,14 +28,39 @@
  // Mod Macros:
 #macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
 #macro minicolor `@(color:${make_color_rgb(183, 195, 204)})`;
+#macro SETTING mod_variable_get("mod", "metamorphosis_options", "settings")
+#macro options_open mod_variable_get("mod", "metamorphosis_options", "option_open")
+#macro options_avail instance_exists(Menu) and (Menu.mode = 1 or options_open)
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
 #macro CrystallinePickup instances_matching(CustomObject, "name", "CrystallinePickup")
-	
+
+#define game_start
+	if(SETTING.gold_mutation != mut_none) {
+		skill_set(SETTING.gold_mutation, 1);
+		option_set("gold_mutation", mut_none);
+		metamorphosis_save();
+	}
+
 #define step
-	script_bind_begin_step(curse_mut, 0);
+	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
 	script_bind_draw(cursed_mut_draw, -1001);
+	
+	 // Setting setup:
+	with(instances_matching(Menu, "metamorphosis", null)) {
+		metamorphosis = 1;
+		with(obj_create(x, y, "MetaButton")) {
+			name = "MetaSettings";
+			page = 0;
+			left_off = 0;
+			top_off = 0;
+			right_off = 45;
+			bottom_off = 6;
+			on_end_step = script_ref_create(MetaSettings_end_step);
+			on_click = script_ref_create(MetaSettings_click);
+		}
+	}
 	
 	 // Avoid duplicating ultras by accident
 	with(GameCont) {
@@ -58,12 +83,14 @@
         }
     }
     
-    with(instances_matching_gt(GameCont, "loops", 1)) { // Free mutation for every loop past the first
-		if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
-			lstloop = loops;
-			skillpoints++;
-			sound_play(sndLevelUp);
-		}
+    if(SETTING.loop_mutations) {
+	    with(instances_matching_gt(GameCont, "loops", 1)) { // Free mutation for every loop past the first
+			if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
+				lstloop = loops;
+				skillpoints++;
+				sound_play(sndLevelUp);
+			}
+	    }
     }
     
     with(Player) {
@@ -111,61 +138,63 @@
 			}
 		}
     	
-    	 // place the shop area in the crown vault
-    	with(instances_matching(CrownPed, "shopping", null)) {
-    		shopping = "i be";
-    		
-    		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
-    		var ffloor = instance_furthest(10016, 10016, Floor),
-    			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
-			
-			 // Place down floors.
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) + 96, 3, 1);
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 64, ffloor.y + lengthdir_y(128, shop_dir) - 64, 5, 5);
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) - 96, 3, 1);
-			floor_fill(ffloor.x + lengthdir_x(128, shop_dir) + 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
-			instance_create(ffloor.x + lengthdir_x(32, shop_dir), ffloor.y + lengthdir_y(32, shop_dir), Floor);
-			
-			 // Make the cool carpet!
-			instance_create(ffloor.x + lengthdir_x(128, shop_dir) + 16, ffloor.y + lengthdir_y(128, shop_dir) + 16, VenuzCarpet).sprite_index = global.sprMerchantCarpet;
-			
-			if(fork()) {
-				wait 3; // Wait to make sure that everything generates
+    	if(SETTING.shopkeeps_enabled) {
+	    	 // place the shop area in the crown vault
+	    	with(instances_matching(CrownPed, "shopping", null)) {
+	    		shopping = "i be";
+	    		
+	    		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
+	    		var ffloor = instance_furthest(10016, 10016, Floor),
+	    			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
 				
-				with(Floor) { // Resprite floors
-					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 128) {
-						sprite_index = global.sprMerchantFloor;
+				 // Place down floors.
+				floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
+				floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) + 96, 3, 1);
+				floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 64, ffloor.y + lengthdir_y(128, shop_dir) - 64, 5, 5);
+				floor_fill(ffloor.x + lengthdir_x(128, shop_dir) - 32, ffloor.y + lengthdir_y(128, shop_dir) - 96, 3, 1);
+				floor_fill(ffloor.x + lengthdir_x(128, shop_dir) + 96, ffloor.y + lengthdir_y(128, shop_dir) - 32, 1, 3);
+				instance_create(ffloor.x + lengthdir_x(32, shop_dir), ffloor.y + lengthdir_y(32, shop_dir), Floor);
+				
+				 // Make the cool carpet!
+				instance_create(ffloor.x + lengthdir_x(128, shop_dir) + 16, ffloor.y + lengthdir_y(128, shop_dir) + 16, VenuzCarpet).sprite_index = global.sprMerchantCarpet;
+				
+				if(fork()) {
+					wait 3; // Wait to make sure that everything generates
+					
+					with(Floor) { // Resprite floors
+						if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 128) {
+							sprite_index = global.sprMerchantFloor;
+						}
 					}
-				}
-				
-				with(Wall) { // Resprite walls
-					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 144) {
-						topspr       = global.sprWallMerchantTop;
-						topindex     = irandom(9);
-						outspr       = global.sprWallMerchantOut;
-						sprite_index = global.sprWallMerchantBot;
-						image_index  = irandom(6);
+					
+					with(Wall) { // Resprite walls
+						if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 144) {
+							topspr       = global.sprWallMerchantTop;
+							topindex     = irandom(9);
+							outspr       = global.sprWallMerchantOut;
+							sprite_index = global.sprWallMerchantBot;
+							image_index  = irandom(6);
+						}
 					}
-				}
-				
-				with(TopSmall) { // Resprite outside walls
-					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 160) {
-						sprite_index = global.sprWallMerchantTrans;
-						image_index  = irandom(6);
+					
+					with(TopSmall) { // Resprite outside walls
+						if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 160) {
+							sprite_index = global.sprWallMerchantTrans;
+							image_index  = irandom(6);
+						}
 					}
-				}
-				
-				with(prop) { // Remove props
-					if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 96) {
-						instance_delete(self);
+					
+					with(prop) { // Remove props
+						if(point_distance(x, y, ffloor.x + lengthdir_x(128, shop_dir), ffloor.y + lengthdir_y(128, shop_dir)) < 96) {
+							instance_delete(self);
+						}
 					}
+					
+					 // Spawn da boys
+					obj_create(ffloor.x + lengthdir_x(128, shop_dir) - 4, ffloor.y + lengthdir_y(128, shop_dir), "Shopkeep");
+					obj_create(ffloor.x + lengthdir_x(128, shop_dir) + 36, ffloor.y + lengthdir_y(128, shop_dir), "Mutator");
 				}
-				
-				 // Spawn da boys
-				obj_create(ffloor.x + lengthdir_x(128, shop_dir) - 4, ffloor.y + lengthdir_y(128, shop_dir), "Shopkeep");
-				obj_create(ffloor.x + lengthdir_x(128, shop_dir) + 36, ffloor.y + lengthdir_y(128, shop_dir), "Mutator");
-			}
+	    	}
     	}
     	
     	with(Player) { // Chicken ultra
@@ -173,13 +202,15 @@
     	}
     }
     
-     // tip moment
-    with(instances_matching(GenCont, "metamorphosistip", null)) {
-    	metamorphosistip = random(10);
-    	
-    	if(metamorphosistip < 1) {
-    		tip = tip_generate();
-    	}
+    if(SETTING.metamorphosis_tips) {
+	     // tip moment
+	    with(instances_matching(GenCont, "metamorphosistip", null)) {
+	    	metamorphosistip = random(10);
+	    	
+	    	if(metamorphosistip < 1) {
+	    		tip = tip_generate();
+	    	}
+	    }
     }
 	
 	with(instances_matching(Corpse, "sprite_index", -5)){
@@ -346,6 +377,29 @@
 			}
 			break;
 		
+		case "MetaButton":
+			o = instance_create(_x, _y, CustomObject);
+			with(o) {
+				left_off   = 0;
+				right_off  = 0;
+				top_off    = 0;
+				bottom_off = 0;
+				
+				click = 0;
+				hover = 0;
+				shift = 0;
+				splat = 0;
+				tooltip = "";
+				index = 0;
+				
+				on_click   = null;
+				on_release = null;
+				
+				depth = -1002;
+			}
+		
+			break;
+		
 		case "MetaPrompt":
 			o = instance_create(_x, _y, CustomObject);
 			with(o){
@@ -445,7 +499,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaPrompt", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaButton", "MetaPrompt", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -782,7 +836,73 @@
 	sound_play(sndStatueCharge);
 	
 	mod_script_call_nc('skill', 'criticalmass', 'skill_reset', 0);
+
+#define MetaButton_step
+	if(!instance_exists(Menu)) {
+		instance_destroy();
+		exit;
+	}
 	
+	if(shift > 0) shift -= current_time_scale;
+	if(shift < 0) shift = 0;
+	
+	if(hover and splat < (sprite_get_number(sprMainMenuSplat) - 1)) {
+		splat += current_time_scale;
+		if(splat > (sprite_get_number(sprMainMenuSplat) - 1)) splat = sprite_get_number(sprMainMenuSplat);
+	}
+	
+	else if(!hover and splat > 0) {
+		splat -= current_time_scale;
+		if(splat < 0) splat = 0;
+	}
+	
+#define MetaButton_click
+	option_set(setting[0], !setting[1]);
+	setting[1] = option_get(setting[0]);
+	shift += 1;
+	sound_play_pitch(sndClick, 1 + random(0.2));
+
+#define MetaSettings_end_step
+	with(instances_matching_gt(BackFromCharSelect, "depth", -1006)) depth = -1006;
+
+	if(options_open) {
+		with(Menu){
+			mode      = 0;
+			charsplat = 1;
+			for(var i = 0; i < array_length(charx); i++){
+				charx[i] = 0;
+			}
+			
+			sound_volume(sndMenuCharSelect, 0);
+		}
+		with(Loadout) instance_destroy();
+		with(loadbutton) instance_destroy();
+		with(menubutton) instance_destroy();
+		with(BackFromCharSelect) noinput = 10;
+	}
+	
+#define MetaSettings_click
+	if(options_open) {
+		with(Menu) {
+			mode = 0;
+			event_perform(ev_step, ev_step_end);
+			sound_volume(sndMenuCharSelect, 1);
+			sound_stop(sndMenuCharSelect);
+			with(CharSelect) alarm0 = 2;
+		}
+        sound_play(sndClickBack);
+        with(instances_matching(CustomObject, "name", "MetaButton")) {
+        	instance_destroy();
+        }
+	}
+	
+	else {
+		sound_play(sndClick);
+		options_create();
+	}
+
+	mod_variable_set("mod", "metamorphosis_options", "option_open", !options_open);
+
 #define MetaPrompt_begin_step
 	with(nearwep) instance_delete(id);
 	
@@ -812,6 +932,7 @@
 	if(sprite_index = global.sprMerchantPuff and image_index >= sprite_get_number(sprite_index) - 1) {
 		spr_idle = global.sprMerchantIdle;
 	}
+
 
 #define prompt_create(_text)
 	/*
@@ -1032,6 +1153,50 @@
 	}
 	
 	instance_destroy();
+
+#define option_set(opt, val)
+	var s = SETTING;
+	lq_set(s, opt, val);
+	mod_variable_set("mod", "metamorphosis_options", "settings", s);
+
+#define option_get(opt)
+	var s = lq_get(SETTING, opt);
+	if(s = undefined) return false;
+	else return s;
+
+#define options_create
+	var k = "",
+		v = ""
+	
+	sound_play(sndMenuStats);
+
+	if(fork()) {
+		wait 4;
+		
+		for(var i = 1; i < 7; i++) {
+		    if(!options_open) exit;
+		    k = lq_get_key(SETTING, i);
+		    v = lq_get_value(SETTING, i);
+		    
+		    
+		    with(obj_create(x, y, "MetaButton")) {
+		    	setting = [k, v];
+		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
+		    	on_click = script_ref_create(MetaButton_click);
+		    	right_off = string_length(k) * 8;
+		    	bottom_off = 10;
+		    	shift = 2;
+		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));
+		    }
+		    wait 1;
+		}
+		exit;
+	}
+	
+	metamorphosis_save();
+
+#define metamorphosis_save
+	mod_script_call_nc("mod", "metamorphosis_options", "metamorphosis_save");
 
 #define orandom(_num) return irandom_range(-_num, _num);
 

@@ -1,3 +1,4 @@
+/loadmod metamorphosis_options
 /loadmod metamorphosis
 /loadskill atomicpores
 /loadskill racingthoughts
