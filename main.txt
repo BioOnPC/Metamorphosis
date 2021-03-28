@@ -17,6 +17,7 @@
 /loadskill secretstash
 /loadskill crowncranium
 /loadskill linkedlobes
+/loadskill thinktank
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline
@@ -27,6 +28,7 @@
 /loadskill cursed/repentance
 /loadskill cursed/impatience
 /loadskill cursed/falseprayer
+/loadskill cursed/malfunctioningequipment
 
 /load ultras
 /loadcrown crowns/evolution
