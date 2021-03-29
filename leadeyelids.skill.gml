@@ -13,7 +13,7 @@
 		if(fork()) {
 			wait 5;
 			with(instances_matching(enemy, "leadsleep", null)) {
-				leadsleep = 150 + random(30);
+				leadsleep = 100 + 50 * skill_get(mod_current) + random(30);
 				leadalarm0 = alarm0;
 				leadalarm1 = alarm1;
 				

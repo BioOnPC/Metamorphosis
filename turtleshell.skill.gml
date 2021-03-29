@@ -10,17 +10,17 @@
 #define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
 #define step
     with(enemy) {
-    	if(variable_instance_exists(self, "meleedamage") and meleedamage > 1 and 
+    	if(variable_instance_exists(self, "meleedamage") and meleedamage > skill_get(mod_current) and 
     	 ((variable_instance_exists(self, "turtledamage") and turtledamage != meleedamage) or !variable_instance_exists(self, "turtledamage"))) {
-    		meleedamage--;
+    		meleedamage -= skill_get(mod_current);
     		turtledamage = meleedamage;
     	}
     }
     
     with(projectile) {
-    	if(instance_exists(creator) and creator.object_index != Player and variable_instance_exists(self, "damage") and damage > 1 and 
+    	if(instance_exists(creator) and creator.object_index != Player and variable_instance_exists(self, "damage") and damage > skill_get(mod_current) and 
     	 ((variable_instance_exists(self, "turtledamage") and turtledamage != damage) or !variable_instance_exists(self, "turtledamage"))) {
-    		damage--;
+    		damage -= skill_get(mod_current);
     		turtledamage = damage;
     	}
     }

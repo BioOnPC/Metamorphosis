@@ -27,7 +27,7 @@
 		
 		global.pouchenemies = [];
 		
-		var hpamt = (8 + (GameCont.loops * 8) * (skill_get("insurgency") + 1)),
+		var hpamt = (8 * skill_get(mod_current) + (GameCont.loops * 8) * (skill_get("insurgency") + 1)),
 			availenemies = instances_matching_le(enemy, "my_health", 10 + GameCont.hard);
 		
 		while(hpamt > 0) {

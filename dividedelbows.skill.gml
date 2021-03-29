@@ -14,23 +14,27 @@
     with(projectile) {
     	if(!variable_instance_exists(self, "lstteam")) lstteam = team;
 	    if(instance_exists(Player) and lstteam != team and instance_nearest(x, y, Player).team = team) {
-	    	direction += 10;
-	    	image_angle += 10;
+	    	direction += 10 * skill_get(mod_current);
+	    	image_angle += 10 * skill_get(mod_current);
 	    	lstteam = team;
 	    	
 	    	 // Stolen from NTTE's "instance_clone". Yokin is epic, give the NTTE money, etc. etc
-	    	with(instance_copy(false)){
-				with(variable_instance_get_names(self)){
-					var	_value = variable_instance_get(other, self),
-						_clone = data_clone(_value);
-						
-					if(_value != _clone){
-						variable_instance_set(other, self, _clone);
+			var dir = -20 * skill_get(mod_current);
+			repeat(skill_get(mod_current)){
+				with(instance_copy(false)){
+					with(variable_instance_get_names(self)){
+						var	_value = variable_instance_get(other, self),
+							_clone = data_clone(_value);
+							
+						if(_value != _clone){
+							variable_instance_set(other, self, _clone);
+						}
 					}
+					
+					direction += dir;
+					image_angle += dir;
+					dir += 20;
 				}
-				
-				direction += -20;
-		    	image_angle += -20;
 			}
 			
 			with(instance_create(x, y, GuardianDeflect)) mask_index = mskNone;

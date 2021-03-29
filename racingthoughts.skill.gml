@@ -13,7 +13,7 @@
     with(instances_matching_le(enemy, "my_health", 0)) { // Find all dead enemies
         if(!variable_instance_exists(self, "racingthoughts")) {
             racingthoughts = 1; // Make sure this only happens once
-            var loadreduce = maxhealth * 0.75; // Figure out how big of a bitch this was
+            var loadreduce = maxhealth * 0.75 * (skill_get(mod_current) + 1)/2; // Figure out how big of a bitch this was
             
             with(Player) {
             	gunshine = 7;
