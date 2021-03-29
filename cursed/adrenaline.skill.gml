@@ -32,8 +32,8 @@
 	with(Player) {
 		if("adrenalinetimer" not in self) adrenalinetimer = 90;
 		
-		var shot = can_shoot && canfire && (auto ? button_check(index, "fire") : (clicked || button_pressed(index, "fire"))) && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) || infammo != 0),
-				bshot = race == "steroids" && bcan_shoot && canspec && (auto ? button_check(index, "spec") : button_pressed(index, "spec")) && (ammo[weapon_get_type(bwep)] >= weapon_get_cost(bwep) || infammo != 0);
+		var shot = can_shoot && canfire && (weapon_get_auto(wep) > 0 ? button_check(index, "fire") : (clicked || button_pressed(index, "fire"))) && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) || infammo != 0),
+				bshot = race == "steroids" && bcan_shoot && canspec && (weapon_get_auto(wep) > 0 ? button_check(index, "spec") : button_pressed(index, "spec")) && (ammo[weapon_get_type(bwep)] >= weapon_get_cost(bwep) || infammo != 0);
 		if(shot) adrenalinetimer += weapon_get_load(wep) * 1.2;
 		if(bshot) adrenalinetimer += weapon_get_load(bwep) * 1.2;
 		
