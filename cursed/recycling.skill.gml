@@ -63,8 +63,8 @@
 			direction += 20;
 		    image_angle += 20;
 			
-			sound_play_pitchvol(sndNothingFire, 1.6 + random(0.3), 0.7);
-			sound_play_pitchvol(sndShielderDeflect, 2.4 + random(0.3), 0.7);
+			sound_play_pitchvol(sndNothingFire, 1.6 + random(0.3), 0.4);
+			sound_play_pitchvol(sndShielderDeflect, 2.4 + random(0.3), 0.4);
 		}
 	}
 	

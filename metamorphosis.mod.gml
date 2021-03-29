@@ -1102,7 +1102,9 @@
 		c += (curse + bcurse) * 20; 
 	}
 	
-	if(crown_current = crwn_curses) c = max(c, 6) * 3;
+	if(crown_current != crwn_none) {
+		c = (crown_current == crwn_curses) ? max(c, 6) * 3 : max(5, c);
+	}
 	
 	c = random(100) < c;
 	
@@ -1135,7 +1137,7 @@
 						}
 					}
 					
-					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(10) < 1) _repent = 1; 
+					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(20) < 1) _repent = 1; 
 					
 					if(skill_get_active(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
 						var _mut = "";

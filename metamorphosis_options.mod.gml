@@ -2,7 +2,7 @@
     global.settings = {
     	gold_mutation      : mut_none, // Figure out which mut is saved for gold mutations
         shopkeeps_enabled  : true, // Toggle vault shopkeepers
-        evolution_unlocked : true, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
+        evolution_unlocked : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
         cursed_mutations   : true, // Toggle whether or not cursed mutations show up
         custom_ultras      : true, // Toggle all custom ultras
         loop_mutations     : true, // Toggle gaining a mutation each loop past the first
@@ -119,7 +119,7 @@
 				
 				switch(setting[0]) {
 					case "shopkeeps_enabled": text = `TOGGLE THE ${metacolor}VAULT VISITORS@w`; break;
-					case "evolution_unlocked": text = "UNLOCK CROWN OF EVOLUTION"; break;
+					case "evolution_unlocked": text = "FORCE-UNLOCK CROWN OF EVOLUTION#@d(AUTOMATICALLY ACTIVATED ONCE UNLOCKED)"; break;
 					case "cursed_mutations": text = "TOGGLE CURSED MUTATIONS"; break;
 					case "custom_ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
 					case "loop_mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
