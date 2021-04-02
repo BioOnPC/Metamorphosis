@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Cursed/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Cursed/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.level_start = false;
 
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
@@ -25,11 +26,18 @@
 		}
 	}
 	
-	if(!instance_exists(GenCont)) {
-		with(instances_matching(chestprop, "vacuumhealth", null)) {
-			vacuumhealth = "yeah!";
-			
-			if(random(5) < 1) instance_create(x, y, HealthChest);
+	 // Level Start:
+	if(instance_exists(GenCont) || instance_exists(Menu)){
+		global.level_start = true;
+	}
+	else if(global.level_start){
+		global.level_start = false;
+		
+		var f = instances_matching(Floor, "", null),
+			rf = f[irandom_range(0, array_length(f) - 1)];
+		
+		if(random(6 - skill_get(mod_current)) < 1) {
+			with(rf) instance_create(x + 16, y + 16, HealthChest);
 		}
 	}
 

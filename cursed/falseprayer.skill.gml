@@ -27,7 +27,7 @@
 			if(hpdiff > 0) my_health += ceil(hpdiff/2);
 			for(i = 0; i <= 5; i++) {
 				ammodiff = typ_amax[i] - ammo[i];
-				if(ammodiff > 0) ammo[i] += ceil(ammodiff/2);
+				ammo[i] += min(ceil(typ_amax[i] * 0.65), ammodiff);
 			}
 			
 			sound_play_pitchvol(sndUncurse, 0.6 + random(0.1), 0.7);
