@@ -19,6 +19,29 @@
 	global.sprMerchantDie      = sprite_add("sprites/Shop/sprMerchantDie.png",  6, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
+	global.option_list = ["shopkeeps", "evolution unlocked", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
+	global.mutation_list = [];
+	global.disabled_muts = [];
+
+	 // GET EM //
+	global.mut_quest		   = mut_none;
+	
+	with(Menu) {
+		mode = 0;
+		event_perform(ev_step, ev_step_end);
+		sound_volume(sndMenuCharSelect, 1);
+		sound_stop(sndMenuCharSelect);
+		with(CharSelect) alarm0 = 2;
+	}
+    
+    if(fork()) {
+    	wait 3;
+    	repeat(17) trace("");
+    	trace_color("Thanks for playing Metamorphosis!", c_green);
+    	trace_color("Be sure to report any bugs to tildebee in the official Nuclear Throne discord (discord.gg/nt)", c_aqua);
+    	exit;
+    }
+
  // General Use Macros:
 #macro mod_current_type script_ref_create(0)[0]
 #macro bbox_center_x (bbox_left + bbox_right + 1) / 2
@@ -31,17 +54,31 @@
 #macro SETTING mod_variable_get("mod", "metamorphosis_options", "settings")
 #macro options_open mod_variable_get("mod", "metamorphosis_options", "option_open")
 #macro options_avail instance_exists(Menu) and (Menu.mode = 1 or options_open)
+#macro quest global.mut_quest
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
 #macro CrystallinePickup instances_matching(CustomObject, "name", "CrystallinePickup")
 
 #define game_start
-	if(SETTING.gold_mutation != mut_none) {
-		skill_set(SETTING.gold_mutation, 1);
-		option_set("gold_mutation", mut_none);
+	if(SETTING.proto_mutation != mut_none) {
+		skill_set(SETTING.proto_mutation, 1);
+		option_set("proto_mutation", mut_none);
 		metamorphosis_save();
 	}
+	
+	global.disabled_muts = [];
+	
+	var skill_list = mod_get_names("skill");
+	
+	for(var m = 0; m < 29 + array_length(skill_list); m++) {
+		if((lq_exists(SETTING, `${m}_enabled`) or (m > 29 and lq_exists(SETTING, `${skill_list[m - 29]}_enabled`))) and !option_get(`${m}_enabled`)) {
+			if(m <= 29) array_push(global.disabled_muts, real(m));
+			else if(skill_get_avail(skill_list[m - 29])) array_push(global.disabled_muts, skill_list[m - 29]);
+		}
+	}
+	
+	trace(global.disabled_muts);
 
 #define step
 	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
@@ -53,6 +90,7 @@
 		with(obj_create(x, y, "MetaButton")) {
 			name = "MetaSettings";
 			page = 0;
+			pages = ["options", "mutations", "stats"];
 			left_off = 0;
 			top_off = 0;
 			right_off = 45;
@@ -138,7 +176,7 @@
 			}
 		}
     	
-    	if(SETTING.shopkeeps_enabled) {
+    	if(option_get("shopkeeps")) {
 	    	 // place the shop area in the crown vault
 	    	with(instances_matching(CrownPed, "shopping", null)) {
 	    		shopping = "i be";
@@ -437,6 +475,13 @@
 				maxhealth  = 20;
 				my_health  = maxhealth;
 				size       = 1;
+				
+				/*
+				prompt = prompt_create(`FIND ${}`);
+				with(prompt){
+					mask_index = mskReviveArea;
+					yoff = -4;
+				}*/
 			}
 			break;
 			
@@ -858,21 +903,58 @@
 	
 	if(_hover = 0) hover = 0;
 	
-	if(hover and splat < (sprite_get_number(sprMainMenuSplat) - 1)) {
-		splat += current_time_scale;
-		if(splat > (sprite_get_number(sprMainMenuSplat) - 1)) splat = sprite_get_number(sprMainMenuSplat);
-	}
-	
-	else if(!hover and splat > 0) {
-		splat -= current_time_scale;
-		if(splat < 0) splat = 0;
+	if(name != "MetaSettings") {
+		if(hover and splat < 3) {
+			splat += current_time_scale;
+			if(splat > 3) splat = sprite_get_number(sprMainMenuSplat);
+		}
+		
+		else if(!hover and splat > 0) {
+			splat -= current_time_scale;
+			if(splat < 0) splat = 0;
+		}
+		
+		if(!options_open) instance_destroy();
 	}
 	
 #define MetaButton_click
-	option_set(setting[0], !setting[1]);
-	setting[1] = option_get(setting[0]);
+	option_set(string_replace(setting[0], " ", "_"), !setting[1]);
+	setting[1] = option_get(string_replace(setting[0], " ", "_"));
 	shift += 1;
 	sound_play_pitch(sndClick, 1 + random(0.2));
+
+#define MetaPage_click
+	with(instances_matching(CustomObject, "name", "MetaButton", "MetaMut")) instance_destroy();
+
+	with(instances_matching(CustomObject, "name", "MetaSettings")) {
+		splat = 0;
+		other.shift = 1;
+		switch(pages[other.index]) {
+			case "options": 
+				sound_play(sndMenuStats);
+				options_create();
+			break;
+			
+			case "mutations": 
+				sound_play(sndMenuOptions); 
+				
+				mut_opts_create();
+				
+			break;
+			
+			case "stats": 
+				sound_play(sndMenuCredits); 
+			break;
+		}
+		
+		page = other.index;
+	}
+
+#define MetaNone_step
+	//if(next) 
+
+#define MetaMut_end_step
+	num = round((game_width - 120)/18);
 
 #define MetaSettings_end_step
 	with(instances_matching_gt(BackFromCharSelect, "depth", -1006)) depth = -1006;
@@ -891,6 +973,16 @@
 		with(loadbutton) instance_destroy();
 		with(menubutton) instance_destroy();
 		with(BackFromCharSelect) noinput = 10;
+		
+		if(splat < (sprite_get_number(sprUnlockPopupSplat) - 1)) {
+			splat += current_time_scale;
+			if(splat > (sprite_get_number(sprUnlockPopupSplat) - 1)) splat = sprite_get_number(sprUnlockPopupSplat);
+		}
+	}
+	
+	else if(splat > 0) {
+		splat -= current_time_scale;
+		if(splat < 0) splat = 0;
 	}
 	
 #define MetaSettings_click
@@ -903,14 +995,23 @@
 			with(CharSelect) alarm0 = 2;
 		}
         sound_play(sndClickBack);
-        with(instances_matching(CustomObject, "name", "MetaButton")) {
-        	instance_destroy();
-        }
 	}
 	
 	else {
 		sound_play(sndClick);
+		sound_play(sndMenuStats);
 		options_create();
+		
+		var skill_list = mod_get_names("skill");
+	
+		page = 0;
+		
+		global.mutation_list = [];
+		
+		for(var m = 0; m < 29 + array_length(skill_list); m++) {
+			if(m <= 29) array_push(global.mutation_list, string(m));
+			else if(skill_get_avail(skill_list[m - 29])) array_push(global.mutation_list, skill_list[m - 29]);
+		}
 	}
 
 	mod_variable_set("mod", "metamorphosis_options", "option_open", !options_open);
@@ -1095,6 +1196,56 @@
 		}
 	}
 
+#define skill_decide
+	 // Stolen from NTTE
+	var _skillList = [],
+		_skillMods = mod_get_names("skill"),
+		_skillMax  = 30,
+		_skillAll  = true; // Already have every available skill
+		
+	for(var i = 1; i < _skillMax + array_length(_skillMods); i++){
+		var _skill = ((i < _skillMax) ? i : _skillMods[i - _skillMax]);
+		
+		if(
+			skill_get_avail(_skill)
+			&& _skill != mut_patience
+			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
+		){
+			array_push(_skillList, _skill);
+			if(skill_get(_skill) == 0) _skillAll = false;
+		}
+	}
+	
+	with(array_shuffle(_skillList)){
+		var _skill = self;
+		if(_skillAll || skill_get(_skill) == 0) return _skill;
+	}
+	
+	return mut_none;
+	
+#define skill_get_avail(_skill)
+	/*
+		Returns 'true' if the given skill can appear on the mutation selection screen, 'false' otherwise
+	*/
+	
+	if(skill_get_active(_skill)){
+		if(
+			_skill != mut_heavy_heart
+			|| skill_get(mut_heavy_heart) != 0
+			|| (GameCont.wepmuts >= 3 && GameCont.wepmuted == false)
+		){
+			if(
+				!is_string(_skill)
+				|| !mod_script_exists("skill", _skill, "skill_avail")
+				|| mod_script_call("skill", _skill, "skill_avail")
+			){
+				return true;
+			}
+		}
+	}
+	
+	return false;
+
 #define current_cursed
 	var c = 0;
 	
@@ -1180,31 +1331,79 @@
 	else return s;
 
 #define options_create
-	var k = "",
-		v = ""
+	var s = "",
+		v = "";
 	
-	sound_play(sndMenuStats);
-
 	if(fork()) {
 		wait 4;
 		
-		for(var i = 1; i < 7; i++) {
-		    if(!options_open) exit;
-		    k = lq_get_key(SETTING, i);
-		    v = lq_get_value(SETTING, i);
-		    
+		for(var i = 0; i < 6; i++) {
+		    if(!options_open or array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "splat", 0)) > 0) exit;
+		    s = global.option_list[i];
+		    v = lq_get(SETTING, string_replace(s, " ", "_"));
 		    
 		    with(obj_create(x, y, "MetaButton")) {
-		    	setting = [k, v];
+		    	setting = [s, v];
 		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
 		    	on_click = script_ref_create(MetaButton_click);
-		    	right_off = string_length(k) * 8;
+		    	right_off = string_length(s) * 8;
 		    	bottom_off = 10;
 		    	shift = 2;
 		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));
 		    }
+		    
+		    if(array_length(instances_matching(CustomObject, "name", "MetaPage")) < 3 and i < 3) {
+		    	with(obj_create(x, y, "MetaButton")) {
+					name = "MetaPage";
+					index = i;
+					page = other.pages[i];
+					left_off = string_length(page) * 8;
+					bottom_off = 6;
+					shift = 2;
+					on_click = script_ref_create(MetaPage_click);
+				}
+		    }
+		    
 		    wait 1;
 		}
+		
+		exit;
+	}
+	
+	metamorphosis_save();
+
+#define mut_opts_create
+	var s = "",
+		v = "";
+	
+	if(fork()) {
+		wait 4;
+		
+		for(var i = 1; i < array_length(global.mutation_list); i++) {
+		    if(!options_open or array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "splat", 0)) > 0) exit;
+		    s = global.mutation_list[i];
+		    v = lq_get(SETTING, `${string_replace(s, " ", "_")}_enabled`);
+		    if(v = undefined) v = true;
+		    
+		    with(obj_create(x, y, "MetaButton")) {
+		    	name = "MetaMut";
+		    	setting = [s + "_enabled", v];
+		    	index = array_length(instances_matching(CustomObject, "name", "MetaMut")) - 1;
+		    	on_end_step = script_ref_create(MetaMut_end_step);
+		    	on_click = script_ref_create(MetaButton_click);
+		    	left_off = 8;
+		    	right_off = 8;
+		    	top_off = 8;
+		    	bottom_off = 8;
+		    	shift = 2;
+		    	spr_icon = skill_get_icon(string_digits(s) != "" ? real(s) : s);
+		    	num = round((game_width - 120)/18);
+		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));
+		    }
+		    
+		    wait 1;
+		}
+		
 		exit;
 	}
 	
@@ -1212,6 +1411,21 @@
 
 #define metamorphosis_save
 	mod_script_call_nc("mod", "metamorphosis_options", "metamorphosis_save");
+
+#define skill_get_icon(_skill)
+	/*
+		Returns an array containing the [sprite_index, image_index] of a mutation's HUD icon
+	*/
+	
+	if(is_real(_skill)){
+		return [sprSkillIconHUD, _skill];
+	}
+	
+	if(is_string(_skill) && mod_script_exists("skill", _skill, "skill_icon")){
+		return [mod_script_call("skill", _skill, "skill_icon"), 0];
+	}
+	
+	return [sprEGIconHUD, 2];
 
 #define orandom(_num) return irandom_range(-_num, _num);
 
@@ -1307,3 +1521,18 @@
 
 #define grid_lock(value, grid)
 	return floor(value/grid) * grid; // Returns the given value locked to the given grid size
+	
+#define array_shuffle(_array)
+	var	_size = array_length(_array),
+		j, t;
+		
+	for(var i = 0; i < _size; i++){
+		j = irandom_range(i, _size - 1);
+		if(i != j){
+			t = _array[i];
+			_array[@i] = _array[j];
+			_array[@j] = t;
+		}
+	}
+	
+	return _array;

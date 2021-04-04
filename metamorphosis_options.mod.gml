@@ -1,13 +1,19 @@
 #define init
+	 // LOGO //
+	global.sprLogo = sprite_add("sprites/sprLogo.png", 1, 24, 222);
+	
     global.settings = {
-    	gold_mutation      : mut_none, // Figure out which mut is saved for gold mutations
-        shopkeeps_enabled  : true, // Toggle vault shopkeepers
+    	proto_mutation     : mut_none, // Figure out which mut is saved for proto mutations
+        shopkeeps		   : true, // Toggle vault shopkeepers
         evolution_unlocked : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
         cursed_mutations   : true, // Toggle whether or not cursed mutations show up
         custom_ultras      : true, // Toggle all custom ultras
         loop_mutations     : true, // Toggle gaining a mutation each loop past the first
         metamorphosis_tips : true // Toggle custom tips
     }
+    
+    lq_set(SETTING, "23_enabled", false);
+    lq_set(SETTING, "28_enabled", false);
     
     metamorphosis_load();
 
@@ -53,7 +59,7 @@
 					with(CharSelect) alarm0 = 2;
 				}
 		        sound_play(sndClickBack);
-		        with(instances_matching(CustomObject, "name", "MetaButton")) {
+		        with(instances_matching(CustomObject, "name", "MetaButton", "MetaPage")) {
 		        	instance_destroy();
 		        }
 		        
@@ -82,73 +88,125 @@
 			draw_set_visible_all(0);
 			draw_set_visible(i, 1);
 			
-			if(options_open) {
-				with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "splat", 0)) {
-					var _x = view_xview[i] + (game_width/2) - 125,
-						_y = view_yview[i] + (game_height/2) - 60 + (16 * index);
+			if(player_is_active(i)) {
+				var _x = 0,
+					_y = 0;
+				
+				if(options_open) {
+					with(instances_matching(CustomObject, "name", "MetaSettings")) {
+						_x    = view_xview[i] + game_width;
+						_y    = view_yview[i] + game_height - 26;
+							
+						draw_sprite_ext(sprCharSplat, splat, _x, _y, -1, 1, 0, c_black, 1);
+					}
 					
-					draw_sprite(sprMainMenuSplat, splat, _x + 50, _y + 4);
+					with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "splat", 0)) {
+						_x = view_xview[i] + (game_width/2) - 125;
+						_y = view_yview[i] + (game_height/2) - 60 + (16 * index);
+						
+						draw_sprite(sprMainMenuSplat, splat, _x + 52, _y + 3);
+					}
+					
+					with(instances_matching(CustomObject, "name", "MetaButton")) {
+						_x = view_xview[i] + (game_width/2) - 125;
+						_y = view_yview[i] + (game_height/2) - 60 + (16 * index);
+						var text = "@s",
+							opt = setting[1];
+						
+						option_vars(i, _x, _y);
+						
+						if(hover) {
+							text += "@w";
+						}
+						
+						text += setting[0];
+						
+						opt = `${hover ? "@w" : "@s"}${opt = true ? "ON" : "OFF"}`;
+						
+						draw_set_halign(fa_left);
+						draw_set_valign(fa_top);
+						draw_text_nt(_x + splat, _y + shift, string_upper(text));
+						
+						draw_text_nt(_x + 200, _y + shift, string_upper(opt));
+					}
+					
+					with(instances_matching(CustomObject, "name", "MetaPage")) {
+						_x = view_xview[i] + game_width - 6;
+						_y = view_yview[i] + game_height - 42 + (12 * index);
+						var text = "@d";
+						
+						option_vars(i, _x, _y);
+						
+						if(array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "page", index)) > 0) {
+							text += "@w";
+						} else if(hover) {
+							text += "@s";
+						}
+						
+						text += page;
+						
+						draw_set_halign(fa_right);
+						draw_set_valign(fa_top);
+						draw_text_nt(_x - splat, _y + shift, text);
+						draw_set_halign(fa_left);
+					}
+					
+					with(instances_matching(CustomObject, "name", "MetaMut")) {
+						_x = view_xview[i] + 60 + (18 * (index mod num));
+						_y = view_yview[i] + 60 + (18 * (index div num));
+						
+						option_vars(i, _x, _y);
+						
+						if(hover) {
+							var xx = view_xview[i],
+								yy = view_yview[i] + game_height - 26;
+							var s = string_replace(setting[0], "_enabled", "")
+						
+							draw_sprite(sprCharSplat, splat, xx, yy);
+							draw_text_nt(xx + 5, yy - 15, skill_get_name(string_digits(s) != "" ? real(s) : s));
+							draw_text_nt(xx + 5 + splat, yy + 1 + shift, `@s${setting[1] ? "ENABLED" : "DISABLED"}`);
+						}
+						
+						draw_sprite_ext(spr_icon[0], spr_icon[1], _x, _y + shift - (splat * 0.5), 1, 1, 0, hover ? (setting[1] ? c_white : c_red) : (setting[1] ? c_gray : c_maroon), 1);
+					}
 				}
 				
-				with(instances_matching(CustomObject, "name", "MetaButton")) {
-					var _x = view_xview[i] + (game_width/2) - 125,
-						_y = view_yview[i] + (game_height/2) - 60 + (16 * index),
-						text = "@s",
-						opt = setting[1];
+				with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "hover", 0)) {
+					var text = "";
+					
+					switch(setting[0]) {
+						case "shopkeeps": text = `TOGGLE THE ${metacolor}VAULT VISITORS@w`; break;
+						case "evolution unlocked": text = "FORCE-UNLOCK CROWN OF EVOLUTION#@d(AUTOMATICALLY ACTIVATED ONCE UNLOCKED)"; break;
+						case "cursed mutations": text = "TOGGLE CURSED MUTATIONS"; break;
+						case "custom ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
+						case "loop mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
+						case "metamorphosis tips": text = `TOGGLE ${metacolor}THESE TIPS@w`;
+					}
+					
+					if(text != "") draw_tooltip(mouse_x[i], mouse_y[i] - 6, text);
+				}
+				
+				with(instances_matching(CustomObject, "name", "MetaSettings")) {
+					_x    = view_xview[i] + 30;
+					_y    = view_yview[i] + game_height - 6;
+					var text  = "@g+";
 					
 					option_vars(i, _x, _y);
 					
-					if(hover) {
+					if(options_open) {
+						text = "@g-";
+					}
+					
+					if(!hover) {
 						text += "@w";
 					}
 					
-					text += string_replace(setting[0], "_", " ");
-					
-					opt = `${hover ? "@w" : "@s"}${opt = true ? "ON" : "OFF"}`;
-					
+					draw_set_font(fntSmall);
 					draw_set_halign(fa_left);
 					draw_set_valign(fa_top);
-					draw_text_nt(_x, _y + shift, string_upper(text));
-					
-					draw_text_nt(_x + 200, _y + shift, string_upper(opt));
+					draw_text_nt(_x, _y, `[${text}SETTINGS@w]`);
+					draw_set_font(fntM);
 				}
-			}
-			
-			with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "hover", 0)) {
-				var text = "";
-				
-				switch(setting[0]) {
-					case "shopkeeps_enabled": text = `TOGGLE THE ${metacolor}VAULT VISITORS@w`; break;
-					case "evolution_unlocked": text = "FORCE-UNLOCK CROWN OF EVOLUTION#@d(AUTOMATICALLY ACTIVATED ONCE UNLOCKED)"; break;
-					case "cursed_mutations": text = "TOGGLE CURSED MUTATIONS"; break;
-					case "custom_ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
-					case "loop_mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
-					case "metamorphosis_tips": text = `TOGGLE ${metacolor}THESE TIPS@w`;
-				}
-				
-				if(text != "") draw_tooltip(mouse_x[i], mouse_y[i] - 6, text);
-			}
-			
-			with(instances_matching(CustomObject, "name", "MetaSettings")) {
-				var _x    = view_xview[i] + 30,
-					_y    = view_yview[i] + game_height - 6,
-					text  = "@g+";
-				
-				option_vars(i, _x, _y);
-				
-				if(options_open) {
-					text = "@g-";
-				}
-				
-				if(!hover) {
-					text += "@w";
-				}
-				
-				draw_set_font(fntSmall);
-				draw_set_halign(fa_left);
-				draw_set_valign(fa_top);
-				draw_text_nt(_x, _y, `[${text}SETTINGS@w]`);
-				draw_set_font(fntM);
 			}
 			
 			draw_set_visible_all(1);

@@ -129,7 +129,7 @@
 		var _skill = ((i < _skillMax) ? i : _skillMods[i - _skillMax]);
 		
 		if(
-			(skill_get_avail(_skill) or (is_string(_skill) and mod_script_exists("skill", _skill, "skill_cursed") and mod_script_call("skill", _skill, "skill_cursed") = true) and mod_script_call("mod", "metamorphosis", "current_cursed") = true) // Made sure to modify this to work with cursed mutations
+			skill_get_avail(_skill)
 			&& _skill != mut_patience
 			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
 		){
