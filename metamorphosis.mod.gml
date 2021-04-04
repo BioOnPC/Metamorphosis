@@ -77,8 +77,6 @@
 			else if(skill_get_avail(skill_list[m - 29])) array_push(global.disabled_muts, skill_list[m - 29]);
 		}
 	}
-	
-	trace(global.disabled_muts);
 
 #define step
 	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
