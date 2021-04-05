@@ -4,6 +4,7 @@
 	
     global.settings = {
     	proto_mutation     : mut_none, // Figure out which mut is saved for proto mutations
+    	use_proto          : true, // For the toggle to use the proto mutation on any given run
         shopkeeps		   : true, // Toggle vault shopkeepers
         evolution_unlocked : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
         cursed_mutations   : true, // Toggle whether or not cursed mutations show up
@@ -11,7 +12,7 @@
         loop_mutations     : true, // Toggle gaining a mutation each loop past the first
         metamorphosis_tips : true // Toggle custom tips
     }
-    
+     // Remove reworked mutations here //
     lq_set(SETTING, "23_enabled", false);
     lq_set(SETTING, "28_enabled", false);
     
@@ -171,7 +172,22 @@
 					}
 				}
 				
-				with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "hover", 0)) {
+				else if(SETTING.proto_mutation != mut_none) {
+					with(instances_matching(CustomObject, "name", "MetaProto")) {
+						_x    = view_xview[i] + game_width + 12;
+						_y    = view_yview[i] + (game_height/2) - 10;
+						
+						option_vars(i, _x, _y);
+						
+						if(array_length(instances_matching(Loadout, "selected", 1)) = 0 or splat > 0) {
+							draw_sprite_ext(sprGameOverCenterSplat, min(splat, 2), _x, _y, 1, 1, 90, c_white, 1);
+							draw_sprite_ext(spr[0], spr[1], _x - 17 - splat - hover, _y - 5 - shift, 1, 1, 0, hover ? (setting[1] ? c_white : c_gray) : (setting[1] ? c_gray : c_dkgray), 1);
+							draw_sprite(sprToggle, setting[1], _x - 19 - splat - hover, _y + 5 - shift);
+						}
+					}
+				}
+				
+				with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton", "MetaProto"), "hover", 0)) {
 					var text = "";
 					
 					switch(setting[0]) {
@@ -181,6 +197,7 @@
 						case "custom ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
 						case "loop mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
 						case "metamorphosis tips": text = `TOGGLE ${metacolor}THESE TIPS@w`;
+						case "use_proto": text = `${metacolor}${skill_get_name(SETTING.proto_mutation)}`; break;
 					}
 					
 					if(text != "") draw_tooltip(mouse_x[i], mouse_y[i] - 6, text);
@@ -301,7 +318,7 @@
 #define metamorphosis_save
     if(fork()) {
         var f = "metamorphosis.txt",
-            s = "// welcome to da metamorphosis save. most of this code is from sanisani go check out Wasteland Vagabonds mod",
+            s = "// welcome to da metamorphosis save. most of this code is from sanisani go check out Wasteland Vagabonds mod" + chr(10),
             k = "", // key
             v = ""; // value
         wait file_load(f);

@@ -61,7 +61,7 @@
 #macro CrystallinePickup instances_matching(CustomObject, "name", "CrystallinePickup")
 
 #define game_start
-	if(SETTING.proto_mutation != mut_none) {
+	if(SETTING.use_proto = true and SETTING.proto_mutation != mut_none) {
 		skill_set(SETTING.proto_mutation, 1);
 		option_set("proto_mutation", mut_none);
 		metamorphosis_save();
@@ -78,6 +78,8 @@
 			array_push(global.disabled_muts, skill_list[m - 29]);
 		}
 	}
+	
+	global.mut_quest = mut_none;
 
 #define step
 	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
@@ -86,6 +88,9 @@
 	 // Setting setup:
 	with(instances_matching(Menu, "metamorphosis", null)) {
 		metamorphosis = 1;
+		
+		if(SETTING.proto_mutation = -1) lq_set(SETTING, "proto_mutation", mut_none);
+		
 		with(obj_create(x, y, "MetaButton")) {
 			name = "MetaSettings";
 			page = 0;
@@ -96,6 +101,17 @@
 			bottom_off = 6;
 			on_end_step = script_ref_create(MetaSettings_end_step);
 			on_click = script_ref_create(MetaSettings_click);
+		}
+		
+		with(obj_create(x, y, "MetaButton")) {
+			name = "MetaProto";
+			setting = ["use_proto", SETTING.use_proto];
+			spr = skill_get_icon(SETTING.proto_mutation);
+			left_off = 36;
+			right_off = 0;
+			top_off = 28;
+			bottom_off = 28;
+			on_click = script_ref_create(MetaButton_click);
 		}
 	}
 	
@@ -227,9 +243,11 @@
 						}
 					}
 					
-					 // Spawn da boys
-					obj_create(ffloor.x + lengthdir_x(128, shop_dir) - 4, ffloor.y + lengthdir_y(128, shop_dir), "Shopkeep");
-					obj_create(ffloor.x + lengthdir_x(128, shop_dir) + 36, ffloor.y + lengthdir_y(128, shop_dir), "Mutator");
+					if(global.mut_quest != -1) {
+						 // Spawn da boys
+						obj_create(ffloor.x + lengthdir_x(128, shop_dir) - 4, ffloor.y + lengthdir_y(128, shop_dir), "Shopkeep");
+						obj_create(ffloor.x + lengthdir_x(128, shop_dir) + 36, ffloor.y + lengthdir_y(128, shop_dir), "Mutator");
+					}
 				}
 	    	}
     	}
@@ -405,7 +423,7 @@
 				spr_shadow_y = 6;
 				
 				 // Sounds:
-				snd_hurt = sndRhinoFreakHurt;
+				snd_hurt = sndStatueHurt;
 				snd_dead = sndStatueDead;
 				
 				 // Vars:
@@ -413,6 +431,7 @@
 				maxhealth  = 60;
 				my_health  = maxhealth;
 				size       = 2;
+				team	   = 1; // Make sure they aren't killed by corrupted vaults
 				
 				prompt = prompt_create("+1 @gMUTATION@w#-2 @rMAX HP@s");
 				with(prompt){
@@ -498,7 +517,7 @@
 				spr_shadow = shd24;
 				
 				 // Sounds:
-				snd_hurt = sndRatHit;
+				snd_hurt = sndCrystalPropBreak;
 				snd_dead = sndPillarBreak;
 				
 				 // Vars:
@@ -506,13 +525,15 @@
 				maxhealth  = 20;
 				my_health  = maxhealth;
 				size       = 1;
+				if(global.mut_quest != mut_none and global.mut_quest != -1) skill = global.mut_quest;
+				else skill = skill_decide();
+				team	   = 1; // Make sure they aren't killed by corrupted vaults
 				
-				/*
-				prompt = prompt_create(`FIND ${}`);
+				prompt = prompt_create(`HELP FIND@3(${skill_get_icon(skill)[0]}:${skill_get_icon(skill)[1]})?`);
 				with(prompt){
 					mask_index = mskReviveArea;
 					yoff = -4;
-				}*/
+				}
 			}
 			break;
 			
@@ -935,17 +956,19 @@
 	if(_hover = 0) hover = 0;
 	
 	if(name != "MetaSettings") {
-		if(hover and splat < 3) {
-			splat += current_time_scale;
-			if(splat > 3) splat = sprite_get_number(sprMainMenuSplat);
+		if(hover or (name = "MetaProto" and !options_open and array_length(instances_matching(Loadout, "selected", 1)) = 0)) {
+			if(splat < 3) {
+				splat += current_time_scale;
+				if(splat > 3) splat = sprite_get_number(sprMainMenuSplat);
+			}
 		}
 		
-		else if(!hover and splat > 0) {
+		else if(splat > 0) {
 			splat -= current_time_scale;
 			if(splat < 0) splat = 0;
 		}
 		
-		if(!options_open) instance_destroy();
+		if(!options_open and name != "MetaProto") instance_destroy();
 	}
 	
 #define MetaButton_click
@@ -1073,10 +1096,85 @@
 	with(nearwep) instance_delete(id);
 
 #define Shopkeep_step
+	if(instance_exists(prompt)) {
+		if(global.mut_quest = skill) with(prompt) {
+			if(skill_get(other.skill)) text = `${metacolor}STORE@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})?`;
+			else text = `@qGO GET@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})!`;
+		}
+		
+		
+		if(player_is_active(prompt.pick)){
+			if(global.mut_quest = mut_none) {
+				global.mut_quest = skill;
+				spr_idle = global.sprMerchantPuff;
+				image_index = 0;
+				sound_play_pitch(sndSelectUp, 1.5 + random(0.2));
+				sound_play_pitch(sndSkillPick, 1.5 + random(0.2));
+				sound_play_pitch(sndLaserCrystalCharge, 2.2 + random(0.2));
+				
+				with(instance_create(prompt.pick.x, prompt.pick.y, PopupText)) {
+					mytext = `COME BACK WITH@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})!`;
+				}
+				
+				with(prompt) {
+					instance_destroy();
+				}
+			}
+			
+			else if(global.mut_quest = skill and skill_get(skill)) {
+				global.mut_quest = mut_none;
+				skill_set(skill, 0);
+				with(GameCont) skillpoints++;
+				option_set("proto_mutation", skill);
+				option_set("evolution_unlocked", true);
+				metamorphosis_save();
+				
+				spr_idle = global.sprMerchantPuff;
+				image_index = 0;
+				
+				 // EFFECTS
+				with(instance_create(prompt.pick.x, prompt.pick.y, PopupText)) {
+					mytext = `@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})${metacolor} STORED!##@w+1 FREE MUTATION`
+				}
+				instance_create(prompt.pick.x, prompt.pick.y, LevelUp);
+				
+				sound_play(sndLevelUp);
+				sound_play_pitch(sndUncurse, 1.4);
+				sound_play_pitch(sndBloodLauncherExplo, 0.7);
+				
+				with(prompt) instance_destroy();
+			}
+			
+			else {
+				sound_play_pitch(sndNoSelect, 1.2 + random(0.4));
+				sound_play_pitch(sndCursedReminder, 1.4 + random(0.3));
+			}
+		}
+		
+		if((my_health < maxhealth or array_length(instances_matching(CustomProp, "name", "Mutator")) = 0)) {
+			global.mut_quest = -1;
+			with(prompt) instance_destroy();
+			with(instances_matching(CustomProp, "name", "Mutator")) {
+				with(prompt) instance_destroy();
+			}
+			with(instance_create(x, y, GreenExplosion)) {
+				image_xscale = 0.5;
+				image_yscale = 0.5;
+				mask_index = mskNone;
+			}
+			sound_play_pitch(sndSwapCursed, 1.6 + random(0.2));
+			if(instance_number(GuardianStatue)) {
+				sound_play_pitch(sndHyperCrystalSpawn, 0.4 + random(0.4));
+				sound_play_pitch(sndGuardianFire, 0.2 + random(0.6));
+			}
+			
+			with(GuardianStatue) my_health = 0;
+		}
+	}
+	
 	if(sprite_index = global.sprMerchantPuff and image_index >= sprite_get_number(sprite_index) - 1) {
 		spr_idle = global.sprMerchantIdle;
 	}
-
 
 #define prompt_create(_text)
 	/*
