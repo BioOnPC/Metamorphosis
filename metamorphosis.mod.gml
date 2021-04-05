@@ -347,18 +347,23 @@
 #define cursed_mut_draw
 	with(SkillIcon) {
 		if(mod_script_exists("skill", string(skill), "skill_cursed") and mod_script_call("skill", string(skill), "skill_cursed") = true) {
-			var  + sprite_xoffset = x + sprite_xoffset;
-			var _y = y + sprite_yoffset;
+			if("counter" not in self){
+				counter = 0;
+			}
+			if(counter <= num){
+				counter++;
+				continue;
+			}
 			var hover = 0;
 			for(i = 0; i <= maxp; i++) {
-				if(point_in_rectangle(mouse_x[i], mouse_y[i], _x - (sprite_width/2), _y - (sprite_height/2), _x + (sprite_width/2), _y + (sprite_height/2))) {
+				if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
 					hover = 1;
 				}
 			}
-			draw_sprite(global.sprCursedOutline, (current_frame * (0.4/current_time_scale)) mod 4, _x, _y - hover);
+			draw_sprite(global.sprCursedOutline, (current_frame * (0.4/current_time_scale)) mod 4, x, y - hover);
 			if(depth != -1002) depth = -1002;
 			if(current_frame * (0.2/current_time_scale)) {
-				with instance_create(_x - 12 + 6 * ((current_frame * (0.2/current_time_scale)) mod 4), _y - 16 - hover, Curse) {
+				with instance_create(x - 12 + 6 * ((current_frame * (0.2/current_time_scale)) mod 4), y - 16 - hover, Curse) {
 					depth = other.depth;
 				}
 			}
