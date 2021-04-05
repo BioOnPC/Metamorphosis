@@ -3,7 +3,6 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	global.visits = 1;
 	global.level_start = false;
-	skill_set_active(mut_open_mind, 0); // Disable normal trigger fingers
 
 #define skill_name    return "THINK TANK";
 #define skill_text    return "EXTRA @wCHEST@s SPAWNS#FOR EVERY AREA VISITED";

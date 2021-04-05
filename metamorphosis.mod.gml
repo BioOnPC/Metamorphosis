@@ -72,9 +72,10 @@
 	var skill_list = mod_get_names("skill");
 	
 	for(var m = 0; m < 29 + array_length(skill_list); m++) {
-		if((lq_exists(SETTING, `${m}_enabled`) or (m > 29 and lq_exists(SETTING, `${skill_list[m - 29]}_enabled`))) and !option_get(`${m}_enabled`)) {
-			if(m <= 29) array_push(global.disabled_muts, real(m));
-			else if(skill_get_avail(skill_list[m - 29])) array_push(global.disabled_muts, skill_list[m - 29]);
+		if(m <= 29) {
+			if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
+		} else if(lq_get(SETTING, `${skill_list[m - 29]}_enabled`) = false) {
+			array_push(global.disabled_muts, skill_list[m - 29]);
 		}
 	}
 
@@ -251,6 +252,40 @@
 	
 	with(instances_matching(Corpse, "sprite_index", -5)){
 		instance_destroy();
+	}
+	
+	 // Replace SkillIcons that use F O R B I D D E N    M U T A T I O N S
+	if(instance_exists(LevCont)) {
+		for(var i = 0; i < array_length(global.disabled_muts); i++) {
+			if(array_length(instances_matching(SkillIcon, "skill", global.disabled_muts[i]))) with(instances_matching(SkillIcon, "skill", global.disabled_muts[i])) {
+				trace(skill);
+				skill = skill_decide();
+				trace(skill);
+				name = skill_get_name(skill);
+				text = skill_get_text(skill);
+				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+				else {
+					sprite_index = sprSkillIcon;
+					image_index = skill;
+				}
+				
+				if(skill = mut_none) {
+					with(instances_matching_gt(instances_matching(mutbutton, "creator", creator), "num", num)) {
+						num--;
+						alarm0--;
+					}
+				}
+			}
+		}
+	}
+	
+	 // Remove any previously obtained mutations that were Banished, typically for stuff like NTTE
+	for(var i = 0; i < array_length(global.disabled_muts); i++) {
+		if(skill_get(global.disabled_muts[i])) {
+			var s = skill_decide();
+			if(s != mut_none) skill_set(s, skill_get(global.disabled_muts[i]));
+			skill_set(global.disabled_muts[i], 0);
+		}
 	}
 
 #define draw
@@ -1208,6 +1243,8 @@
 			skill_get_avail(_skill)
 			&& _skill != mut_patience
 			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
+			&& array_length(instances_matching(SkillIcon, "skill", _skill)) = 0
+			&& array_find_index(global.disabled_muts, _skill) = -1
 		){
 			array_push(_skillList, _skill);
 			if(skill_get(_skill) == 0) _skillAll = false;
