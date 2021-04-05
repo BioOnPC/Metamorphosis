@@ -74,8 +74,8 @@
 	for(var m = 0; m < 29 + array_length(skill_list); m++) {
 		if(m <= 29) {
 			if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
-		} else if(lq_get(SETTING, `${skill_list[m - 29]}_enabled`) = false) {
-			array_push(global.disabled_muts, skill_list[m - 29]);
+		} else if(lq_get(SETTING, `${skill_list[m - 30]}_enabled`) = false) {
+			array_push(global.disabled_muts, skill_list[m - 30]);
 		}
 	}
 	
@@ -1064,7 +1064,7 @@
 		
 		for(var m = 0; m < 29 + array_length(skill_list); m++) {
 			if(m <= 29) array_push(global.mutation_list, string(m));
-			else if(skill_get_avail(skill_list[m - 29])) array_push(global.mutation_list, skill_list[m - 29]);
+			else if(skill_get_avail(skill_list[m - 30])) array_push(global.mutation_list, skill_list[m - 30]);
 		}
 	}
 
@@ -1477,7 +1477,7 @@
 		    	setting = [s, v];
 		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
 		    	on_click = script_ref_create(MetaButton_click);
-		    	right_off = string_length(s) * 8;
+		    	right_off = 220;
 		    	bottom_off = 10;
 		    	shift = 2;
 		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));

@@ -164,7 +164,7 @@
 							var s = string_replace(setting[0], "_enabled", "")
 						
 							draw_sprite(sprCharSplat, splat, xx, yy);
-							draw_text_nt(xx + 5, yy - 25 + shift, skill_get_name(string_digits(s) != "" ? real(s) : s) + `#  @(color:${setting[1] ? c_dkgray : c_maroon})(${setting[1] ? "ENABLED" : "DISABLED"})`);
+							draw_text_nt(xx + 5, yy - 28 + splat + shift, skill_get_name(string_digits(s) != "" ? real(s) : s) + `#  @(color:${setting[1] ? c_dkgray : c_maroon})(${setting[1] ? "ENABLED" : "DISABLED"})`);
 							
 							draw_set_font(fntSmall);
 							draw_text_nt(xx + 5 + splat, yy - 2, skill_get_text(string_digits(s) != "" ? real(s) : s));
