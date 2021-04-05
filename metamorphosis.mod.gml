@@ -258,9 +258,7 @@
 	if(instance_exists(LevCont)) {
 		for(var i = 0; i < array_length(global.disabled_muts); i++) {
 			if(array_length(instances_matching(SkillIcon, "skill", global.disabled_muts[i]))) with(instances_matching(SkillIcon, "skill", global.disabled_muts[i])) {
-				trace(skill);
 				skill = skill_decide();
-				trace(skill);
 				name = skill_get_name(skill);
 				text = skill_get_text(skill);
 				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");

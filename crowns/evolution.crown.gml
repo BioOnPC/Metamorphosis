@@ -119,31 +119,7 @@
 	}
 	
 #define skill_decide
-	 // Stolen from NTTE
-	var _skillList = [],
-		_skillMods = mod_get_names("skill"),
-		_skillMax  = 30,
-		_skillAll  = true; // Already have every available skill
-		
-	for(var i = 1; i < _skillMax + array_length(_skillMods); i++){
-		var _skill = ((i < _skillMax) ? i : _skillMods[i - _skillMax]);
-		
-		if(
-			skill_get_avail(_skill)
-			&& _skill != mut_patience
-			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
-		){
-			array_push(_skillList, _skill);
-			if(skill_get(_skill) == 0) _skillAll = false;
-		}
-	}
-	
-	with(array_shuffle(_skillList)){
-		var _skill = self;
-		if(_skillAll || skill_get(_skill) == 0) return _skill;
-	}
-	
-	return mut_none;
+	return mod_script_call("mod", "metamorphosis", "skill_decide");
 	
 #define skill_get_avail(_skill)
 	/*
