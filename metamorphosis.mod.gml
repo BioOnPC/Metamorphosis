@@ -290,6 +290,17 @@
 						num--;
 						alarm0--;
 					}
+					
+					if(instance_number(mutbutton) = 1) {
+						with(GameCont){
+							endpoints = 0;
+							
+							with(LevCont) instance_destroy();
+							if(skillpoints > 0) instance_create(0, 0, LevCont);
+							else instance_create(0, 0, GenCont);
+						}
+					}
+					instance_destroy();
 				}
 			}
 		}

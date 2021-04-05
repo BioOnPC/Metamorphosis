@@ -45,7 +45,7 @@
 #define step
 	with(instances_matching([EGSkillIcon, SkillIcon], "evolutioncheck", null)) { // Handler for the additional ultra stuff
 		if((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra"))) {
-			if((!is_string(skill) and ultra_get(race, skill)) or skill_get(skill)) {
+			if((!is_string(skill) and ultra_get(race, skill)) or (object_index != EGSkillIcon and is_string(skill) and skill_get(skill))) {
 				with(instances_matching_gt(instances_matching(mutbutton, "creator", creator), "num", num)) {
 					num--;
 					alarm0--;
