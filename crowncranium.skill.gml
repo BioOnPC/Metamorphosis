@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 	global.newLevel = false;
 
 #define skill_name    return "CROWN CRANIUM";
@@ -33,12 +34,12 @@
 			case "robot":    t += "@wWEAPON DROPS@s ARE#SOMETIMES @wDOUBLED@s"; break;
 			case "chicken":  t += "REGAIN LOST MAX @rHP@s FROM @wALL CHESTS@s"; break;
 			case "rebel":    t += "@rHEAL@s WHEN @wALLIES@s DIE"; break;
-			case "horror":   t += "@wREROLL@s TWO MUTATIONS"; break;
+			case "horror":   t += "@wREFUND@s TWO OF YOUR MUTATIONS"; break;
 			case "rogue":    t += "@wENEMIES@s AND @bIDPD@s#DROP @bPORTAL STRIKES"; break;
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
 			case "frog":     t += "@wHASTENED@s BOUNCES"; break;
 			case "parrot":   t += "@wPETS MOVE FASTER@s"; break;
-			default: t += ""; break;
+			default: t += "UPGRADES YOUR PASSIVE ABILITY"; break;
 		}
 		
 		if(race_id > 16 and mod_script_exists("race", race, "race_cc_text")) t += mod_script_call("race", race, "race_cc_text");
@@ -49,7 +50,10 @@
 	return t;
 
 #define skill_take    
-	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndMut);
+		sound_play(global.sndSkillSlct);
+	}
 	var raceList = [];
 	with(Player) {
 		if(array_find_index(raceList, race) == -1){

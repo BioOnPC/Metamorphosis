@@ -6,7 +6,7 @@
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
 #define skill_name    return cursecolor + "FALSE PRAYER";
-#define skill_text    return "@pPORTALS@s HEAL AND RESTORE AMMO#@wSLOWED@s 10 SECONDS#AFTER EXITING A PORTAL";
+#define skill_text    return "@pPORTALS@s @rHEAL@s AND RESTORE @wAMMO@s#@wSLOWED@s 10 SECONDS#AFTER EXITING A PORTAL";
 #define skill_tip     return "OCCULT DEALINGS";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

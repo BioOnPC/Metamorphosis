@@ -1,13 +1,18 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	global.sndSkillSlct = sound_add("../sounds/Ultras/sndUlt" + string_upper(string(mod_current)) + ".ogg");
 
 #define skill_name    return "TECHNICIAN";
 #define skill_text    return "@wDOUBLED FIRERATE@s AND @wFULL-AUTO@s#FOR LOW TIER WEAPONS";
 #define skill_tip     return "HARDWARE UPGRADE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
+#define skill_take    
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndBasicUltra);
+		sound_play(global.sndSkillSlct);
+	}
 #define skill_ultra   return "robot";
 #define skill_avail   return 0; // Disable from appearing in normal mutation pool
 

@@ -19,10 +19,11 @@
 	global.sprMerchantDie      = sprite_add("sprites/Shop/sprMerchantDie.png",  6, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
-	global.option_list = ["shopkeeps", "evolution unlocked", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
+	global.option_list = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
+	global.stats_list  = ["vault visits", "distance evolved", "quests completed", "times loaded"];
 	global.mutation_list = [];
 	global.disabled_muts = [];
-
+    
 	 // GET EM //
 	global.mut_quest		   = mut_none;
 	
@@ -36,9 +37,15 @@
     
     if(fork()) {
     	wait 3;
+    	
     	repeat(17) trace("");
     	trace_color("Thanks for playing Metamorphosis!", c_green);
     	trace_color("Be sure to report any bugs to tildebee in the official Nuclear Throne discord (discord.gg/nt)", c_aqua);
+    	
+    	 // Update the stats //
+    	var t = option_get("times_loaded");
+	    option_set("times_loaded", t = undefined ? 1 : (t + 1));
+    	
     	exit;
     }
 
@@ -124,9 +131,9 @@
 		else if(fork()) {
 			if(level < 10) {
 				wait 0;
-				if(instance_exists(GameCont) && level >= 10 and endpoints > 0) endpoints = 0;
-				exit;
+				if(instance_exists(self) and level >= 10 and endpoints > 0) endpoints = 0;
 			}
+			exit;
 		}
 	}
 	
@@ -145,6 +152,37 @@
 			}
 	    }
     }
+    
+    with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { // Handler for redundant ultras
+		if(instance_exists(self) and ((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra")))) {
+			if((!is_string(skill) and ultra_get(race, skill)) or (object_index != EGSkillIcon and is_string(skill) and (skill_get(skill) or !SETTING.custom_ultras))) {
+				if(instance_exists(creator)) creator.maxselect--;
+				
+				var c = creator,
+					n = num;
+				with(instances_matching_ge(instances_matching(mutbutton, "creator", c), "num", n)) {
+					if(num = n) {
+						instance_destroy();
+					}
+					
+					else {
+						num--;
+						alarm0--;
+					}
+				}
+				
+				if(instance_number(mutbutton) = 1) {
+					with(GameCont){
+						endpoints = 0;
+						
+						with(LevCont) instance_destroy();
+						if(skillpoints > 0) instance_create(0, 0, LevCont);
+						else instance_create(0, 0, GenCont);
+					}
+				}
+			}
+		}
+	}
     
     with(Player) {
     	if("hastened" not in self) {
@@ -191,11 +229,16 @@
 			}
 		}
     	
-    	if(option_get("shopkeeps")) {
-	    	 // place the shop area in the crown vault
-	    	with(instances_matching(CrownPed, "shopping", null)) {
-	    		shopping = "i be";
-	    		
+    	
+    	 // place the shop area in the crown vault
+    	with(instances_matching(CrownPed, "shopping", null)) {
+    		shopping = "i be";
+    		
+    		 // Update the stats //
+	    	var v = option_get("vault_visits");
+		    option_set("vault_visits", v = undefined ? 1 : (v + 1));
+    		
+	    	if(option_get("shopkeeps")) {
 	    		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
 	    		var ffloor = instance_furthest(10016, 10016, Floor),
 	    			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
@@ -354,6 +397,8 @@
 				counter++;
 				continue;
 			}
+			var _x = x + sprite_xoffset;
+			var _y = y + sprite_yoffset;
 			var hover = 0;
 			for(i = 0; i <= maxp; i++) {
 				if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
@@ -417,6 +462,7 @@
 			break;
 		
 		case "AdrenalinePickup":
+		case "RichPickup":
 		case "CrystallinePickup":
 			o = instance_create(_x, _y, CustomObject);
 			with(o){
@@ -614,7 +660,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaButton", "MetaPrompt", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaButton", "MetaPrompt", "RichPickup", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -1014,7 +1060,9 @@
 			break;
 			
 			case "stats": 
-				sound_play(sndMenuCredits); 
+				sound_play(sndMenuCredits);
+				
+				stats_create();
 			break;
 		}
 		
@@ -1025,7 +1073,7 @@
 	//if(next) 
 
 #define MetaMut_end_step
-	num = round((game_width - 120)/18);
+	num = ceil((game_width - 120)/18);
 
 #define MetaSettings_end_step
 	with(instances_matching_gt(BackFromCharSelect, "depth", -1006)) depth = -1006;
@@ -1081,7 +1129,7 @@
 		
 		for(var m = 0; m < 29 + array_length(skill_list); m++) {
 			if(m <= 29) array_push(global.mutation_list, string(m));
-			else if(skill_get_avail(skill_list[m - 30])) array_push(global.mutation_list, skill_list[m - 30]);
+			else if(skill_get_avail(skill_list[m - 30]) or mod_script_exists("skill", skill_list[m - 30], "skill_cursed")) array_push(global.mutation_list, skill_list[m - 30]);
 		}
 	}
 
@@ -1112,6 +1160,39 @@
 #define MetaPrompt_cleanup
 	with(nearwep) instance_delete(id);
 
+#define RichPickup_step
+	if(instance_exists(creator)) {
+		if(irandom(12/current_time_scale) == 0) {
+			instance_create(x + random_range(sprite_get_width(creator.sprite_index)/2, -(sprite_get_width(creator.sprite_index)/2)), y + random_range(sprite_get_height(creator.sprite_index)/2, -(sprite_get_height(creator.sprite_index)/2)), CaveSparkle).depth = depth - 1;
+		}
+	}
+	
+	//var c = object_get_parent(creator);
+	
+	/*if(fork()) {
+		wait 0;
+		if(!instance_exists(self) and c = chestprop) with(instance_nearest(x, y, ChestOpen))
+		exit;
+	}*/
+
+	AdrenalinePickup_step();
+	
+#define RichPickup_destroy
+	var _player = instance_nearest(x, y, Player);
+	if(instance_exists(_player) && place_meeting(x, y, _player)){
+		with(_player){
+			var _duration = (other.num * 50) * (skill_get("richtastes") + skill_get("magfingers"));
+			haste(_duration, 0.4);
+			
+			 // Effects:
+			sleep(30);
+			
+			sound_play_pitch(sndGoldNukeFire, 2.4 + random(0.4));
+			sound_play_pitch(sndShotReload, 1.8 + random(0.2));
+			sound_play_pitch(sndSwapGold, 1.8 + random(0.1));
+		}
+	}
+	
 #define Shopkeep_step
 	if(instance_exists(prompt)) {
 		if(global.mut_quest = skill) with(prompt) {
@@ -1144,6 +1225,9 @@
 				with(GameCont) skillpoints++;
 				option_set("proto_mutation", skill);
 				option_set("evolution_unlocked", true);
+				var q = option_get("quests_completed");
+				option_set("quests_completed", q = undefined ? 1 : (q + 1))
+				
 				metamorphosis_save();
 				
 				spr_idle = global.sprMerchantPuff;
@@ -1546,6 +1630,36 @@
 		    	shift = 2;
 		    	spr_icon = skill_get_icon(string_digits(s) != "" ? real(s) : s);
 		    	num = round((game_width - 120)/18);
+		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));
+		    }
+		    
+		    wait 1;
+		}
+		
+		exit;
+	}
+	
+	metamorphosis_save();
+	
+#define stats_create
+	var s = "",
+		v = "";
+	
+	if(fork()) {
+		wait 4;
+		
+		for(var i = 0; i < 4; i++) {
+		    if(!options_open or array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "splat", 0)) > 0) exit;
+		    s = global.stats_list[i];
+		    v = lq_get(SETTING, string_replace(s, " ", "_"));
+		    if(v = undefined) v = 0;
+		    
+		    with(obj_create(x, y, "MetaButton")) {
+		    	setting = [s, v];
+		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
+		    	right_off = 220;
+		    	bottom_off = 10;
+		    	shift = 2;
 		    	sound_play_pitch(sndAppear, random_range(0.5, 1.5) + (index/10));
 		    }
 		    

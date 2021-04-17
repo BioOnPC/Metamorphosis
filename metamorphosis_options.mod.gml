@@ -1,12 +1,13 @@
 #define init
 	 // LOGO //
-	global.sprLogo = sprite_add("sprites/sprLogo.png", 1, 24, 222);
+	global.sprLogo = sprite_add("sprites/sprLogo.png", 1, 116, 12);
 	
     global.settings = {
     	proto_mutation     : mut_none, // Figure out which mut is saved for proto mutations
     	use_proto          : true, // For the toggle to use the proto mutation on any given run
         shopkeeps		   : true, // Toggle vault shopkeepers
         evolution_unlocked : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
+        allow_characters   : true, // Toggle the new characters
         cursed_mutations   : true, // Toggle whether or not cursed mutations show up
         custom_ultras      : true, // Toggle all custom ultras
         loop_mutations     : true, // Toggle gaining a mutation each loop past the first
@@ -99,18 +100,23 @@
 						_y    = view_yview[i] + game_height - 26;
 							
 						draw_sprite_ext(sprCharSplat, splat, _x, _y, -1, 1, 0, c_black, 1);
+						
+						_x	  = view_xview[i] + (game_width/2);
+						_y    = view_yview[i] + 30;
+						
+						draw_sprite(global.sprLogo, 0, _x, _y + splat);
 					}
 					
 					with(instances_matching_gt(instances_matching(CustomObject, "name", "MetaButton"), "splat", 0)) {
-						_x = view_xview[i] + (game_width/2) - 125;
-						_y = view_yview[i] + (game_height/2) - 60 + (16 * index);
+						_x = view_xview[i] + (game_width/2) - 105;
+						_y = view_yview[i] + (game_height/2) - 70 + (16 * index);
 						
 						draw_sprite(sprMainMenuSplat, splat, _x + 52, _y + 3);
 					}
 					
 					with(instances_matching(CustomObject, "name", "MetaButton")) {
-						_x = view_xview[i] + (game_width/2) - 125;
-						_y = view_yview[i] + (game_height/2) - 60 + (16 * index);
+						_x = view_xview[i] + (game_width/2) - 105;
+						_y = view_yview[i] + (game_height/2) - 70 + (16 * index);
 						var text = "@s",
 							opt = setting[1];
 						
@@ -122,13 +128,13 @@
 						
 						text += setting[0];
 						
-						opt = `${hover ? "@w" : "@s"}${opt = true ? "ON" : "OFF"}`;
+						if(array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "page", 0))) opt = `${hover ? "@w" : "@s"}${opt = true ? "ON" : "OFF"}`;
 						
 						draw_set_halign(fa_left);
 						draw_set_valign(fa_top);
 						draw_text_nt(_x + splat, _y + shift, string_upper(text));
 						
-						draw_text_nt(_x + 200, _y + shift, string_upper(opt));
+						draw_text_nt(_x + 200, _y + shift, string_upper(string(opt)));
 					}
 					
 					with(instances_matching(CustomObject, "name", "MetaPage")) {
@@ -160,14 +166,22 @@
 						
 						if(hover) {
 							var xx = view_xview[i],
-								yy = view_yview[i] + game_height - 26;
-							var s = string_replace(setting[0], "_enabled", "")
+								yy = view_yview[i] + game_height - 26,
+								s = string_replace(setting[0], "_enabled", ""),
+								d = skill_get_text(string_digits(s) != "" ? real(s) : s);
 						
 							draw_sprite(sprCharSplat, splat, xx, yy);
 							draw_text_nt(xx + 5, yy - 28 + splat + shift, skill_get_name(string_digits(s) != "" ? real(s) : s) + `#  @(color:${setting[1] ? c_dkgray : c_maroon})(${setting[1] ? "ENABLED" : "DISABLED"})`);
+						
+							
+							if(d = "") {
+								if(s = "5") d = "UPGRADES YOUR SPECIAL ABILITY";
+								else if(s = "crowncranium") d = "UPGRADES YOUR PASSIVE ABILITY";
+								else d = "VARIES";
+							}
 							
 							draw_set_font(fntSmall);
-							draw_text_nt(xx + 5 + splat, yy - 2, skill_get_text(string_digits(s) != "" ? real(s) : s));
+							draw_text_nt(xx + 5 + splat, yy - 2, d);
 							draw_set_font(fntM);
 						}
 						
@@ -195,11 +209,15 @@
 					
 					switch(setting[0]) {
 						case "shopkeeps": text = `TOGGLE THE ${metacolor}VAULT VISITORS@w`; break;
-						case "evolution unlocked": text = "FORCE-UNLOCK CROWN OF EVOLUTION#@d(AUTOMATICALLY ACTIVATED ONCE UNLOCKED)"; break;
+						case "allow characters": text = "TOGGLE NEW CHARACTERS BEING PLAYABLE"; break;
 						case "cursed mutations": text = "TOGGLE CURSED MUTATIONS"; break;
 						case "custom ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
 						case "loop mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
-						case "metamorphosis tips": text = `TOGGLE ${metacolor}THESE TIPS@w`;
+						case "metamorphosis tips": text = `TOGGLE ${metacolor}THESE TIPS@w`; break;
+						case "vault visits": text = "AMOUNT OF TIMES YOU'VE#VISITED THE CROWN VAULTS"; break;
+						case "distance evolved": text = `HIGHEST AMOUNT OF AREAS VISITED#WITH THE ${metacolor}CROWN OF EVOLUTION@w`; break;
+						case "quests completed": text = `AMOUNT OF ${metacolor}STORED MUTATIONS@w`; break;
+						case "times loaded": text = `AMOUNT OF TIMES YOU'VE LOADED THIS MOD#${metacolor}THANKS!@w :)`; break;
 						case "use_proto": text = `${metacolor}${skill_get_name(SETTING.proto_mutation)}`; break;
 					}
 					

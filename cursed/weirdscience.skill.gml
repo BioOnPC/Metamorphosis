@@ -5,9 +5,9 @@
 
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
-#define skill_name    return cursecolor + "RECYCLING";
-#define skill_text    return "KILLS WILL SOMETIMES @wDUPLICATE@s#@wENEMY BULLETS@s WILL SOMETIMES @wDUPLICATE@s";
-#define skill_tip     return "CLEAR YOUR COOKIES!";
+#define skill_name    return cursecolor + "WEIRD SCIENCE";
+#define skill_text    return `${cursecolor}SPLIT DEAD ENEMIES IN TWO@s#ENEMIES @rHEAL@s OVER TIME`;
+#define skill_tip     return "IT'S ALIVE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_take    sound_play(sndMut); //sound_mutation_play();
@@ -40,33 +40,24 @@
 		}
 	}
 	
-	with(instances_matching(instances_matching_ne(projectile, "team", 2), "recycled", null)) {
-		recycled = "maybe";
-		
-		if(random(damage + 4) < 1) {
-			instance_create(x, y, GunWarrantEmpty);
-			
-			with(instance_copy(false)){
-				with(variable_instance_get_names(self)){
-					var	_value = variable_instance_get(other, self),
-						_clone = data_clone(_value);
-						
-					if(_value != _clone){
-						variable_instance_set(other, self, _clone);
-					}
-				}
-				
-				direction -= 20;
-		    	image_angle -= 20;
-			}
-			
-			direction += 20;
-		    image_angle += 20;
-			
-			sound_play_pitchvol(sndNothingFire, 1.6 + random(0.3), 0.4);
-			sound_play_pitchvol(sndShielderDeflect, 2.4 + random(0.3), 0.4);
-		}
-	}
+    if((current_frame % (40 + (skill_get(mod_current) * 10))) < current_time_scale) {
+    	var amt = 0;
+    	with(enemy) {
+    		if(my_health < maxhealth) {
+    			my_health += min(maxhealth - my_health, 5 + (instance_exists(GameCont) ? GameCont.loops : 0));
+    			amt++;
+    			instance_create(x, y, BloodLust);
+    		}
+    	}
+    	
+    	if(amt > 0) {
+    		sound_play_pitch(sndHitFlesh, 2.4 + random(0.4));
+    		sound_play_pitch(sndBoltHitWall, 1.7 + random(0.3));
+    		sound_play_pitch(sndMeatExplo, 2.4 + random(0.4));
+    	}
+    }
+	
+	
 	
 #define data_clone(_value)
 	/*

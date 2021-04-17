@@ -18,6 +18,7 @@
 /loadskill crowncranium
 /loadskill linkedlobes
 /loadskill thinktank
+/loadskill richtastes
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline
@@ -29,7 +30,7 @@
 /loadskill cursed/impatience
 /loadskill cursed/falseprayer
 /loadskill cursed/portalinstability
-/loadskill cursed/recycling
+/loadskill cursed/weirdscience
 
 /load ultras
 /loadcrown crowns/evolution

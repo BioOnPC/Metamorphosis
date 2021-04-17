@@ -6,6 +6,7 @@
 	global.last_took = []; 
 	global.last_race = [];
 	global.level_start = false;
+	global.areas_visited = 0;
 	
 #define crown_name        return "CROWN OF EVOLUTION";
 #define crown_text        return "GET AN ADDITIONAL @gULTRA MUTATION#@wRANDOMIZE@s MUTATIONS EACH AREA";
@@ -30,6 +31,11 @@
 	 // Gives randomized mutations:
 	randomize_muts();
 	
+	global.areas_visited = 1;
+	
+	var a = option_get("distance_evolved");
+	if(a < global.areas_visited) option_set("distance_evolved", a = undefined ? 1 : (a + 1));
+	
 	 // Obtain Ultra:
 	GameCont.endpoints++;
 	
@@ -43,56 +49,45 @@
 	global.last_took = [];
 	
 #define step
-	with(instances_matching([EGSkillIcon, SkillIcon], "evolutioncheck", null)) { // Handler for the additional ultra stuff
+	with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) {
 		if((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra"))) {
-			if((!is_string(skill) and ultra_get(race, skill)) or (object_index != EGSkillIcon and is_string(skill) and skill_get(skill))) {
-				with(instances_matching_gt(instances_matching(mutbutton, "creator", creator), "num", num)) {
-					num--;
-					alarm0--;
-				}
-				
-				if(instance_number(mutbutton) = 1) {
-					with(GameCont){
-						endpoints = 0;
+			if((!is_string(skill) and ultra_get(race, skill)) or (object_index != EGSkillIcon and is_string(skill) and (skill_get(skill) or !option_get("custom_ultras")))) {
+				 // Check to see what ultra this chump took:
+				if(instance_exists(self)) {
+					if(fork()) {
+						var _skill = skill;
 						
-						with(LevCont) instance_destroy();
-						if(skillpoints > 0) instance_create(0, 0, LevCont);
-						else instance_create(0, 0, GenCont);
+						if(object_index = EGSkillIcon) var _race = race; 
+						else var _race = -1;
+						
+						wait 1;
+						
+						if(!instance_exists(self) and ((!is_string(_skill) and ultra_get(_race, _skill)) or skill_get(_skill))) {
+							array_push(global.last_race, _race);
+							array_push(global.last_took, _skill);
+						}
+						
+						exit;
 					}
-				}
-				
-				if(instance_exists(creator)) creator.maxselect--;
-				instance_destroy();
-			}
-			
-			 // Check to see what ultra this chump took:
-			if(instance_exists(self)) {
-				if(fork()) {
-					var _skill = skill;
-					
-					if(object_index = EGSkillIcon) var _race = race; 
-					else var _race = -1;
-					
-					wait 1;
-					
-					if(!instance_exists(self) and ((!is_string(_skill) and ultra_get(_race, _skill)) or skill_get(_skill))) {
-						array_push(global.last_race, _race);
-						array_push(global.last_took, _skill);
-					}
-					
-					exit;
 				}
 			}
 		}
 	}
-	
+
 	 // Level Start:
 	if(instance_exists(GenCont) || instance_exists(Menu)){
 		global.level_start = true;
 	}
 	else if(global.level_start){
 		global.level_start = false;
-		if(GameCont.subarea = 1) randomize_muts();
+		if(GameCont.subarea = 1) {
+			randomize_muts();
+			
+			global.areas_visited++;
+			
+			var a = option_get("distance_evolved");
+			if(a < global.areas_visited) option_set("distance_evolved", a);
+		}
 	}
 	
 #define randomize_muts
@@ -161,3 +156,6 @@
 	
 #define option_get(opt)
 	return mod_script_call("mod", "metamorphosis", "option_get", opt);
+	
+#define option_set(opt, val)
+	return mod_script_call("mod", "metamorphosis", "option_set", opt, val);

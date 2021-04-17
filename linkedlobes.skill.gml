@@ -1,5 +1,5 @@
 #define init
-	//global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	//global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	
 	//first position is the name, others are the tags they set
@@ -34,7 +34,7 @@
 #define skill_text    return "@wMERGED WEAPONS@s HAVE AN#ADDITIONAL @wMODIFIER@s";
 #define skill_tip     return "COALESCE";
 //#define skill_icon    return global.sprSkillHUD;
-//#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut); //sound_mutation_play();
 #define skill_wepspec return 1;
 #define skill_avail   return mod_exists("mod", "telib");
