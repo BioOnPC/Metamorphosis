@@ -216,7 +216,7 @@
 						case "metamorphosis tips": text = `TOGGLE ${metacolor}THESE TIPS@w`; break;
 						case "vault visits": text = "AMOUNT OF TIMES YOU'VE#VISITED THE CROWN VAULTS"; break;
 						case "distance evolved": text = `HIGHEST AMOUNT OF AREAS VISITED#WITH THE ${metacolor}CROWN OF EVOLUTION@w`; break;
-						case "quests completed": text = `AMOUNT OF ${metacolor}STORED MUTATIONS@w`; break;
+						case "quests completed": text = `AMOUNT OF TIMES#YOU'VE ${metacolor}STORED MUTATIONS@w`; break;
 						case "times loaded": text = `AMOUNT OF TIMES YOU'VE LOADED THIS MOD#${metacolor}THANKS!@w :)`; break;
 						case "use_proto": text = `${metacolor}${skill_get_name(SETTING.proto_mutation)}`; break;
 					}

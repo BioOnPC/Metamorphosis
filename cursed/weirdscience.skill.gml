@@ -6,7 +6,7 @@
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
 #define skill_name    return cursecolor + "WEIRD SCIENCE";
-#define skill_text    return `${cursecolor}SPLIT DEAD ENEMIES IN TWO@s#ENEMIES @rHEAL@s OVER TIME`;
+#define skill_text    return "@pSPLIT DEAD ENEMIES IN TWO@s#ENEMIES @rHEAL@s OVER TIME";
 #define skill_tip     return "IT'S ALIVE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;

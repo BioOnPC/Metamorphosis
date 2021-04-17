@@ -25,7 +25,7 @@
 	global.disabled_muts = [];
     
 	 // GET EM //
-	global.mut_quest		   = mut_none;
+	global.mut_quest = mut_none;
 	
 	with(Menu) {
 		mode = 0;
