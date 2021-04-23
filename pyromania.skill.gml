@@ -71,7 +71,7 @@
 
 		 // Ignite corpse if they're not ignited!
 		else if((place_meeting(x, y, CustomProjectile) && variable_instance_exists(instance_nearest(x, y, CustomProjectile), "pyroflammable")) || place_meeting(x, y, Flame) || place_meeting(x, y, FlameShell) || place_meeting(x, y, TrapFire) || place_meeting(x, y, Explosion) || place_meeting(x, y, GreenExplosion) || place_meeting(x, y, SmallExplosion)) {
-			pyroignite = (30 + irandom(15)) * skill_get("pyromania");
+			pyroignite = (30 + irandom(15)) * skill_get(mod_current);
 		}
 	}
 

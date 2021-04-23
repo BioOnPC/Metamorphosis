@@ -58,9 +58,10 @@
 	}
 	
 #define add_mod
-	if(is_object(wep) && wep.wep == "merge" && "base" in wep && "linkedlobe" not in wep.base){
-		if("linkedlobe" not in wep.base){
-			wep.base.linkedlobe = 1;
+	if(is_object(wep) && wep.wep == "merge" && "base" in wep && "linkedlobe" not in wep.base || wep.base.linkedlobe < skill_get(mod_current)){
+		if("linkedlobe" not in wep.base || wep.base.linkedlobe < skill_get(mod_current)){
+			if("linkedlobe" not in wep.base){wep.base.linkedlobe = 0;}
+			wep.base.linkedlobe++;
 			
 			sound_play_pitch(sndGunGun, 1.4 + random(0.4));
 			sound_play_pitch(sndBigWeaponChest, 1.6 + random(0.2));

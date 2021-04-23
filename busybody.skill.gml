@@ -41,4 +41,4 @@
 		sound_play_pitchvol(sndRobotEat, 1.5 + random(0.3), 1.4);
 	}
 	
-	infammo += (infammo > 0 ? 1 : 60); // hotswapping shouldnt break this, it just lengthens out the time
+	infammo += (infammo > 0 ? 1 : (30+30*skill_get(mod_current))); // hotswapping shouldnt break this, it just lengthens out the time

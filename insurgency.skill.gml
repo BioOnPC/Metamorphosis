@@ -22,7 +22,7 @@
 	else if(global.level_start){
 		global.level_start = false;
 
-		var insurrection = (instance_number(enemy) * 0.4) * (skill_get("insurgency"));
+		var insurrection = (instance_number(enemy) * 0.4) * skill_get(mod_current);
 		while(insurrection > 0 and array_length(instances_matching_le(enemy, "my_health", 30 + (1.5 * GameCont.loops))) > instance_number(Bandit)) {
 			with(instances_matching_le(enemy, "my_health", 32 + (4 * GameCont.loops))) {
 				if(object_index != Bandit and random(100) < 1) {
@@ -51,7 +51,7 @@
 		}
 
 		with(Bandit) {
-			if(random(25 * (1/(skill_get("insurgency")))) < 1) {
+			if(random(25 * (1/skill_get(mod_current))) < 1) {
 				 // Spawn a friend
 				with(instance_create(x, y, Ally)) {
 					spr_idle = global.sprFlagAllyIdle;

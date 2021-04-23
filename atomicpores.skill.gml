@@ -17,7 +17,7 @@
 #define step
     with(instances_matching(enemy, "atomicrads", null)) { // Find all unaffected enemies
         atomicrads = 1;
-        raddrop += ceil(raddrop * (0.5 * skill_get("atomicpores"))); // Increase rads
+        raddrop += ceil(raddrop * (0.5 * skill_get(mod_current))); // Increase rads
     }
 
     with(instances_matching(instances_matching(GameCont, "level", 10), "atomicrads", null)) { // Check to see if the rad capacity was increased

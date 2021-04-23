@@ -18,7 +18,7 @@
     with(enemy) {
     	if(variable_instance_exists(self, "meleedamage") and meleedamage > 1 and 
     	 ((variable_instance_exists(self, "turtledamage") and turtledamage > meleedamage) or !variable_instance_exists(self, "turtledamage"))) {
-    		meleedamage -= min(meleedamage - 1, skill_get(mod_current));;
+    		meleedamage -= min(meleedamage - 1, skill_get(mod_current));
     		turtledamage = meleedamage;
     	}
     }

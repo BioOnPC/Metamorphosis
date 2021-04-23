@@ -21,7 +21,7 @@
 	
 	with(instances_matching([AmmoChest, AmmoPickup], "richtastes", null)) {
 		richtastes = "might be";
-		if(random(8) < 1) {
+		if(random(8) < skill_get(mod_current)) {
 			if(sprite_index = sprAmmo) sprite_index = (skill_get("magfingers") ? global.sprGoldFatAmmo : global.sprGoldAmmo);
 			else if(object_index = AmmoChest) sprite_index = global.sprGoldAmmoChest;
 			with(obj_create(x, y, "RichPickup")) {
@@ -35,13 +35,13 @@
 		richtastes = ":)";
 		
 		if(object_index = WeaponChest) {
-			if(random(10) < 1) {
+			if(random(10) < skill_get(mod_current)) {
 				instance_create(x, y, GoldChest);
 				instance_delete(self);
 			}
 		} 
 		
-		else if(random(3) < 1 and (weapon_get_area(wep) > -1 and weapon_get_area(wep) <= 4)) {
+		else if(random(3) < (0.5+0.5*skill_get(mod_current)) and (weapon_get_area(wep) > -1 and weapon_get_area(wep) <= 4)) {
 			var p = instance_nearest(x, y, Player);
 			if(instance_exists(p)) wep = weapon_decide(0, 10, true, [p.wep, p.bwep]);
 		}
