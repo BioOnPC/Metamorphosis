@@ -11,7 +11,9 @@
         cursed_mutations   : true, // Toggle whether or not cursed mutations show up
         custom_ultras      : true, // Toggle all custom ultras
         loop_mutations     : true, // Toggle gaining a mutation each loop past the first
-        metamorphosis_tips : true // Toggle custom tips
+        metamorphosis_tips : true, // Toggle custom tips
+        effigy_mut_1       : mut_none, // Effigy's first mutation
+        effigy_mut_2       : mut_none // Effigy's second mutation, both have to be done weird because we don't want to rewrite saves to accomodate arrays
     }
      // Remove reworked mutations here //
     lq_set(SETTING, "23_enabled", false);
@@ -174,7 +176,25 @@
 							draw_text_nt(xx + 5, yy - 28 + splat + shift, skill_get_name(string_digits(s) != "" ? real(s) : s) + `#  @(color:${setting[1] ? c_dkgray : c_maroon})(${setting[1] ? "ENABLED" : "DISABLED"})`);
 						
 							
-							if(d = "") {
+							if(!option_get(`${s}_seen`)) {
+								var s = string_split(d, "#"),
+									c = 0;
+								
+								d = "@d";
+								
+								for(i = 0; i < array_length(s); i++) {
+									c = 0;
+									
+									repeat(string_length(s[i])) {
+										c++;
+										d += string_char_at(s[i], c) = " " ? " " : chr(irandom_range(67, 90));
+									}
+									
+									d += "#";
+								}
+							}
+							
+							else if(d = "") {
 								if(s = "5") d = "UPGRADES YOUR SPECIAL ABILITY";
 								else if(s = "crowncranium") d = "UPGRADES YOUR PASSIVE ABILITY";
 								else d = "VARIES";
@@ -185,7 +205,13 @@
 							draw_set_font(fntM);
 						}
 						
-						draw_sprite_ext(spr_icon[0], spr_icon[1], _x, _y + shift - (splat * 0.5), 1, 1, 0, hover ? (setting[1] ? c_white : c_red) : (setting[1] ? c_gray : c_maroon), 1);
+						var clr = [(setting[1] ? c_gray : c_maroon), (setting[1] ? c_dkgray : make_color_rgb(56, 0, 0))]; // Hover and non-hover sprite color
+						
+						if(option_get(`${string_replace(setting[0], "_enabled", "")}_seen`)) {
+							clr = [(setting[1] ? c_white : c_red), (setting[1] ? c_gray : c_maroon)];
+						}
+						
+						draw_sprite_ext(spr_icon[0], spr_icon[1], _x, _y + shift - (splat * 0.5), 1, 1, 0, hover ? clr[0] : clr[1], 1);
 					}
 				}
 				
@@ -209,7 +235,7 @@
 					
 					switch(setting[0]) {
 						case "shopkeeps": text = `TOGGLE THE ${metacolor}VAULT VISITORS@w`; break;
-						case "allow characters": text = "TOGGLE NEW CHARACTERS BEING PLAYABLE"; break;
+						case "allow characters": text = "TOGGLE NEW CHARACTERS BEING SELECTABLE"; break;
 						case "cursed mutations": text = "TOGGLE CURSED MUTATIONS"; break;
 						case "custom ultras": text = "TOGGLE ALL CUSTOM ULTRAS#@d(AFFECTS OTHER MODS AS WELL)@w"; break;
 						case "loop mutations": text = "TOGGLE GAINING FREE MUTATIONS#FOR EVERY LOOP PAST 1"; break;
@@ -271,6 +297,9 @@
 			lq_set(p_hover, `p${index}`, 0);
 		}
 	}
+
+#define option_get(opt)
+	return mod_script_call("mod", "metamorphosis", "option_get", opt);
 
 #define mouse_in_rectangle(_p, _x1, _y1, _x2, _y2, _gui)
 	 // Stolen from Squiddy's options API

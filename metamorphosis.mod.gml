@@ -19,10 +19,20 @@
 	global.sprMerchantDie      = sprite_add("sprites/Shop/sprMerchantDie.png",  6, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
-	global.option_list = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
-	global.stats_list  = ["vault visits", "distance evolved", "quests completed", "times loaded"];
+	 // VARIOUS USEFUL VARIABLES //
+	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
+	global.stats_list    = ["vault visits", "distance evolved", "quests completed", "times loaded"];
 	global.mutation_list = [];
 	global.disabled_muts = [];
+	
+	global.current_muts  = [];
+    
+    global.mut_category[1] = [mut_gamma_guts, mut_scarier_face, mut_long_arms, mut_shotgun_shoulders, mut_laser_brain, mut_eagle_eyes, mut_impact_wrists, mut_bolt_marrow, mut_stress, mut_trigger_fingers, mut_sharp_teeth, "dividedelbows", "linkedlobes", "pyromania", "racingthoughts", "richtastes", "blastbile", "ignitionpoint", "thunderclap", "compoundelbow", "concentration", "excitedneurons", "powderedgums", "flamingpalms", "braintransfer", "compressingfist", "confidence", "doublevision", "energizedintenstines", "fracturedfingers", "neuralnetwork", "rocketcasings", "shatteredskull", "shockedskin", "sloppyfingers", "stakedchest", "wastegland", "musclememory", "prismaticiris"]; // Offensive
+    global.mut_category[2] = [mut_rhino_skin, mut_bloodlust, mut_second_stomach, mut_boiling_veins, mut_strong_spirit, "crystallinegrowths", "turtleshell", "perfectfreeze", "condensedmeat", "garmentregenerator", "sadism", "steelnerves", "tougherstuff"]; // Defensive
+    global.mut_category[3] = [mut_extra_feet, mut_plutonium_hunger, mut_throne_butt, mut_euphoria, mut_last_wish, mut_patience, mut_hammerhead, mut_heavy_heart, "atomicpores", "camoflauge", "crowncranium", "grace", "insurgency", "leadeyelids", "secretstash", "selectivefocus", "gluttony", "dynamiccalves", "filteringteeth", "mimicry", "pressurizedlungs", "thickhead", "toxicthoughts", "unstabledna", "floweringfolicles", "compassion"]; // Utility
+    global.mut_category[4] = [mut_rabbit_paw, mut_lucky_shot, mut_back_muscle, mut_recycle_gland, mut_open_mind, "cheekpouch", "magfingers", "thinktank", "duplicators", "scraparms", "brassblood", "silvertongue"]; // Ammo
+    global.mut_category[5] = ["adrenaline", "decayingflesh", "displacement", "falseprayer", "impatience", "portalinstability", "weirdscience", "scartissue", "vacuumvacuoles"]; // Cursed
+    
     
 	 // GET EM //
 	global.mut_quest = mut_none;
@@ -45,6 +55,18 @@
     	 // Update the stats //
     	var t = option_get("times_loaded");
 	    option_set("times_loaded", t = undefined ? 1 : (t + 1));
+    	
+    	
+    	 // Disable skills //
+    	var skill_list = mod_get_names("skill");
+	
+		for(var m = 0; m < 29 + array_length(skill_list); m++) {
+			if(m <= 29) {
+				if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
+			} else if(lq_get(SETTING, `${skill_list[m - 30]}_enabled`) = false) {
+				array_push(global.disabled_muts, skill_list[m - 30]);
+			}
+		}
     	
     	exit;
     }
@@ -153,8 +175,13 @@
 	    }
     }
     
-    with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { // Handler for redundant ultras
-		if(instance_exists(self) and ((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra")))) {
+    with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { 
+    	if(instance_exists(self) and object_index = SkillIcon and "seen" not in self) {
+    		seen = true;
+    		option_set(`${skill}_seen`, 1);
+    	}
+    	
+		if(instance_exists(self) and ((object_index = EGSkillIcon) or (is_string(skill) and mod_script_exists("skill", skill, "skill_ultra")))) { // Handler for redundant ultras
 			if((!is_string(skill) and ultra_get(race, skill)) or (object_index != EGSkillIcon and is_string(skill) and (skill_get(skill) or !SETTING.custom_ultras))) {
 				if(instance_exists(creator)) creator.maxselect--;
 				
@@ -211,6 +238,32 @@
 	    		sound_play_pitch(sndLabsTubeBreak, 1.4 + random(0.2));
 				sound_play_pitch(sndSwapGold, 0.8 + random(0.1));
 	    	}
+    	}
+    	
+    	var m = 0;
+		global.current_muts = [];
+
+		while(skill_get_at(m) != undefined) {
+			if(!mod_script_exists("skill", string(skill_get_at(m)), "skill_ultra")) array_push(global.current_muts, skill_get_at(m));
+			m++;
+		}
+    	
+    	if(fork()) {
+    		wait 0;
+    		
+    		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
+				var l = array_length(global.current_muts);
+				if(array_length(global.current_muts) = 1) {
+					effigy_set_muts(l[0], effigy_get_muts()[1]);
+				}
+				
+				else {
+					effigy_set_muts(global.current_muts[l - 1], global.current_muts[l - 2]);
+				}
+    			
+    		}
+    		
+    		exit;
     	}
     }
     
@@ -317,8 +370,11 @@
 	
 	 // Replace SkillIcons that use F O R B I D D E N    M U T A T I O N S
 	if(instance_exists(LevCont)) {
-		for(var i = 0; i < array_length(global.disabled_muts); i++) {
-			if(array_length(instances_matching(SkillIcon, "skill", global.disabled_muts[i]))) with(instances_matching(SkillIcon, "skill", global.disabled_muts[i])) {
+		with(instances_matching(SkillIcon, "disabledcheck", null)) {
+			disabledcheck = "checked";
+			
+			if(array_find_index(global.disabled_muts, skill) != -1) {
+				disabledcheck = null; // retry if this fails
 				skill = skill_decide();
 				name = skill_get_name(skill);
 				text = skill_get_text(skill);
@@ -1426,6 +1482,13 @@
 		}
 	}
 
+#define effigy_set_muts(first, second)
+	option_set("effigy_mut_1", first);
+	option_set("effigy_mut_2", second);
+
+#define effigy_get_muts
+	return [option_get("effigy_mut_1"), option_get("effigy_mut_2")];
+
 #define skill_decide
 	 // Stolen from NTTE
 	var _skillList = [],
@@ -1522,7 +1585,7 @@
 					
 					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(30) < 1) _repent = 1; 
 					
-					if(skill_get_active(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
+					if(skill_get_active(skill) and skill_get_avail(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
 						var _mut = "";
 						
 						if(_repent) {

@@ -4,13 +4,18 @@
 	global.sprGoldAmmo      = sprite_add("sprites/VFX/sprGoldAmmo.png",      7, 5,  5);
 	global.sprGoldFatAmmo   = sprite_add("sprites/VFX/sprGoldFatAmmo.png",   7, 6,  6);
 	global.sprGoldAmmoChest = sprite_add("sprites/VFX/sprGoldAmmoChest.png", 7, 12, 8);
+	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 
 #define skill_name    return "RICH TASTES";
 #define skill_text    return "@yAMMO@s SOMETIMES @wHASTENS@s YOU#@wHASTENED @yGOLDEN WEAPONS";
 #define skill_tip     return "GOLDEN GRILL";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut); //sound_mutation_play();
+#define skill_take    
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndMut);
+		sound_play(global.sndSkillSlct);
+	}
 
 #define step
 	with(Player) {

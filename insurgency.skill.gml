@@ -6,6 +6,7 @@
 	global.sprFlagAllyHurt  = sprite_add("sprites/VFX/sprFlagAllyHurt.png",                                         3,  24,  24);
 	global.sprFlagAllyDead  = sprite_add("sprites/VFX/sprFlagAllyDead.png",                                         6,  24,  24);
 	global.sprFlag          = sprite_add("sprites/VFX/sprFlag.png",                                                 5,  8,  16);
+	global.sndSkillSlct 	= sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 
 	global.level_start = (instance_exists(GenCont) || instance_exists(Menu));
 
@@ -14,7 +15,11 @@
 #define skill_tip     return "SWAY THE MASSES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
-#define skill_take    if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndMut); //sound_mutation_play();
+#define skill_take    
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndMut);
+		sound_play(global.sndSkillSlct);
+	}
 #define step
 	if(instance_exists(GenCont) || instance_exists(Menu)){
 		global.level_start = true;

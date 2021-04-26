@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Cursed/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Cursed/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sndSkillSlct = sound_add("../sounds/Cursed/sndCurse" + string_upper(string(mod_current)) + ".ogg");
 
 #macro cursecolor `@(color:${make_color_rgb(255, 202, 56)})`
 
@@ -11,8 +12,12 @@
 #define skill_button  sprite_index = global.sprSkillIcon;
 
 #define skill_take    
-	sound_play(sndMut); //sound_mutation_play();
-	sound_play_pitch(sndUncurse, 0.8);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndMut);
+		sound_play_pitch(sndUncurse, 1.1);
+		sound_play(sndBigCursedChest);
+		sound_play(global.sndSkillSlct);
+	}
 	
 	var _mod = mod_get_names("skill"),
         _scrt = "skill_cursed",

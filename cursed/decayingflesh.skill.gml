@@ -16,7 +16,7 @@
 
 #define step
 	global.hpamt = (4 * skill_get(mod_current)) + ((GameCont.loops * 2) * (skill_get("insurgency") + 1));
-	with(instances_matching_le(instances_matching_le(enemy, "my_health", 0), "maxhealth", hpamt)) {
+	with(instances_matching_le(enemy, "my_health", 0)) {
 		var e = [];
 		for(var i = 0; i < maxp; i++) {
 			e = instances_matching_le(instance_rectangle(view_xview[i], view_yview[i], view_xview[i] + game_width, view_yview[i] + game_height, enemy), "my_health", global.hpamt);
