@@ -40,7 +40,7 @@
 		richtastes = ":)";
 		
 		if(object_index = WeaponChest) {
-			if(random(10) < skill_get(mod_current)) {
+			if(random(16) < skill_get(mod_current)) {
 				instance_create(x, y, GoldChest);
 				instance_delete(self);
 			}

@@ -31,7 +31,7 @@
 		
 		if(instance_exists(GameCont) and GameCont.subarea = 1) global.visits++;
 		
-		place_chests(global.visits * skill_get(mod_current));
+		if(array_length(instances_matching(chestprop, "object_index", [WeaponChest, AmmoChest, RadChest])) > 0) place_chests(global.visits * skill_get(mod_current));
 	}
 
 #define place_chests(amt)

@@ -33,11 +33,14 @@
     	with(instances_matching_gt(enemy, "alrm1", current_time_scale)) {
     		alrm1++;
     	}
+    	
+    	with(Player) {
+    		if(random(12) < 1) {
+    			repeat(irandom_range(1, 3)) {
+	    			instance_create(x, y, Feather).sprite_index = sprLeaf;
+	    		}
+	    		
+	    		if(!audio_is_playing(sndJungleAssassinWake)) sound_play_pitchvol(sndJungleAssassinWake, 1.8 + random(0.6), 0.08);
+    		}
+    	}
     }
-    
-    with(instances_matching(Player, "image_alpha", 1)) {
-    	image_alpha -= 0.2;
-    }
-    
-#define skill_lose
-	with(Player) { image_alpha += 0.2; }

@@ -57,14 +57,21 @@
 	    option_set("times_loaded", t = undefined ? 1 : (t + 1));
     	
     	
-    	 // Disable skills //
-    	var skill_list = mod_get_names("skill");
+    	var skill_list = mod_get_names("skill"),
+    		c = 0;
 	
 		for(var m = 0; m < 29 + array_length(skill_list); m++) {
+			 // Reassign all disabled mutations //
 			if(m <= 29) {
 				if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
 			} else if(lq_get(SETTING, `${skill_list[m - 30]}_enabled`) = false) {
 				array_push(global.disabled_muts, skill_list[m - 30]);
+				
+				 // Add any missing mutations to your mutation categories //
+				if(mod_script_exists("skill", `${skill_list[m - 30]}`, "skill_type")) {
+					c = categories[mod_script_call("skill", `${skill_list[m - 30]}`, "skill_type")];
+					if(array_find_index(c, "skill_type") = -1) array_push(c, `${skill_list[m - 30]}`);
+				}
 			}
 		}
     	
@@ -84,12 +91,14 @@
 #macro options_open mod_variable_get("mod", "metamorphosis_options", "option_open")
 #macro options_avail instance_exists(Menu) and (Menu.mode = 1 or options_open)
 #macro quest global.mut_quest
+#macro categories global.mut_category
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
 #macro CrystallinePickup instances_matching(CustomObject, "name", "CrystallinePickup")
 
 #define game_start
+	 // Gives you your proto mutation, if you have it enabled //
 	if(SETTING.use_proto = true and SETTING.proto_mutation != mut_none) {
 		skill_set(SETTING.proto_mutation, 1);
 		option_set("proto_mutation", mut_none);
@@ -98,17 +107,26 @@
 	
 	global.disabled_muts = [];
 	
-	var skill_list = mod_get_names("skill");
+	var skill_list = mod_get_names("skill"),
+    		c = 0;
 	
 	for(var m = 0; m < 29 + array_length(skill_list); m++) {
+		 // Reassign all disabled mutations //
 		if(m <= 29) {
 			if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
 		} else if(lq_get(SETTING, `${skill_list[m - 30]}_enabled`) = false) {
 			array_push(global.disabled_muts, skill_list[m - 30]);
+			
+			 // Add any missing mutations to your mutation categories //
+			if(mod_script_exists("skill", `${skill_list[m - 30]}`, "skill_type")) {
+				c = categories[mod_script_call("skill", `${skill_list[m - 30]}`, "skill_type")];
+				if(array_find_index(c, "skill_type") = -1) array_push(c, `${skill_list[m - 30]}`);
+			}
 		}
 	}
 	
-	global.mut_quest = mut_none;
+	global.mut_quest = mut_none; // Make sure the shopkeep doesn't have a quest active //
+	
 
 #define step
 	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
@@ -254,7 +272,7 @@
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);
 				if(array_length(global.current_muts) = 1) {
-					effigy_set_muts(l[0], effigy_get_muts()[1]);
+					effigy_set_muts(global.current_muts[0], skill_decide());
 				}
 				
 				else {
@@ -351,6 +369,28 @@
     	with(Player) { // Chicken ultra
     		haste(210 * skill_get("strengthindeath"), 0.5);
     	}
+    	
+    	
+    	 // This is just here to add any missing mutations you have when you add mutation mods mid-run //
+    	global.disabled_muts = [];
+	
+		var skill_list = mod_get_names("skill"),
+	    		c = 0;
+		
+		for(var m = 0; m < 29 + array_length(skill_list); m++) {
+			 // Reassign all disabled mutations //
+			if(m <= 29) {
+				if(lq_get(SETTING, `${m}_enabled`) = false) array_push(global.disabled_muts, real(m));
+			} else if(lq_get(SETTING, `${skill_list[m - 30]}_enabled`) = false) {
+				array_push(global.disabled_muts, skill_list[m - 30]);
+				
+				 // Add any missing mutations to your mutation categories //
+				if(mod_script_exists("skill", `${skill_list[m - 30]}`, "skill_type")) {
+					c = categories[mod_script_call("skill", `${skill_list[m - 30]}`, "skill_type")];
+					if(array_find_index(c, "skill_type") = -1) array_push(c, `${skill_list[m - 30]}`);
+				}
+			}
+		}
     }
     
     if(SETTING.metamorphosis_tips) {
