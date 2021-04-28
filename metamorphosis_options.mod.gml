@@ -182,12 +182,12 @@
 								
 								d = "@d";
 								
-								for(i = 0; i < array_length(s); i++) {
+								for(var i2 = 0; i2 < array_length(s); i2++) {
 									c = 0;
 									
-									repeat(string_length(s[i])) {
+									repeat(string_length(s[i2])) {
 										c++;
-										d += string_char_at(s[i], c) = " " ? " " : chr(irandom_range(67, 90));
+										d += string_char_at(s[i2], c) = " " ? " " : chr(irandom_range(67, 90));
 									}
 									
 									d += "#";
