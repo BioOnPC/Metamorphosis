@@ -272,7 +272,7 @@
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);
 				if(array_length(global.current_muts) = 1) {
-					effigy_set_muts(global.current_muts[0], skill_decide());
+					effigy_set_muts(global.current_muts[l - 1], skill_decide());
 				}
 				
 				else {
