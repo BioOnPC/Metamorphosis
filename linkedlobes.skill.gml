@@ -58,7 +58,7 @@
 	}
 	
 #define add_mod
-	if(is_object(wep) && wep.wep == "merge" && "base" in wep && "linkedlobe" not in wep.base || wep.base.linkedlobe < skill_get(mod_current)){
+	if(is_object(wep) && wep.wep == "merge" && "base" in wep && ("linkedlobe" not in wep.base || wep.base.linkedlobe < skill_get(mod_current))){
 		if("linkedlobe" not in wep.base || wep.base.linkedlobe < skill_get(mod_current)){
 			if("linkedlobe" not in wep.base){wep.base.linkedlobe = 0;}
 			wep.base.linkedlobe++;
