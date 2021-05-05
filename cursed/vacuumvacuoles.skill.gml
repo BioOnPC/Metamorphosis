@@ -20,8 +20,21 @@
 	}
 #define skill_avail   return false;
 #define skill_cursed  return true; // for metamorphosis
+#define skill_lose
+	with(instances_matching_ne(Player, "vacuumhp", null)) if(vacuumhp > 0) {
+		maxhealth -= vacuumhp;
+		if(my_health > maxhealth) my_health = maxhealth;
+		vacuumhp = 0;
+	}
 
 #define step
+	with(instances_matching(instances_matching(ChestOpen, "sprite_index", sprHealthChestOpen), "vacuumed", null)) {
+		vacuumed = true;
+		if(!place_meeting(x, y, PortalShock)) with(instance_nearest(x, y, Player)) {
+			vacuumhp = "vacuumhp" in self ? vacuumhp + 1 : 1;
+		}
+	}
+
 	with(Player) {
 		if(chickendeaths = 0) chickendeaths += 2;
 		

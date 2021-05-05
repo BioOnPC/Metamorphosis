@@ -39,7 +39,7 @@
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
 			case "frog":     t += "@wHASTENED@s BOUNCES"; break;
 			case "parrot":   t += "@wPETS MOVE FASTER@s"; break;
-			default: t += "UPGRADES YOUR PASSIVE ABILITY"; break;
+			default: if(t = "") t += "UPGRADES YOUR PASSIVE ABILITY"; break;
 		}
 		
 		if(race_id > 16 and mod_script_exists("race", race, "race_cc_text")) t += mod_script_call("race", race, "race_cc_text");
@@ -437,3 +437,4 @@
 	
 #define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
 #define haste(amt, pow)                                            	    		return mod_script_call('mod', 'metamorphosis', 'haste', amt, pow);
+#define option_set(opt, val)													return mod_script_call("mod", "metamorphosis", "option_set", opt, val);

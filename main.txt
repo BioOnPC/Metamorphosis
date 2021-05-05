@@ -34,3 +34,4 @@
 
 /load ultras
 /loadcrown crowns/evolution
+/loadrace characters/effigy

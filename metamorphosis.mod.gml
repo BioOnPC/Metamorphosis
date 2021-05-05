@@ -1,5 +1,41 @@
  //				--- BASE NTT SCRIPTS ---			//
 #define init
+	 // SOUNDS, USING A LWO BECAUSE OF HOW MANY THERE ARE //
+	global.snd = {};
+	with(snd) {
+		 // SHOPKEEP //
+		PotAggro   = sound_add("sounds/Vault/Pot/sndPotAggro.ogg");
+		PotConfirm = sound_add("sounds/Vault/Pot/sndPotConfirm.ogg");
+		PotDead    = sound_add("sounds/Vault/Pot/sndPotDead.ogg");
+		PotHurt    = sound_add("sounds/Vault/Pot/sndPotHurt.ogg");
+		PotPrompt  = sound_add("sounds/Vault/Pot/sndPotPrompt.ogg");
+		PotRemind  = sound_add("sounds/Vault/Pot/sndPotRemind.ogg");
+		PotTurnin  = sound_add("sounds/Vault/Pot/sndPotTurnin.ogg");
+		
+		 // MUTATOR //
+		StatueAggro   = sound_add("sounds/Vault/Statue/sndStatueAggro.ogg");
+		StatueConfirm = sound_add("sounds/Vault/Statue/sndStatueConfirm.ogg");
+		StatueDead    = sound_add("sounds/Vault/Statue/sndStatueDead.ogg");
+		StatueHurt    = sound_add("sounds/Vault/Statue/sndStatueHurt.ogg");
+		StatuePrompt  = sound_add("sounds/Vault/Statue/sndStatuePrompt.ogg");
+		
+		 // EFFIGY //
+		EffigyHurt    = sound_add("sounds/Characters/Effigy/sndEffigyHurt.ogg");
+		EffigyDead    = sound_add("sounds/Characters/Effigy/sndEffigyDeath.ogg");
+		EffigyLowHP   = sound_add("sounds/Characters/Effigy/sndEffigyLowHP.ogg");
+		EffigyLowAM   = sound_add("sounds/Characters/Effigy/sndEffigyLowAmmo.ogg");
+		EffigySelect  = sound_add("sounds/Characters/Effigy/sndEffigySelect.ogg");
+		EffigyConfirm = sound_add("sounds/Characters/Effigy/sndEffigyConfirm.ogg");
+		EffigyChest   = sound_add("sounds/Characters/Effigy/sndEffigyChestWeapon.ogg");
+		EffigyWorld   = sound_add("sounds/Characters/Effigy/sndEffigyWorld.ogg");
+		EffigyIDPD    = sound_add("sounds/Characters/Effigy/sndEffigyIDPD.ogg");
+		EffigyCaptain = sound_add("sounds/Characters/Effigy/sndEffigyCaptain.ogg");
+		EffigyThrone  = sound_add("sounds/Characters/Effigy/sndEffigyThrone.ogg");
+		EffigyVault   = sound_add("sounds/Characters/Effigy/sndEffigyVault.ogg");
+		
+		Artificing = sound_add("sounds/Vault/mus100c.ogg");
+	}
+	
 	 // MUTATION EFFECTS //
 	global.sprMedpack		= sprite_add("sprites/VFX/sprFatHP.png",  7,  6,  6);
 	global.sprSleep 		= sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
@@ -83,6 +119,7 @@
 #macro bbox_center_x (bbox_left + bbox_right + 1) / 2
 #macro bbox_center_y (bbox_top + bbox_bottom + 1) / 2
 #macro infinity 1/0
+#macro snd global.snd
 
  // Mod Macros:
 #macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
@@ -162,6 +199,26 @@
 		}
 	}
 	
+	 // Character Selection Sound:
+	if(instance_exists(CharSelect)) {
+    	var _race = [];
+		for(var i = 0; i < maxp; i++){
+		    _race[i] = player_get_race(i);
+		    if(fork()) {
+		    	wait 1;
+		    	
+				var r = player_get_race(i);
+				if(_race[i] != r) switch(r) {
+				    case "effigy": sound_play(snd.EffigySelect); break;
+				    case "golem": sound_play(sndBuffGatorHit); break;
+				}
+				_race[i] = r;
+				
+				exit;
+		    }
+		}
+	}
+	
 	 // Avoid duplicating ultras by accident
 	with(GameCont) {
 		if("alreadyultra" not in self) {
@@ -193,7 +250,91 @@
 	    }
     }
     
+    if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_total", null)) {
+		effigy_total = [];
+	
+    	with(instances_matching_ne(Player, "effigy_sacrificed", null)) {
+    		for(var e = 0; e < array_length(effigy_sacrificed); e++) {
+    			array_push(other.effigy_total, effigy_sacrificed[e]);
+    			effigy_sacrificed = array_delete(effigy_sacrificed, e);
+    		}
+    	}
+    	
+    	if(GameCont.crownpoints <= 0 and array_length(effigy_total) > 0) {
+    		 // Clear:
+			var _inst = instances_matching(mutbutton, "creator", self);
+			if(array_length(_inst)){
+				with(_inst){
+					if(instance_is(self, SkillIcon) and (skill_get_avail(skill) or mod_script_exists("mod", string(skill), "skill_cursed"))){
+						other.maxselect--;
+						var _num = num;
+						with(instances_matching(_inst, "num", _num)){
+							instance_destroy();
+						}
+						with(instances_matching_gt(_inst, "num", _num)){
+							num--;
+							if(alarm0 > 0){
+								alarm0--;
+								if(alarm0 <= 0){
+									with(self){
+										event_perform(ev_alarm, 0);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			var _skill = effigy_total[0],
+				 // Add a mutation for Throne Butt or Horror and remove one for crown of destiny
+				_amt   = (crown_current = crwn_destiny ? -1 : 1) + skill_get(mut_throne_butt) + array_length(instances_matching(Player, "race", "horror"));
+			
+			 // Star of the Show:
+			maxselect++;
+			with(instance_create(0, 0, SkillIcon)){
+				creator = other;
+				num     = other.maxselect;
+				alarm0	= num + 1;
+				skill   = _skill;
+				name    = skill_get_name(_skill);
+				text    = skill_get_text(_skill);
+				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+				else {
+					sprite_index = sprSkillIcon;
+					image_index = skill;
+				}
+				
+				if(fork()) {
+					while(instance_exists(self)) {
+						wait 0;
+						if(!instance_exists(self) and instance_exists(other)) other.effigy_total = [];
+						exit;
+					}
+				}
+			}
+			
+			if(_amt > 0) repeat(_amt) {
+				maxselect++;
+				with(instance_create(0, 0, SkillIcon)){
+					creator = other;
+					num     = other.maxselect;
+					alarm0	= num + 1;
+					skill   = skill_decide();
+					name    = skill_get_name(skill);
+					text    = skill_get_text(skill);
+					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+					else {
+						sprite_index = sprSkillIcon;
+						image_index = skill;
+					}
+				}
+			}
+    	}
+    }
+    
     with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { 
+    	 // For the mutation options screen
     	if(instance_exists(self) and object_index = SkillIcon and "seen" not in self) {
     		seen = true;
     		option_set(`${skill}_seen`, 1);
@@ -228,6 +369,7 @@
 			}
 		}
 	}
+	
     
     with(Player) {
     	if("hastened" not in self) {
@@ -571,6 +713,29 @@
 			}
 			break;
 		
+		case "EffigyTurret":
+			o = instance_create(_x, _y, CustomProp);
+			with(o){
+				 // Visual:
+				spr_idle = sprHorrorMenu;
+				spr_hurt = sprMutant11Hurt;
+				spr_dead = sprMutant11Dead;
+				
+				 // Sounds:
+				snd_hurt = sndGuardianHurt;
+				snd_dead = sndGuardianDead;
+				
+				 // Vars:
+				mask_index = mskNone;
+				maxhealth  = 999;
+				size       = 1;
+				index      = 0;
+				target     = noone;
+				creator    = noone;
+				reload     = 0;
+			}
+			break;
+		
 		case "Mutator":
 			o = instance_create(_x, _y, CustomProp);
 			with(o){
@@ -582,8 +747,8 @@
 				spr_shadow_y = 6;
 				
 				 // Sounds:
-				snd_hurt = sndStatueHurt;
-				snd_dead = sndStatueDead;
+				snd_hurt = snd.StatueHurt;
+				snd_dead = snd.StatueDead;
 				
 				 // Vars:
 				mask_index = mskBanditBoss;
@@ -596,6 +761,7 @@
 				with(prompt){
 					mask_index = mskReviveArea;
 					yoff = -4;
+					hover = 0;
 				}
 			}
 			break;
@@ -676,8 +842,8 @@
 				spr_shadow = shd24;
 				
 				 // Sounds:
-				snd_hurt = sndCrystalPropBreak;
-				snd_dead = sndPillarBreak;
+				snd_hurt = snd.PotHurt;
+				snd_dead = snd.PotDead;
 				
 				 // Vars:
 				mask_index = mskBandit;
@@ -692,6 +858,7 @@
 				with(prompt){
 					mask_index = mskReviveArea;
 					yoff = -4;
+					hover = 0;
 				}
 			}
 			break;
@@ -756,7 +923,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "MutRefresher", "MetaButton", "MetaPrompt", "RichPickup", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "EffigyTurret", "MutRefresher", "MetaButton", "MetaPrompt", "RichPickup", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -945,6 +1112,48 @@
 			}
 		}
 	}
+	
+#define EffigyTurret_step
+	if(instance_exists(creator)) {
+		x = lerp(x, 
+				 creator.x + lengthdir_x(18, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
+		y = lerp(y, 
+				 creator.y + lengthdir_y(18, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
+	}
+
+	if(reload <= 0) {
+		target = instance_nearest(x, y, enemy);
+		
+		if(target != noone and !collision_line(x, y, target.x, target.y, Wall, false, false)) {
+			with(instance_create(x, y, ThroneBeam)) {
+				motion_add(point_direction(x, y, other.target.x, other.target.y) + random_range(7, -7), 8 + random(2));
+				team = other.team;
+				creator = other;
+				image_angle = direction;
+			}
+			
+			motion_add(point_direction(x, y, target.x, target.y) + 180 + random_range(4, -4), 3 + random(1));
+			
+			sound_play_pitch(sndGuardianFire, 1.4 + random(0.3));
+			sound_play_pitch(sndHammer, 1.6 + random(0.4));
+			sound_play_pitch(sndLightningReload, 1.5 + random(0.3));
+		}
+		
+		reload += 1 + random(2);
+	}
+	
+	else {
+		reload -= current_time_scale;
+	}
+	
+	if(instance_exists(Portal) or instance_exists(LevCont) or !instance_exists(creator)) {
+		my_health = 0;
+		with(creator) {
+			effigy_orbital = array_delete(effigy_orbital, other.id);
+		}
+	}
 
 #define FriendlyNecro_step
 	if("counter" not in self){
@@ -1041,8 +1250,13 @@
 		spr_idle = sprProtoStatueDoneIdle;
 	}
 	
-	if(instance_exists(prompt) && player_is_active(prompt.pick)){
-		with(prompt.pick) {
+	if(instance_exists(prompt)) {
+		if(prompt.nearwep != noone and prompt.hover = 0) {
+			sound_play(snd.StatuePrompt);
+			prompt.hover = 1;
+		}
+		
+		if(player_is_active(prompt.pick)) with(prompt.pick) {
 			if(array_length(instances_matching_gt(Player, "maxhealth", 2)) = instance_number(Player)) {
 				with(other) {
 					spr_idle = sprProtoStatueDone;
@@ -1065,15 +1279,17 @@
 				
 				sound_play(sndLevelUp);
 				sound_play_pitch(sndUncurse, 1.4);
-				sound_play_pitch(sndBloodLauncherExplo, 0.7);
+				sound_play_pitch(snd.StatueConfirm, 0.7);
 				
 				with(instances_matching(CustomProp, "name", "Shopkeep")) {
+					sound_play_pitchvol(sndFlameCannonEnd, 1.5 + random(0.2), 0.4);
 					spr_idle = global.sprMerchantPuff;
 					image_index = 0;
 				}
 			}
 			
 			else {
+				sound_play(snd.StatueAggro);
 				sound_play(sndCursedReminder);
 			}
 		}
@@ -1296,15 +1512,18 @@
 			else text = `@qGO GET@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})!`;
 		}
 		
+		if(prompt.nearwep != noone and prompt.hover = 0) {
+			sound_play(global.mut_quest = skill and !skill_get(other.skill) ? snd.PotRemind : snd.PotPrompt);
+			prompt.hover = 1;
+		}
 		
 		if(player_is_active(prompt.pick)){
 			if(global.mut_quest = mut_none) {
 				global.mut_quest = skill;
 				spr_idle = global.sprMerchantPuff;
 				image_index = 0;
-				sound_play_pitch(sndSelectUp, 1.5 + random(0.2));
-				sound_play_pitch(sndSkillPick, 1.5 + random(0.2));
-				sound_play_pitch(sndLaserCrystalCharge, 2.2 + random(0.2));
+				sound_play_pitchvol(sndFlameCannonEnd, 1.5 + random(0.2), 0.4);
+				sound_play(snd.PotConfirm);
 				
 				with(instance_create(prompt.pick.x, prompt.pick.y, PopupText)) {
 					mytext = `COME BACK WITH@3(${skill_get_icon(other.skill)[0]}:${skill_get_icon(other.skill)[1]})!`;
@@ -1335,6 +1554,8 @@
 				}
 				instance_create(prompt.pick.x, prompt.pick.y, LevelUp);
 				
+				sound_play_pitchvol(sndFlameCannonEnd, 1.5 + random(0.2), 0.4);
+				sound_play(snd.PotTurnin);
 				sound_play(sndLevelUp);
 				sound_play_pitch(sndUncurse, 1.4);
 				sound_play_pitch(sndBloodLauncherExplo, 0.7);
@@ -1363,6 +1584,7 @@
 			if(instance_number(GuardianStatue)) {
 				sound_play_pitch(sndHyperCrystalSpawn, 0.4 + random(0.4));
 				sound_play_pitch(sndGuardianFire, 0.2 + random(0.6));
+				sound_play(snd.PotAggro);
 			}
 			
 			with(GuardianStatue) my_health = 0;
@@ -1901,3 +2123,17 @@
 	}
 	
 	return _array;
+
+#define array_delete(_array, _index)
+	/*
+		Returns a new array with the value at the given index removed
+		
+		Ex:
+			array_delete([1, 2, 3], 1) == [1, 3]
+	*/
+	
+	var _new = array_slice(_array, 0, _index);
+	
+	array_copy(_new, array_length(_new), _array, _index + 1, array_length(_array) - (_index + 1));
+	
+	return _new;
