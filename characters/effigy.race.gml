@@ -26,8 +26,8 @@
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
-#define race_cc_text		   
-	/*if(skill_get_at(2) != undefined) return `${metacolor}STORE@s THE @gMUTATION@s YOU PICKED LAST`;
+/*#define race_cc_text		   
+	if(skill_get_at(2) != undefined) return `${metacolor}STORE@s THE @gMUTATION@s YOU PICKED LAST`;
 	else return "";*/
 
 #define race_ultra_name
