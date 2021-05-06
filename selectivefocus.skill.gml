@@ -38,8 +38,12 @@
 	
 	 // Mark Bullets For Deletion:
 	with(global.enemyData){
-		if(!instance_exists(id)){
-			var _projectiles = instances_matching(projectile, "creator", id);
+		var _id = self[0],
+			_x  = self[1],
+			_y  = self[2];
+			
+		if(!instance_exists(_id)){
+			var _inst = instances_matching(instances_matching_ne(projectile, "name", "CrystalHeartBullet"), "creator", _id);
 			
 			 // Find Projectiles Created On Death:
 			with(
@@ -51,26 +55,31 @@
 							noone
 						),
 						"xstart",
-						x
+						_x
 					),
 					"ystart",
-					y
+					_y
 				)
 			){
-				array_push(_projectiles, id);
+				array_push(_inst, _id);
 			}
 			
-			with(_projectiles){
+			 // Start the Countdown:
+			with(_inst){
 				selectivefocus_destroy_time = random(8);
 			}
 		}
 	}
 	
 	 // Decrement Timer and Delete Bullets:
-	with(instances_matching_gt(projectile, "selectivefocus_destroy_time", 0)){
-		selectivefocus_destroy_time -= current_time_scale;
-		if(selectivefocus_destroy_time <= 0 and ("name" not in self or name != "CrystalHeartBullet")){
-			selectivefocus_destroy();
+	if(instance_exists(projectile)){
+		var _inst = instances_matching_gt(projectile, "selectivefocus_destroy_time", 0);
+		if(array_length(_inst)) with(_inst){
+			
+			selectivefocus_destroy_time -= current_time_scale;
+			if(selectivefocus_destroy_time <= 0){
+				selectivefocus_destroy();
+			}
 		}
 	}
 	
@@ -79,30 +88,28 @@
 		_enemyList = instances_matching_le(enemy, "my_health", 0);
 		
 	 // Weird Cases:
-	with(instances_matching(FrogQueenDie, "", null)){
-		array_push(_enemyList, id);
+	if(instance_exists(FrogQueenDie)){
+		with(FrogQueenDie){
+			array_push(_enemyList, self);
+		}
 	}
 		
 	with(_enemyList){
-		array_push(
-			_enemyData,
-			{
-				id : id,
-				x  : x,
-				y  : y
-			}
-		);
+		array_push(_enemyData, [self, x, y]);
 	}
 	global.enemyData = _enemyData;
 	
 #define end_step
 	 // Fewer Enemy Bullets:
-	with(instances_matching(projectile, "selectivefocus_initial_destroy", null)){
-		selectivefocus_initial_destroy = 0;
-		
-		if(instance_is(creator, enemy) || (!instance_exists(creator) && team == 1)){
-			if(random(power(5, 1 / skill_get(mod_current))) < 1){
-				selectivefocus_destroy();
+	if(instance_exists(projectile)){
+		var _inst = instances_matching(instances_matching_ne(projectile, "name", "CrystalHeartBullet"), "selectivefocus_initial_destroy", null);
+		if(array_length(_inst)) with(_inst){
+			selectivefocus_initial_destroy = 0;
+			
+			if(instance_is(creator, enemy) || (!instance_exists(creator) && team == 1)){
+				if(random(power(5, 1 / skill_get(mod_current))) < 1){
+					selectivefocus_destroy();
+				}
 			}
 		}
 	}
