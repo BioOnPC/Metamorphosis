@@ -1,12 +1,24 @@
 #define init
 	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(), skill_decide());
-	global.sprIdle  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",  4, 24, 24);
-	global.sprWalk  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",  6, 24, 24);
-	global.sprHurt  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",  3, 24, 24);
-	global.sprDead  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Dead.png",  6, 24, 24);
-	global.sprSit   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Sit.png",   1, 12, 12);
-	global.sprGoSit = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png", 3, 12, 12);
-	global.sprMap   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Map.png",   1, 10, 10);
+	global.sprIdle[0]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
+	global.sprWalk[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
+	global.sprHurt[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",   3, 24, 24);
+	global.sprDead[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Dead.png",   6, 24, 24);
+	global.sprSit[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Sit.png",    1, 12, 12);
+	global.sprGoSit[0]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png",  3, 12, 12);
+	global.sprMap[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapA.png",   1, 10, 10);
+	global.sprSkin[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
+	
+	global.sprIdle[1]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
+	global.sprWalk[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
+	global.sprHurt[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "HurtB.png",   3, 24, 24);
+	global.sprDead[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "DeadB.png",   6, 24, 24);
+	global.sprSit[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SitB.png",    1, 12, 12);
+	global.sprGoSit[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
+	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
+	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
+	
+	global.sprSelect = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png", 1, 0,  0);
 
 	with(instances_matching(Player, "race", mod_current)) { // Reapply sprites if the mod is reloaded. we should add this to our older race mods //
 		assign_sprites();
@@ -23,6 +35,9 @@
 	var e = effigy_get_muts();
 
 	return `START WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})#${metacolor}SACRIFICE@w YOUR MUTATIONS`;
+#define race_menu_button       sprite_index = global.sprSelect;
+#define race_skins			   return 2;
+#define race_skin_button	   sprite_index = global.sprSkin[argument0];
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
@@ -33,9 +48,9 @@
 #define race_ultra_name
 	switch(argument0)
 	{
-		case 1: return "@d???@w"; break;
+		case 1: return "EPITOME"; break;
 		case 2: return "@d(NYI)@w"; break;
-		case 3: return "@d(NYI)@w"; break;
+		case 3: return "MARTYR@d(NYI)@w"; break;
 	}
 
 #define race_ultra_text
@@ -43,7 +58,7 @@
 	{
 		case 1: return `${metacolor}SACRIFICING@s MUTATIONS GRANTS#AN @wADDITIONAL EFFECT@s`;
 		case 2: return "NOT YET IMPLEMENTED";
-		case 3: return "NOT YET IMPLEMENTED";
+		case 3: return `${metacolor}SACRIFICE THIS ULTRA@s FOR A SPECIAL ALLY#@dNOT YET IMPLEMENTED@`;
 	}
 //#define race_portrait(_p, _b)  return race_sprite_raw("Portrait", _b);
 #define race_mapicon(_p, _b)   return global.sprMap;
@@ -115,7 +130,7 @@
 		
 		if("effigy_orbital" in self and array_length(effigy_orbital) > 0) {
 			for(var o = 0; o < array_length(effigy_orbital); o++) {
-				if(!instance_exists(effigy_orbital[o])) effigy_orbital = array_delete(effigy_orbital, i);
+				if(!instance_exists(effigy_orbital[o])) effigy_orbital = array_delete(effigy_orbital, o);
 			}
 		}
 	}
@@ -147,8 +162,6 @@
 		if(array_length(effigy_eligible) > 0) {
 			var ang = ((point_direction(x, y, mouse_x[index], mouse_y[index]) + ((360 div array_length(effigy_eligible))/2)) mod 360) div (360 div array_length(effigy_eligible)),
 				lstselect = effigy_selected;
-			
-			trace();
 			
 			if(effigy_selected != -1 and point_distance(x, y, mouse_x[index], mouse_y[index]) < 96) {
 				effigy_hover = lerp(effigy_hover, 2, 0.60 * current_time_scale);
@@ -198,16 +211,16 @@
 		    		image_speed = 0.3;
 				}
 				
-				var t = `${metacolor}${skill_get_name(effigy_eligible[effigy_selected])} @wSACRIFICED`;
-				for(var i = 1; i < array_length(categories); i++) {
-					if(array_find_index(categories[i], effigy_eligible[effigy_selected]) != -1) {
-						array_push(effigy_sacrificed, effigy_eligible[effigy_selected]);
-						skill_set(effigy_eligible[effigy_selected], 0);
-						with(GameCont) skillpoints++;
-						t += `#${get_sacrifice(i)}`;
-						if(ultra_get(race, 1)) {
-							t += get_sacrifice(irandom(4));
-						}
+				var t = `${metacolor}${skill_get_name(effigy_eligible[effigy_selected])} @wSACRIFICED`,
+					c = get_category(effigy_eligible[effigy_selected]);
+				
+				if(c != 0) {
+					array_push(effigy_sacrificed, effigy_eligible[effigy_selected]);
+					skill_set(effigy_eligible[effigy_selected], 0);
+					with(GameCont) skillpoints++;
+					t += `#${get_sacrifice(c)}`;
+					if(ultra_get(race, 1)) {
+						t += `#${get_sacrifice(irandom(4))}`;
 					}
 				}
 				
@@ -255,7 +268,7 @@
 			
 			draw_set_font(fntSmall);
 			draw_set_halign(fa_center);
-			if(effigy_selected != -1) draw_text_nt(x, y - (48 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[effigy_selected])}`); 
+			if(effigy_selected != -1) draw_text_nt(x, y - (48 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[min(effigy_selected, array_length(effigy_eligible) - 1)])}`); 
 			draw_set_halign(fa_left);
 			draw_set_font(fntM);
 			
@@ -268,12 +281,12 @@
 	}
 
 #define assign_sprites
-	spr_idle = global.sprIdle;
-	spr_walk = global.sprWalk;
-	spr_hurt = global.sprHurt;
-	spr_dead = global.sprDead;
-	spr_sit2 = global.sprSit;
-	spr_sit1 = global.sprGoSit;
+	spr_idle = global.sprIdle[bskin];
+	spr_walk = global.sprWalk[bskin];
+	spr_hurt = global.sprHurt[bskin];
+	spr_dead = global.sprDead[bskin];
+	spr_sit2 = global.sprSit[bskin];
+	spr_sit1 = global.sprGoSit[bskin];
 
 #define assign_sounds
 	snd_hurt = snd.EffigyHurt;
@@ -289,90 +302,74 @@
 	snd_idpd = snd.EffigyIDPD;
 	snd_cptn = snd.EffigyCaptain;
 
+#define get_category(mut)
+	for(var i = 1; i < array_length(categories); i++) {
+		if(array_find_index(categories[i], mut) != -1) {
+			return i;
+		}
+	}
+	
+	return 0;
+	
 #define get_sacrifice(mut)
-	switch(mut) {
-		case 1: // OFFENSIVE -- Summon an allied gunner drone for all players
-			with(Player) {
-				if("effigy_orbital" not in self) effigy_orbital = [];
-				with(obj_create(x, y, "EffigyTurret")) {
-					index = array_length(other.effigy_orbital);
-					array_push(other.effigy_orbital, id);
-					creator = other;
-					team = other.team;
-				}
-				
-				sound_play_pitch(sndGoldUnlock, 0.6 + random(0.2));
-				sound_play_pitch(sndHorrorPortal, 0.8 + random(0.3));
+	with(Player) {
+		if("effigy_orbital" not in self) effigy_orbital = [];
+		repeat(mut = 2 ? 2 : 1) with(obj_create(x, y, "EffigyOrbital")) {
+			index = array_length(other.effigy_orbital);
+			array_push(other.effigy_orbital, id);
+			creator = other;
+			team = other.team;
+			type = mut;
+			
+			if(type = 2) {
+				maxhealth = other.maxhealth * 3;
+				mask_index = mskPlayer;
+				image_blend = c_red;
 			}
 			
+			if(type = 3) image_blend = c_gray;
+			if(type = 4) image_blend = c_orange;
+			
+			repeat(GameCont.level - 1) {
+				maxhealth *= 1.1;
+			}
+			
+			my_health = maxhealth;
+		}
+	}
+
+	switch(mut) {
+		case 1: // OFFENSIVE -- Summon an allied gunner drone for all players
+			sound_play_pitch(sndSwapMotorized, 0.6 + random(0.2));
+			sound_play_pitch(sndHorrorPortal, 0.8 + random(0.3));
 			return "@sARTIFICAL BACKUP!"
 		break;
 		
 		case 2: // DEFENSIVE -- a handful of seconds of invulnerability for all players
-			with(Player) { 
-				effigy_invuln = 210; 
-				nexthurt = current_frame + effigy_invuln;
-				with(obj_create(x, y, "CrystallineEffect")) {
-					creator = other;
-				}
-			} 
-			
 			sound_play_pitch(sndCrystalShield, 0.6 + random(0.2));
 			sound_play_pitch(sndShielderDeflect, 1.4 + random(0.4));
 			sound_play_pitch(sndEliteShielderTeleport, 1.4 + random(0.4));
 			sound_play_pitch(sndHyperCrystalTaunt, 1.7 + random(0.2));
 			
-			return "@sINVUNLERABILITY!";
+			return "@sRADIATION SHIELD!";
 		break;
 		
 		case 3: // UTILITY -- Empowered, gives haste + increased accuracy 
-			with(Player) {
-				repeat(5) with(instance_create(x + random_range(-12, 12), y + random_range(-12, 12), PlasmaTrail)) {
-					motion_add(direction + 180 + random_range(-10, 10), speed + random(2));
-				}
-				
-				instance_create(x, y, GunGun);
-				
-				if("effigy_acc" not in self or effigy_acc = 0) accuracy *= 0.5;
-				effigy_acc = 1;
-				mod_script_call("mod", "metamorphosis", "haste", 240, 0.8);
-				
-				sound_play_pitch(sndDogGuardianJump, 0.6 + random(0.2));
-				sound_play_pitch(sndDogGuardianLand, 1.4 + random(0.2));
-				sound_play_pitch(sndHammer, 0.6 + random(0.3));
-			}
+			sound_play_pitch(sndDogGuardianJump, 0.6 + random(0.2));
+			sound_play_pitch(sndDogGuardianLand, 1.4 + random(0.2));
+			sound_play_pitch(sndHammer, 0.6 + random(0.3));
 			
-			return "@sEMPOWERED!";
+			return "@sHASTENED!";
 		break;
 		
 		case 4:  // AMMO -- Ammo frenzy, gives a bunch of ammo pickups over time and spawns a few ammo chests near players
-			if(fork()) {
-				repeat(7) {
-					if(instance_number(Player) = 0 or instance_exists(GenCont) or instance_exists(LevCont)) exit;
-					else with(Player) {
-						for(var a = 0; a < array_length(typ_ammo); a++) {
-							ammo[a] += round(min(typ_ammo[a]/2, typ_amax[a] - ammo[a]));
-						}
-						
-						instance_create(x, y, PortalL);
-						instance_create(x, y, SteroidsTB);
-					}
-					
-					sound_play_pitch(sndLightningReload, 1.8 + random(0.4));
-					sound_play_pitch(sndShotgunHitWall, 1.2 + random(0.4));
-					sound_play_pitch(sndEmpty, 0.6 + random(0.4));
-					
-					wait irandom_range(7, 10);
-				}
-				
-				exit;
-			}
-			
 			sound_play_pitch(sndLightningShotgunUpg, 0.3 + random(0.4));
 			
-			return "@sSUPPLY DROP!"
+			return "@sINFINITE AMMO!"
 		break;
 	}
+	
+	return "";
 
 #define effigy_set_muts(first, second)
 	return mod_script_call("mod", "metamorphosis", "effigy_set_muts", first, second);

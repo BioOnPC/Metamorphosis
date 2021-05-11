@@ -56,6 +56,7 @@
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
 	 // VARIOUS USEFUL VARIABLES //
+	global.begin_step    = script_bind_begin_step(begin_step, 0);
 	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
 	global.stats_list    = ["vault visits", "distance evolved", "quests completed", "times loaded"];
 	global.mutation_list = [];
@@ -166,7 +167,7 @@
 	
 
 #define step
-	if(SETTING.cursed_mutations) script_bind_begin_step(curse_mut, 0);
+	if(!instance_exists(global.begin_step)) global.begin_step = script_bind_begin_step(begin_step, 0);
 	script_bind_draw(cursed_mut_draw, -1001);
 	
 	 // Setting setup:
@@ -210,7 +211,6 @@
 				var r = player_get_race(i);
 				if(_race[i] != r) switch(r) {
 				    case "effigy": sound_play(snd.EffigySelect); break;
-				    case "golem": sound_play(sndBuffGatorHit); break;
 				}
 				_race[i] = r;
 				
@@ -248,89 +248,6 @@
 				sound_play(sndLevelUp);
 			}
 	    }
-    }
-    
-    if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_total", null)) {
-		effigy_total = [];
-	
-    	with(instances_matching_ne(Player, "effigy_sacrificed", null)) {
-    		for(var e = 0; e < array_length(effigy_sacrificed); e++) {
-    			array_push(other.effigy_total, effigy_sacrificed[e]);
-    			effigy_sacrificed = array_delete(effigy_sacrificed, e);
-    		}
-    	}
-    	
-    	if(GameCont.crownpoints <= 0 and array_length(effigy_total) > 0) {
-    		 // Clear:
-			var _inst = instances_matching(mutbutton, "creator", self);
-			if(array_length(_inst)){
-				with(_inst){
-					if(instance_is(self, SkillIcon) and (skill_get_avail(skill) or mod_script_exists("mod", string(skill), "skill_cursed"))){
-						other.maxselect--;
-						var _num = num;
-						with(instances_matching(_inst, "num", _num)){
-							instance_destroy();
-						}
-						with(instances_matching_gt(_inst, "num", _num)){
-							num--;
-							if(alarm0 > 0){
-								alarm0--;
-								if(alarm0 <= 0){
-									with(self){
-										event_perform(ev_alarm, 0);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			var _skill = effigy_total[0],
-				 // Add a mutation for Throne Butt or Horror and remove one for crown of destiny
-				_amt   = (crown_current = crwn_destiny ? -1 : 1) + skill_get(mut_throne_butt) + array_length(instances_matching(Player, "race", "horror"));
-			
-			 // Star of the Show:
-			maxselect++;
-			with(instance_create(0, 0, SkillIcon)){
-				creator = other;
-				num     = other.maxselect;
-				alarm0	= num + 1;
-				skill   = _skill;
-				name    = skill_get_name(_skill);
-				text    = skill_get_text(_skill);
-				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
-				else {
-					sprite_index = sprSkillIcon;
-					image_index = skill;
-				}
-				
-				if(fork()) {
-					while(instance_exists(self)) {
-						wait 0;
-						if(!instance_exists(self) and instance_exists(other)) other.effigy_total = [];
-						exit;
-					}
-				}
-			}
-			
-			if(_amt > 0) repeat(_amt) {
-				maxselect++;
-				with(instance_create(0, 0, SkillIcon)){
-					creator = other;
-					num     = other.maxselect;
-					alarm0	= num + 1;
-					skill   = skill_decide();
-					name    = skill_get_name(skill);
-					text    = skill_get_text(skill);
-					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
-					else {
-						sprite_index = sprSkillIcon;
-						image_index = skill;
-					}
-				}
-			}
-    	}
     }
     
     with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { 
@@ -596,6 +513,147 @@
 		}
 	}
 
+#define begin_step
+	if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_mut", null, 0)) {
+		effigy_mut = 0;
+	
+		for(var e = 0; e < maxp; e++) {
+			if(effigy_mut = 0) {
+				with(instances_matching(Player, "index", e)) {
+					if("effigy_sacrificed" in self and array_length(effigy_sacrificed) > 0) {
+						other.effigy_mut = effigy_sacrificed[0];
+						effigy_sacrificed = array_delete(effigy_sacrificed, 0);
+					}
+				}
+			}
+		}
+    	
+    	if(GameCont.crownpoints <= 0 and effigy_mut != 0) {
+    		 // Clear:
+			var _inst = instances_matching(mutbutton, "creator", self);
+			if(array_length(_inst)){
+				with(_inst){
+					if(instance_is(self, SkillIcon) and (skill_get_avail(skill) or mod_script_exists("mod", string(skill), "skill_cursed"))){
+						other.maxselect--;
+						var _num = num;
+						with(instances_matching(_inst, "num", _num)){
+							instance_destroy();
+						}
+						with(instances_matching_gt(_inst, "num", _num)){
+							num--;
+							if(alarm0 > 0){
+								alarm0--;
+								if(alarm0 <= 0){
+									with(self){
+										event_perform(ev_alarm, 0);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			var _skill = effigy_mut,
+				 // Add a mutation for Throne Butt or Horror and remove one for crown of destiny
+				_amt   = (crown_current = crwn_destiny ? -1 : 1) + skill_get(mut_throne_butt) + array_length(instances_matching(Player, "race", "horror"));
+			
+			 // Star of the Show:
+			maxselect++;
+			with(instance_create(0, 0, SkillIcon)){
+				creator = other;
+				num     = other.maxselect;
+				alarm0	= num + 1;
+				skill   = _skill;
+				name    = skill_get_name(_skill);
+				text    = skill_get_text(_skill);
+				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+				else {
+					sprite_index = sprSkillIcon;
+					image_index = skill;
+				}
+				
+				if(fork()) {
+					while(instance_exists(self)) {
+						wait 0;
+						if(!instance_exists(self) and instance_exists(other)) other.effigy_mut = null;
+						exit;
+					}
+				}
+			}
+			
+			if(_amt > 0) repeat(_amt) {
+				maxselect++;
+				with(instance_create(0, 0, SkillIcon)){
+					creator = other;
+					num     = other.maxselect;
+					alarm0	= num + 1;
+					skill   = skill_decide();
+					name    = skill_get_name(skill);
+					text    = skill_get_text(skill);
+					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+					else {
+						sprite_index = sprSkillIcon;
+						image_index = skill;
+					}
+				}
+			}
+    	}
+    }
+    
+    if(SETTING.cursed_mutations and !instance_exists(EGSkillIcon) and array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
+		var potentialcurse = instances_matching(SkillIcon, "curseified", null);
+		if(instance_number(SkillIcon) > 0){
+			repeat(instance_number(SkillIcon)) {
+				with(potentialcurse[irandom(array_length(potentialcurse) - 1)]) {
+					curseified = "maybe!";
+					
+					var _mod = mod_get_names("skill"),
+						_scrt = "skill_cursed",
+						_cursed = [],
+						_amtcurse = 0,
+						_repent = 0;
+					
+					 // Go through and find all cursed mutations
+					for(var i = 0; i < array_length(_mod); i++){ 
+						if(mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) {
+							if(!skill_get(_mod[i])) {
+								if(array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0) array_push(_cursed, _mod[i]);
+							}
+							
+							else _amtcurse++;
+						}
+					}
+					
+					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(30) < 1) _repent = 1; 
+					
+					if(skill_get_active(skill) and skill_get_avail(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
+						var _mut = "";
+						
+						if(_repent) {
+							_mut = "repentance";
+						}
+						
+						else if(array_length(_cursed) > 0) {
+							_mut = _cursed[irandom_range(0, array_length(_cursed) - 1)];
+						}
+						
+						if(_mut != "") {
+							skill = _mut;
+							name = skill_get_name(skill);
+							text = skill_get_text(skill);
+							mod_script_call("skill", skill, "skill_button");
+							
+							sound_play(sndCursedPickup);
+						}
+					}
+				}
+				
+				potentialcurse = instances_matching(SkillIcon, "curseified", null);
+			}
+		}
+	}
+
 #define draw
 	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
 		with(instances_matching_gt(instances_matching_ne(projectile, "grace", null), "grace", 0)) {
@@ -666,6 +724,9 @@
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
 
+#define cleanup
+	with(global.begin_step) instance_destroy();
+
 	
  //				--- OBJECT SCRIPTS ---			//
 #define obj_create(_x, _y, _name)
@@ -713,26 +774,29 @@
 			}
 			break;
 		
-		case "EffigyTurret":
-			o = instance_create(_x, _y, CustomProp);
+		case "EffigyOrbital":
+			o = instance_create(_x, _y, CustomHitme);
 			with(o){
 				 // Visual:
 				spr_idle = sprHorrorMenu;
 				spr_hurt = sprMutant11Hurt;
 				spr_dead = sprMutant11Dead;
+				spr_shadow = shd24;
 				
 				 // Sounds:
 				snd_hurt = sndGuardianHurt;
 				snd_dead = sndGuardianDead;
 				
 				 // Vars:
-				mask_index = mskNone;
-				maxhealth  = 999;
-				size       = 1;
-				index      = 0;
-				target     = noone;
-				creator    = noone;
-				reload     = 0;
+				mask_index  = mskNone;
+				image_speed = 0.4;
+				maxhealth   = 70;
+				my_health   = maxhealth;
+				size        = 1;
+				index       = 0;
+				target      = noone;
+				creator     = noone;
+				reload      = 0;
 			}
 			break;
 		
@@ -923,7 +987,7 @@
 			break;
 		
 		default: // Called with undefined - for use with Yokin's cheats mod
-			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "EffigyTurret", "MutRefresher", "MetaButton", "MetaPrompt", "RichPickup", "Shopkeep", "Mutator"];
+			return ["AdrenalinePickup", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "EffigyOrbital", "MutRefresher", "MetaButton", "MetaPrompt", "RichPickup", "Shopkeep", "Mutator"];
 	}
 	
 	 // Instance Stuff:
@@ -1113,47 +1177,108 @@
 		}
 	}
 	
-#define EffigyTurret_step
-	if(instance_exists(creator)) {
-		x = lerp(x, 
-				 creator.x + lengthdir_x(18, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
-				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
-		y = lerp(y, 
-				 creator.y + lengthdir_y(18, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
-				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
-	}
-
-	if(reload <= 0) {
-		target = instance_nearest(x, y, enemy);
-		
-		if(target != noone and !collision_line(x, y, target.x, target.y, Wall, false, false)) {
-			with(instance_create(x, y, ThroneBeam)) {
-				motion_add(point_direction(x, y, other.target.x, other.target.y) + random_range(7, -7), 8 + random(2));
-				team = other.team;
-				creator = other;
-				image_angle = direction;
-			}
-			
-			motion_add(point_direction(x, y, target.x, target.y) + 180 + random_range(4, -4), 3 + random(1));
-			
-			sound_play_pitch(sndGuardianFire, 1.4 + random(0.3));
-			sound_play_pitch(sndHammer, 1.6 + random(0.4));
-			sound_play_pitch(sndLightningReload, 1.5 + random(0.3));
-		}
-		
-		reload += 1 + random(2);
-	}
-	
-	else {
-		reload -= current_time_scale;
-	}
-	
+#define EffigyOrbital_step
 	if(instance_exists(Portal) or instance_exists(LevCont) or !instance_exists(creator)) {
 		my_health = 0;
-		with(creator) {
-			effigy_orbital = array_delete(effigy_orbital, other.id);
+	}
+
+	if(my_health <= 0) {
+		instance_destroy();
+		exit;
+	}
+
+	speed = 0;
+	
+	if(sprite_index == spr_hurt && image_index == sprite_get_number(spr_hurt) - 1){
+		sprite_index = spr_idle;
+	}
+
+	if(sprite_index != spr_hurt && sprite_index != spr_dead) {
+		if(speed > 0) {
+			sprite_index = spr_walk;
+		} else{
+			sprite_index = spr_idle;
 		}
 	}
+
+#define EffigyOrbital_begin_step
+	if(instance_exists(creator)) {
+		x = lerp(x, 
+				 creator.x + lengthdir_x(20, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
+		y = lerp(y, 
+				 creator.y + lengthdir_y(20, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
+		
+		switch(type) {
+			case 1:
+				if(reload <= 0) {
+					target = instance_nearest(x, y, enemy);
+					
+					if(target != noone and !collision_line(x, y, target.x, target.y, Wall, false, false)) {
+						with(instance_create(x, y, ThroneBeam)) {
+							motion_add(point_direction(x, y, other.target.x, other.target.y) + random_range(7, -7), 8 + random(2));
+							team = other.team;
+							creator = other;
+							image_angle = direction;
+						}
+						
+						motion_add(point_direction(x, y, target.x, target.y) + 180 + random_range(4, -4), 3 + random(1));
+						
+						sound_play_pitchvol(sndNothingFire, 1.2 + random(0.3), 0.5);
+						sound_play_pitchvol(sndUltraLaser, 2.2 + random(0.6), 0.4);
+						sound_play_pitch(sndLightningReload, 1.5 + random(0.3));
+					}
+					
+					reload += 1 + random(2);
+				}
+				
+				else {
+					reload -= current_time_scale;
+				}
+			break;
+			
+			case 3:
+				with(creator) haste(current_time_scale * 2, 0.8);
+				
+				my_health -= current_time_scale;
+			break;
+			
+			case 4:
+				with(creator) infammo = max(infammo, current_time_scale * 2);
+				
+				my_health -= current_time_scale;
+			break;
+		}
+	}
+	
+#define EffigyOrbital_hurt(_dmg, _spd, _dir)
+    my_health -= _dmg;
+    nexthurt = current_frame + 5;
+    sprite_index = spr_hurt;
+    image_index = 0;
+    sound_play_hit(snd_hurt, 0.6);
+    motion_add(_dir, _spd);
+
+#define EffigyOrbital_destroy
+	with(instance_create(x, y, Corpse)) {
+		sprite_index = other.spr_dead;
+		motion_add(other.direction, other.speed);
+	}
+	sound_play(snd_dead);	
+	
+	with(creator) {
+		effigy_orbital = array_delete(effigy_orbital, other.id);
+	}
+	
+	with(instances_matching_gt(instances_matching(CustomProp, "name", name), "index", index)) {
+		index--;
+	}
+
+#define EffigyOrbital_draw
+	var hp = (my_health/maxhealth),
+		s  = type = 2 ? max(0.4, hp) : (hp + 0.4);
+	draw_sprite_ext(sprite_index, image_index, x, y, s * image_xscale, s * image_yscale, image_angle, image_blend, image_alpha);
 
 #define FriendlyNecro_step
 	if("counter" not in self){
@@ -1738,9 +1863,9 @@
 		}
 		
 		else if(hastened_power < pow) {
-			hastened_power = pow;
 			reloadspeed += pow - hastened_power;
 			maxspeed    += pow - hastened_power;
+			hastened_power = pow;
 		}
 	}
 
@@ -1819,62 +1944,6 @@
 	if(skill_get("repentance")) c = 0; // NO MORE CURSED MUTATIONS
 	
 	return c;
-
-#define curse_mut
-	if(!instance_exists(EGSkillIcon) and array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
-		var potentialcurse = instances_matching(SkillIcon, "curseified", null);
-		if(instance_number(SkillIcon) > 0){
-			repeat(instance_number(SkillIcon)) {
-				with(potentialcurse[irandom(array_length(potentialcurse) - 1)]) {
-					curseified = "maybe!";
-					
-					var _mod = mod_get_names("skill"),
-						_scrt = "skill_cursed",
-						_cursed = [],
-						_amtcurse = 0,
-						_repent = 0;
-					
-					 // Go through and find all cursed mutations
-					for(var i = 0; i < array_length(_mod); i++){ 
-						if(mod_script_exists("skill", _mod[i], _scrt) and mod_script_call("skill", _mod[i], _scrt) > 0) {
-							if(!skill_get(_mod[i])) {
-								if(array_length(instances_matching(SkillIcon, "skill", _mod[i])) = 0) array_push(_cursed, _mod[i]);
-							}
-							
-							else _amtcurse++;
-						}
-					}
-					
-					if(_amtcurse > 0 and array_length(instances_matching(SkillIcon, "skill", "repentance")) = 0 and skill_get("repentance") <= 0 and random(30) < 1) _repent = 1; 
-					
-					if(skill_get_active(skill) and skill_get_avail(skill) and skill != mut_heavy_heart and ((_repent) or current_cursed())) {
-						var _mut = "";
-						
-						if(_repent) {
-							_mut = "repentance";
-						}
-						
-						else if(array_length(_cursed) > 0) {
-							_mut = _cursed[irandom_range(0, array_length(_cursed) - 1)];
-						}
-						
-						if(_mut != "") {
-							skill = _mut;
-							name = skill_get_name(skill);
-							text = skill_get_text(skill);
-							mod_script_call("skill", skill, "skill_button");
-							
-							sound_play(sndCursedPickup);
-						}
-					}
-				}
-				
-				potentialcurse = instances_matching(SkillIcon, "curseified", null);
-			}
-		}
-	}
-	
-	instance_destroy();
 
 #define option_set(opt, val)
 	var s = SETTING;
@@ -2090,6 +2159,28 @@
 	y = _ty;
 	
 	return _inst;
+
+#define instances_in_rectangle(_x1, _y1, _x2, _y2, _obj)
+	/*
+		Returns all instances of the given object whose positions overlap the given rectangle
+		Much better performance than checking 'point_in_rectangle()' on every instance
+		
+		Args:
+			x1/y1/x2/y2 - The rectangular area to search
+			obj         - The object(s) to search
+	*/
+	
+	return (
+		instances_matching_le(
+		instances_matching_le(
+		instances_matching_ge(
+		instances_matching_ge(
+		_obj,
+		"x", _x1),
+		"y", _y1),
+		"x", _x2),
+		"y", _y2)
+	);
 
 #define instance_rectangle_bbox(_x1, _y1, _x2, _y2, _obj)
 	/*
