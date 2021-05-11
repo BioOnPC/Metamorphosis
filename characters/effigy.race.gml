@@ -157,7 +157,7 @@
 			var ang = ((point_direction(x, y, mouse_x[index], mouse_y[index]) + ((360 div array_length(effigy_eligible))/2)) mod 360) div (360 div array_length(effigy_eligible)),
 				lstselect = effigy_selected;
 			
-			if(effigy_selected != -1 and point_distance(x, y, mouse_x[index], mouse_y[index]) < 96) {
+			if(effigy_selected != -1 and point_distance(x, y, mouse_x[index], mouse_y[index]) < 120) {
 				effigy_hover = lerp(effigy_hover, 2, 0.60 * current_time_scale);
 			}
 			
@@ -174,7 +174,7 @@
 				exit;
 			}
 			
-			effigy_selected = (point_distance(x, y, mouse_x[index], mouse_y[index]) < 96 ? ang : -1);
+			effigy_selected = (point_distance(x, y, mouse_x[index], mouse_y[index]) < 120 ? ang : -1);
 		}
 	}
 	
@@ -243,13 +243,13 @@
 				mdir = point_direction(x, y, mouse_x[index], mouse_y[index]);
 			
 			draw_set_alpha(0.6);
-			draw_circle_color(x, y, 32 * effigy_lerp, c_green, c_green, 0);
+			draw_circle_color(x, y, 36 * effigy_lerp, c_green, c_green, 0);
 			draw_set_alpha(0.4);
-			draw_line_width_color(x + lengthdir_x(10 * effigy_lerp, mdir), y + lengthdir_y(10 * effigy_lerp, mdir), x + lengthdir_x(32 * effigy_lerp, mdir), y + lengthdir_y(32 * effigy_lerp, mdir), 3, c_lime, c_lime);
+			draw_line_width_color(x + lengthdir_x(10 * effigy_lerp, mdir), y + lengthdir_y(10 * effigy_lerp, mdir), x + lengthdir_x(36 * effigy_lerp, mdir), y + lengthdir_y(36 * effigy_lerp, mdir), 3, c_lime, c_lime);
 			draw_circle_color(x, y, 10 * effigy_lerp, c_lime, c_lime, 0);
 			draw_set_alpha(1);
 			
-			draw_circle_color(x, y, 32 * effigy_lerp, c_lime, c_lime, 1);
+			draw_circle_color(x, y, 36 * effigy_lerp, c_lime, c_lime, 1);
 		}
 	}
 
@@ -258,18 +258,29 @@
 		if(effigy_lerp > 0) {
 			var amt = (360/array_length(effigy_eligible)),
 				startang = 180 * effigy_lerp,
-				curang = startang;
+				curang = startang,
+				category = "";
 			
 			draw_set_font(fntSmall);
 			draw_set_halign(fa_center);
-			if(effigy_selected != -1) draw_text_nt(x, y - (48 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[min(effigy_selected, array_length(effigy_eligible) - 1)])}`); 
+			if(effigy_selected != -1) {
+				switch(get_category(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])) {
+					case 1: category = "BACKUP"; break;
+					case 2: category = "INVULNERABILITY"; break;
+					case 3: category = "EMPOWER"; break;
+					case 4: category = "INFINITE AMMO"; break;
+				}
+				
+				draw_text_nt(x, y - (60 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])}`); 
+				draw_text_nt(x, y - (52 * effigy_lerp) + (2 * effigy_hover), `@s${category}`)
+			}
 			draw_set_halign(fa_left);
 			draw_set_font(fntM);
 			
 			for(var i = 0; i < array_length(effigy_eligible); i++) {
 				curang = startang + (amt * i);
 				
-				draw_sprite_ext(skill_get_icon(effigy_eligible[i])[0], skill_get_icon(effigy_eligible[i])[1], x - (lengthdir_x(28, curang) * effigy_lerp), y - (lengthdir_y(28, curang) * effigy_lerp) - (effigy_selected = i ? effigy_hover : 0), effigy_lerp, effigy_lerp, 0, (effigy_selected = i ? c_white : c_gray), effigy_lerp);
+				draw_sprite_ext(skill_get_icon(effigy_eligible[i])[0], skill_get_icon(effigy_eligible[i])[1], x - (lengthdir_x(32, curang) * effigy_lerp), y - (lengthdir_y(32, curang) * effigy_lerp) - (effigy_selected = i ? effigy_hover : 0), effigy_lerp, effigy_lerp, 0, (effigy_selected = i ? c_white : c_gray), effigy_lerp);
 			}
 		}
 	}
@@ -308,7 +319,7 @@
 #define get_sacrifice(mut)
 	with(Player) {
 		if("effigy_orbital" not in self) effigy_orbital = [];
-		repeat(mut = 2 ? 2 : 1) with(obj_create(x, y, "EffigyOrbital")) {
+		with(obj_create(x, y, "EffigyOrbital")) {
 			index = array_length(other.effigy_orbital);
 			array_push(other.effigy_orbital, id);
 			creator = other;
@@ -316,9 +327,15 @@
 			type = mut;
 			
 			if(type = 2) {
-				maxhealth = other.maxhealth * 3;
-				mask_index = mskPlayer;
 				image_blend = c_red;
+				var c = other;
+				with(obj_create(x, y, "CrystallineEffect")) {
+					creator = c;
+				}
+			}
+			
+			if(array_length(instances_matching(instances_matching(CustomHitme, "name", name), "type", type)) > 1) with(instances_matching(instances_matching(CustomHitme, "name", name), "type", type)) {
+				my_health = maxhealth * 1.20;
 			}
 			
 			if(type = 3) image_blend = c_gray;
@@ -336,16 +353,16 @@
 		case 1: // OFFENSIVE -- Summon an allied gunner drone for all players
 			sound_play_pitch(sndSwapMotorized, 0.6 + random(0.2));
 			sound_play_pitch(sndHorrorPortal, 0.8 + random(0.3));
-			return "@sARTIFICAL BACKUP!"
+			return "@sBACKUP!"
 		break;
 		
-		case 2: // DEFENSIVE -- a handful of seconds of invulnerability for all players
+		case 2: // DEFENSIVE -- Summon an orbital that blocks a limited number of shots
 			sound_play_pitch(sndCrystalShield, 0.6 + random(0.2));
 			sound_play_pitch(sndShielderDeflect, 1.4 + random(0.4));
 			sound_play_pitch(sndEliteShielderTeleport, 1.4 + random(0.4));
 			sound_play_pitch(sndHyperCrystalTaunt, 1.7 + random(0.2));
 			
-			return "@sRADIATION SHIELD!";
+			return "@sINVULNERABILITY!";
 		break;
 		
 		case 3: // UTILITY -- Empowered, gives haste + increased accuracy 
@@ -353,11 +370,12 @@
 			sound_play_pitch(sndDogGuardianLand, 1.4 + random(0.2));
 			sound_play_pitch(sndHammer, 0.6 + random(0.3));
 			
-			return "@sHASTENED!";
+			return "@sEMPOWERED!";
 		break;
 		
-		case 4:  // AMMO -- Ammo frenzy, gives a bunch of ammo pickups over time and spawns a few ammo chests near players
+		case 4:  // AMMO -- Get infinte ammo for a certain amount of time
 			sound_play_pitch(sndLightningShotgunUpg, 0.3 + random(0.4));
+			sound_play_pitch(sndFishWarrantEnd, 0.6 + random(0.3));
 			
 			return "@sINFINITE AMMO!"
 		break;

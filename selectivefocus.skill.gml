@@ -66,8 +66,8 @@
 				}
 				
 				 // Start the Countdown:
-				with(_inst){
-					selectivefocus_destroy_time = random(8);
+				if(array_length(_inst)) with(_inst){
+					if(instance_exists(self)) selectivefocus_destroy_time = random(8);
 				}
 			}
 		}

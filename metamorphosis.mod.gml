@@ -792,7 +792,7 @@
 				 // Vars:
 				mask_index  = mskNone;
 				image_speed = 0.4;
-				maxhealth   = 70;
+				maxhealth   = 120;
 				my_health   = maxhealth;
 				size        = 1;
 				index       = 0;
@@ -1240,18 +1240,32 @@
 				}
 			break;
 			
+			case 2:
+				with(creator) {
+					nexthurt = max(nexthurt, current_frame + current_time_scale * 2);
+					var chp = my_health;
+					if(fork()) {
+						wait 0;
+						if(my_health < chp) {
+							my_health = chp;
+							sound_play_pitch(sndHyperCrystalHurt, 1.6 + random(0.2));
+							sound_play_pitch(sndExploGuardianHurt, 0.6 + random(0.2));
+						}
+						exit;
+					}
+				}
+			break;
+			
 			case 3:
 				with(creator) haste(current_time_scale * 2, 0.8);
-				
-				my_health -= current_time_scale;
 			break;
 			
 			case 4:
 				with(creator) infammo = max(infammo, current_time_scale * 2);
-				
-				my_health -= current_time_scale;
 			break;
 		}
+		
+		my_health -= current_time_scale;
 	}
 	
 #define EffigyOrbital_hurt(_dmg, _spd, _dir)
@@ -1267,12 +1281,38 @@
 		sprite_index = other.spr_dead;
 		motion_add(other.direction, other.speed);
 	}
+	
 	sound_play(snd_dead);	
+	switch(type) {
+		case 1:
+			sound_play_pitch(sndHorrorEmpty, 0.7 + random(0.2));
+			sound_play_pitch(sndUltraEmpty, 0.7 + random(0.2));
+			sound_play_pitch(sndUltraGrenadeSuck, 1.4 + random(0.2));
+		break;
+		
+		case 2:
+			sound_play_pitch(sndHyperCrystalRelease, 0.8 + random(0.2));
+			sound_play_pitchvol(sndMutant11Dead, 1.2 + random(0.2), 0.6);
+			sound_play_pitch(sndEliteShielderTeleport, 1.6 + random(0.2));
+		break;
+		
+		case 3:
+			sound_play_pitch(sndDogGuardianDead, 0.6 + random(0.2));
+			sound_play_pitch(sndDiscDie, 0.8 + random(0.4));
+			sound_play_pitch(sndChickenThrow, 0.6 + random(0.2));
+			sound_play_pitch(sndDiscBounce, 1.2 + random(0.3));
+		break;
+		
+		case 4:
+			sound_play_pitch(sndFishWarrantEnd, 1.4 + random(0.4));
+			sound_play_pitch(sndSwapShotgun, 0.5 + random(0.1));
+			sound_play_pitch(sndFlamerStop, 0.4 + random(0.2));
+		break;
+	}
+	
 	
 	with(creator) {
-		trace(effigy_orbital);
 		effigy_orbital = array_delete(effigy_orbital, index);
-		trace(effigy_orbital);
 	}
 	
 	with(instances_matching_gt(instances_matching(CustomProp, "name", name), "index", index)) {
