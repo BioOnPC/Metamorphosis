@@ -1270,7 +1270,9 @@
 	sound_play(snd_dead);	
 	
 	with(creator) {
-		effigy_orbital = array_delete(effigy_orbital, other.id);
+		trace(effigy_orbital);
+		effigy_orbital = array_delete(effigy_orbital, index);
+		trace(effigy_orbital);
 	}
 	
 	with(instances_matching_gt(instances_matching(CustomProp, "name", name), "index", index)) {
