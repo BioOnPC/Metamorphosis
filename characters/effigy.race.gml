@@ -127,12 +127,6 @@
 			effigy_acc = 0;
 			accuracy *= 2;
 		}
-		
-		if("effigy_orbital" in self and array_length(effigy_orbital) > 0) {
-			for(var o = 0; o < array_length(effigy_orbital); o++) {
-				if(!instance_exists(effigy_orbital[o])) effigy_orbital = array_delete(effigy_orbital, o);
-			}
-		}
 	}
 
 	if(usespec or (canspec and button_check(index, "spec"))) {
