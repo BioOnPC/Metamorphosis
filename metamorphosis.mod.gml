@@ -34,6 +34,8 @@
 		EffigyVault   = sound_add("sounds/Characters/Effigy/sndEffigyVault.ogg");
 		
 		Artificing = sound_add("sounds/Vault/mus100c.ogg");
+		
+		GoldRush = sound_add("sounds/sndGoldRush.ogg");
 	}
 	
 	 // MUTATION EFFECTS //
@@ -1624,9 +1626,7 @@
 			 // Effects:
 			sleep(30);
 			
-			sound_play_pitch(sndGoldNukeFire, 2.4 + random(0.4));
-			sound_play_pitch(sndShotReload, 1.8 + random(0.2));
-			sound_play_pitch(sndSwapGold, 1.8 + random(0.1));
+			sound_play(snd.GoldRush);
 		}
 	}
 	

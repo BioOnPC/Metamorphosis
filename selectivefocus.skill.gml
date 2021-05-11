@@ -45,28 +45,30 @@
 		if(!instance_exists(_id)){
 			var _inst = instances_matching(instances_matching_ne(projectile, "name", "CrystalHeartBullet"), "creator", _id);
 			
-			 // Find Projectiles Created On Death:
-			with(
-				instances_matching(
+			if(array_length(_inst)) {
+				 // Find Projectiles Created On Death:
+				with(
 					instances_matching(
 						instances_matching(
-							projectile,
-							"creator",
-							noone
+							instances_matching(
+								projectile,
+								"creator",
+								noone
+							),
+							"xstart",
+							_x
 						),
-						"xstart",
-						_x
-					),
-					"ystart",
-					_y
-				)
-			){
-				array_push(_inst, _id);
-			}
-			
-			 // Start the Countdown:
-			with(_inst){
-				selectivefocus_destroy_time = random(8);
+						"ystart",
+						_y
+					)
+				){
+					array_push(_inst, _id);
+				}
+				
+				 // Start the Countdown:
+				with(_inst){
+					selectivefocus_destroy_time = random(8);
+				}
 			}
 		}
 	}
