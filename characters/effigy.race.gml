@@ -61,7 +61,7 @@
 		case 3: return `${metacolor}SACRIFICE THIS ULTRA@s FOR A SPECIAL ALLY#@dNOT YET IMPLEMENTED@`;
 	}
 //#define race_portrait(_p, _b)  return race_sprite_raw("Portrait", _b);
-#define race_mapicon(_p, _b)   return global.sprMap;
+#define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             return 1 //option_get("effigy_unlocked");
 #define race_ttip
 	 // ULTRA TIPS //
@@ -136,7 +136,7 @@
 			effigy_eligible = [];
 			
 			while(skill_get_at(m) != undefined) {
-				if(mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible, skill_get_at(m));
+				if(skill_get_at(m) != mut_patience and mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible, skill_get_at(m));
 				m++;
 			}
 			
