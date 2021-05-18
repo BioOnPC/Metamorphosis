@@ -133,11 +133,19 @@
 		if(button_pressed(index, "spec") and !instance_exists(LevCont)) {
 			var m = 0;
 			
-			effigy_eligible = [];
+			var effigy_eligible_unsorted = [];
 			
 			while(skill_get_at(m) != undefined) {
-				if(skill_get_at(m) != mut_patience and mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible, skill_get_at(m));
+				if(skill_get_at(m) != mut_patience and mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), get_category(skill_get_at(m))]);
 				m++;
+			}
+			
+			array_sort_sub(effigy_eligible_unsorted, 1, 0);
+			
+			effigy_eligible = [];
+			
+			for(var i = 0; i < array_length(effigy_eligible_unsorted); i++){
+				array_push(effigy_eligible, effigy_eligible_unsorted[i][0]);
 			}
 			
 			if(array_length(effigy_eligible) = 0) {
@@ -243,7 +251,27 @@
 				mdir = point_direction(x, y, mouse_x[index], mouse_y[index]);
 			
 			draw_set_alpha(0.6);
-			draw_circle_color(x, y, 36 * effigy_lerp, c_green, c_green, 0);
+			for(var i = 0; i < array_length(effigy_eligible); i++){
+				var _c = c_lime;
+				switch(get_category(effigy_eligible[i])){
+					case 1:
+						_c = c_black;
+						break;
+					case 2:
+						_c = c_red;
+						break;
+					case 3:
+						_c = c_blue;
+						break;
+					case 4:
+						_c = c_yellow;
+						break;
+					case 5:
+						_c = c_purple;
+						break;
+				}
+				draw_pie(x ,y ,startang+90 - amt/2 + amt*i, startang+90 + amt/2 + amt*i, _c, 36 * effigy_lerp);
+			}
 			draw_set_alpha(0.4);
 			draw_line_width_color(x + lengthdir_x(10 * effigy_lerp, mdir), y + lengthdir_y(10 * effigy_lerp, mdir), x + lengthdir_x(36 * effigy_lerp, mdir), y + lengthdir_y(36 * effigy_lerp, mdir), 3, c_lime, c_lime);
 			draw_circle_color(x, y, 10 * effigy_lerp, c_lime, c_lime, 0);
@@ -309,8 +337,14 @@
 
 #define get_category(mut)
 	for(var i = 1; i < array_length(categories); i++) {
-		if(array_find_index(categories[i], mut) != -1) {
-			return i;
+		if(is_string(mut)){
+			if(array_find_index(categories[i], string_replace(string_replace(string_lower(mut), " ", ""), "_", "")) != -1) {
+				return i;
+			}
+		}else{
+			if(array_find_index(categories[i], mut) != -1) {
+				return i;
+			}
 		}
 	}
 	
@@ -406,3 +440,31 @@
 	
 #define array_delete(_array, _index)
 	return mod_script_call("mod", "metamorphosis", "array_delete", _array, _index);
+	
+#define draw_pie(x ,y ,startang, endang, colour, radius)
+
+if (argument2 > 0) { // no point even running if there is nothing to display (also stops /0
+    var i, len, tx, ty, val;
+    
+    var numberofsections = 90 // there is no draw_get_circle_precision() else I would use that here
+    var sizeofsection = 360/numberofsections
+    
+    val = (endang/360) * numberofsections
+    
+    if (val > 1) { // HTML5 version doesnt like triangle with only 2 sides
+    
+        draw_set_colour(argument4);
+        
+        draw_primitive_begin(pr_trianglefan);
+        draw_vertex(argument0 + 1, argument1 + 1);
+        
+        for(i=floor(startang/360 * numberofsections); i<=floor(val); i++) {
+            len = (i*sizeofsection)+90; // the 90 here is the starting angle
+            tx = lengthdir_x(argument5, len);
+            ty = lengthdir_y(argument5, len);
+            draw_vertex(argument0+tx + 1, argument1+ty + 1);
+        }
+        draw_primitive_end();
+        
+    }
+}
