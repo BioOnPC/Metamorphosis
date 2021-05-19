@@ -32,6 +32,9 @@
 		EffigyCaptain = sound_add("sounds/Characters/Effigy/sndEffigyCaptain.ogg");
 		EffigyThrone  = sound_add("sounds/Characters/Effigy/sndEffigyThrone.ogg");
 		EffigyVault   = sound_add("sounds/Characters/Effigy/sndEffigyVault.ogg");
+		EffigyUltraA  = sound_add("sounds/Ultras/sndUltEIDOLON.ogg");
+		EffigyUltraB  = sound_add("sounds/Ultras/sndUltANATHEMA.ogg");
+		EffigyUltraC  = sound_add("sounds/Ultras/sndUltDisciple.ogg");
 		
 		Artificing = sound_add("sounds/Vault/mus100c.ogg");
 		
@@ -193,7 +196,6 @@
 		with(obj_create(x, y, "MetaButton")) {
 			name = "MetaProto";
 			setting = ["use_proto", SETTING.use_proto];
-			spr = skill_get_icon(SETTING.proto_mutation);
 			left_off = 36;
 			right_off = 0;
 			top_off = 28;
@@ -203,7 +205,7 @@
 	}
 	
 	 // Character Selection Sound:
-	if(instance_exists(CharSelect)) {
+	if(instance_exists(CharSelect) and instance_exists(Menu)) {
     	var _race = [];
 		for(var i = 0; i < maxp; i++){
 		    _race[i] = player_get_race(i);
@@ -211,8 +213,8 @@
 		    	wait 1;
 		    	
 				var r = player_get_race(i);
-				if(_race[i] != r) switch(r) {
-				    case "effigy": sound_play(snd.EffigySelect); break;
+				if(_race[i] != r and r = "effigy") {
+					sound_play(snd.EffigySelect);
 				}
 				_race[i] = r;
 				
@@ -723,8 +725,15 @@
 
 #define draw_dark_end
 	draw_set_color($000000);
+	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) draw_circle(x, y, 10 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
+
+#define draw_bloom
+	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
+		var hp = (my_health/maxhealth);
+		draw_sprite_ext(spr_glow, image_index, x, y, (image_xscale * 1.5) * right, image_yscale * 1.5, image_angle, image_blend, 0.2 * hp);
+	}
 
 #define cleanup
 	with(global.begin_step) instance_destroy();
@@ -780,9 +789,9 @@
 			o = instance_create(_x, _y, CustomHitme);
 			with(o){
 				 // Visual:
-				spr_idle = sprHorrorMenu;
-				spr_hurt = sprMutant11Hurt;
-				spr_dead = sprMutant11Dead;
+				spr_idle = mod_variable_get("race", "effigy", "sprOrbital")[3];
+				spr_glow = mod_variable_get("race", "effigy", "sprOrbitalGlow")[3];
+				spr_dead = mod_variable_get("race", "effigy", "sprOrbitalDie");
 				spr_shadow = shd24;
 				
 				 // Sounds:
@@ -792,9 +801,10 @@
 				 // Vars:
 				mask_index  = mskNone;
 				image_speed = 0.4;
-				maxhealth   = 120;
+				maxhealth   = 165;
 				my_health   = maxhealth;
 				size        = 1;
+				right       = 1;
 				index       = 0;
 				target      = noone;
 				creator     = noone;
@@ -1206,11 +1216,13 @@
 #define EffigyOrbital_begin_step
 	if(instance_exists(creator)) {
 		x = lerp(x, 
-				 creator.x + lengthdir_x(20, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 creator.x + lengthdir_x(16, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
 				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
 		y = lerp(y, 
-				 creator.y + lengthdir_y(20, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 creator.y + lengthdir_y(16, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
 				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
+		
+		right = creator.right;
 		
 		switch(type) {
 			case 1:
@@ -1277,9 +1289,8 @@
     motion_add(_dir, _spd);
 
 #define EffigyOrbital_destroy
-	with(instance_create(x, y, Corpse)) {
+	with(instance_create(x, y, BulletHit)) {
 		sprite_index = other.spr_dead;
-		motion_add(other.direction, other.speed);
 	}
 	
 	sound_play(snd_dead);	
@@ -1320,9 +1331,9 @@
 	}
 
 #define EffigyOrbital_draw
-	var hp = (my_health/maxhealth),
-		s  = type = 2 ? max(0.4, hp) : (hp + 0.4);
-	draw_sprite_ext(sprite_index, image_index, x, y, s * image_xscale, s * image_yscale, image_angle, image_blend, image_alpha);
+	var hp = (my_health/maxhealth);
+	draw_sprite_ext(spr_idle, image_index, x, y, image_xscale * right, image_yscale, image_angle, image_blend, image_alpha);
+	draw_sprite_ext(spr_glow, image_index, x, y, image_xscale * right, image_yscale, image_angle, image_blend, image_alpha * hp);
 
 #define FriendlyNecro_step
 	if("counter" not in self){

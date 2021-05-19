@@ -26,7 +26,9 @@
     }
 
      // VFX
-    with(instances_matching_le(instances_matching_gt(enemy, "raddrop", 0), "my_health", 0)) {
+    with(instances_matching(instances_matching_le(instances_matching_gt(enemy, "raddrop", 0), "my_health", 0), "atomicpores", null)) {
+    	atomicpores = true;
+    	
     	repeat(sprite_get_width(sprite_index)/12) {
 	    	with(instance_create(x + random_range(-sprite_get_width(sprite_index)/2, sprite_get_width(sprite_index)/2),
 	    					     y + random_range(-sprite_get_width(sprite_index)/2, sprite_get_width(sprite_index)/2),

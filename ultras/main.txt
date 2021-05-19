@@ -49,4 +49,7 @@
 // PARROT POGGERS
 /loadskill underthewings
 
+// EFFIGY
+/loadskill disciple
+
 /loadmod cultra

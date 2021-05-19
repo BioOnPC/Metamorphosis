@@ -31,14 +31,16 @@
 		
 		if(instance_exists(GameCont) and GameCont.subarea = 1) global.visits++;
 		
-		if(array_length(instances_matching(chestprop, "object_index", [WeaponChest, AmmoChest, RadChest])) > 0) place_chests(global.visits * skill_get(mod_current));
+		if(instance_number(WeaponChest) + instance_number(AmmoChest) + instance_number(RadChest) > 0) {
+			place_chests(global.visits * skill_get(mod_current));
+		}
 	}
 
 #define place_chests(amt)
 	var c = choose(WeaponChest, AmmoChest, RadChest),
 		f = instances_matching(Floor, "", null),
 		rf = f[irandom_range(0, array_length(f) - 1)];
-		
+	
 	repeat(amt) {
 		c = choose(WeaponChest, AmmoChest, RadChest);
 		rf = f[irandom_range(0, array_length(f) - 1)];

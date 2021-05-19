@@ -20,13 +20,34 @@
 	
 	global.sprSelect = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png", 1, 0,  0);
 
-	with(instances_matching(Player, "race", mod_current)) { // Reapply sprites if the mod is reloaded. we should add this to our older race mods //
+	global.sprOrbital[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbital.png", 9, 12, 12);
+	global.sprOrbital[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbital.png", 9, 12, 12);
+	global.sprOrbital[3] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbital.png",   9, 12, 12);
+	global.sprOrbital[4] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbital.png",      9, 12, 12);
+	global.sprOrbital[5] = global.sprOrbital[3]; // No purpose other than avoiding errors
+	global.sprOrbital[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbital.png",     4, 12, 12);
+	
+	global.sprOrbitalGlow[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbitalGlow.png", 9, 12, 12);
+	global.sprOrbitalGlow[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbitalGlow.png", 9, 12, 12);
+	global.sprOrbitalGlow[3] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbitalGlow.png",   9, 12, 12);
+	global.sprOrbitalGlow[4] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbitalGlow.png",      9, 12, 12);
+	global.sprOrbitalGlow[5] = global.sprOrbital[3]; // No purpose other than avoiding errors
+	global.sprOrbitalGlow[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbitalGlow.png",     9, 12, 12);
+	
+	global.sprOrbitalDie = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOrbitalDie.png", 5, 12, 12);
+
+	 // Reapply sprites if the mod is reloaded. we should add this to our older race mods //
+	with(instances_matching(Player, "race", mod_current)) { 
 		assign_sprites();
 		assign_sounds();
 	}
+	
+	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
+		assign_sprites();
+	}
 
 #macro categories mod_variable_get("mod", "metamorphosis", "mut_category")
-#macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
+#macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`
 #macro SETTING mod_variable_get("mod", "metamorphosis_options", "settings")
 #macro snd mod_variable_get("mod", "metamorphosis", "snd")
 
@@ -48,18 +69,29 @@
 #define race_ultra_name
 	switch(argument0)
 	{
-		case 1: return "EPITOME"; break;
-		case 2: return "@d(NYI)@w"; break;
-		case 3: return "MARTYR@d(NYI)@w"; break;
+		case 1: return "EIDOLON"; break;
+		case 2: return "ANATHEMA"; break;
 	}
 
 #define race_ultra_text
 	switch(argument0)
 	{
-		case 1: return `${metacolor}SACRIFICING@s MUTATIONS GRANTS#AN @wADDITIONAL EFFECT@s`;
-		case 2: return "NOT YET IMPLEMENTED";
-		case 3: return `${metacolor}SACRIFICE THIS ULTRA@s FOR A SPECIAL ALLY#@dNOT YET IMPLEMENTED@`;
+		case 1: return `${metacolor}SACRIFICING@s MUTATIONS GRANTS#AN @wADDITIONAL EFFECT@s`; break;
+		case 2: return `@wKILLS@s EXTEND ${metacolor}SACRIFICE DURATION@s`; break;
 	}
+	
+#define race_ultra_take
+	if(argument1 > 0 and instance_exists(LevCont)) {
+		sound_play(sndBasicUltra);
+		
+		switch(argument0)
+		{
+			case 1: sound_play(snd.EffigyUltraA); break;
+			case 2: sound_play(snd.EffigyUltraB); break;
+			case 3: sound_play(snd.EffigyUltraC); break;
+		}
+	}
+
 //#define race_portrait(_p, _b)  return race_sprite_raw("Portrait", _b);
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             return 1 //option_get("effigy_unlocked");
@@ -128,6 +160,16 @@
 			accuracy *= 2;
 		}
 	}
+	
+	if(ultra_get(mod_current, 2)) with(instances_matching(instances_matching_le(enemy, "my_health", 0), "anathema", null)) {
+		anathema = true;
+		
+		var anathemaincrease = ceil(maxhealth/12);
+		trace(anathemaincrease);
+		with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
+			my_health = min(maxhealth, my_health + anathemaincrease);
+		}
+	}
 
 	if(usespec or (canspec and button_check(index, "spec"))) {
 		if(button_pressed(index, "spec") and !instance_exists(LevCont)) {
@@ -136,7 +178,7 @@
 			var effigy_eligible_unsorted = [];
 			
 			while(skill_get_at(m) != undefined) {
-				if(skill_get_at(m) != mut_patience and mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), get_category(skill_get_at(m))]);
+				if(skill_get_at(m) != mut_patience and (mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) or string_lower(`${skill_get_at(m)}`) = "disciple") and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), get_category(skill_get_at(m))]);
 				m++;
 			}
 			
@@ -159,7 +201,7 @@
 			}
 		}
 		
-		effigy_lerp = lerp(effigy_lerp, 1, 0.25 * current_time_scale);
+		effigy_lerp = lerp(effigy_lerp, 1, 0.45 * current_time_scale);
 		
 		if(array_length(effigy_eligible) > 0) {
 			var ang = ((point_direction(x, y, mouse_x[index], mouse_y[index]) + ((360 div array_length(effigy_eligible))/2)) mod 360) div (360 div array_length(effigy_eligible)),
@@ -213,16 +255,24 @@
 		    		image_speed = 0.3;
 				}
 				
-				var t = `${metacolor}${skill_get_name(effigy_eligible[effigy_selected])} @wSACRIFICED`,
+				var t = `@w${skill_get_name(effigy_eligible[effigy_selected])} ${metacolor}SACRIFICED`,
 					c = get_category(effigy_eligible[effigy_selected]);
 				
 				if(c != 0) {
-					array_push(effigy_sacrificed, effigy_eligible[effigy_selected]);
+					if(c != 6) {
+						array_push(effigy_sacrificed, effigy_eligible[effigy_selected]);
+						with(GameCont) skillpoints++;
+					}
+					
+					else {
+						with(GameCont) endpoints++;
+					}
+					
 					skill_set(effigy_eligible[effigy_selected], 0);
-					with(GameCont) skillpoints++;
 					t += `#${get_sacrifice(c)}`;
 					if(ultra_get(race, 1)) {
-						t += `#${get_sacrifice(irandom(4))}`;
+						t += `#${get_sacrifice(irandom_range(1, 4))}`;
+						sound_play_pitch(sndLevelUltra, 1.7 + random(0.2));
 					}
 				}
 				
@@ -251,26 +301,27 @@
 				mdir = point_direction(x, y, mouse_x[index], mouse_y[index]);
 			
 			draw_set_alpha(0.6);
+			draw_circle_color(x, y, 36 * effigy_lerp, c_green, c_green, 0);
 			for(var i = 0; i < array_length(effigy_eligible); i++){
-				var _c = c_lime;
+				var _c = make_color_rgb(72, 253, 8);
 				switch(get_category(effigy_eligible[i])){
 					case 1:
-						_c = c_black;
+						_c = make_color_rgb(41, 12, 12);
 						break;
 					case 2:
-						_c = c_red;
+						_c = make_color_rgb(102, 0, 24);
 						break;
 					case 3:
-						_c = c_blue;
+						_c = make_color_rgb(16, 39, 79);
 						break;
 					case 4:
-						_c = c_yellow;
+						_c = make_color_rgb(171, 156, 22);
 						break;
 					case 5:
-						_c = c_purple;
+						_c = make_color_rgb(148, 56, 192);
 						break;
 				}
-				draw_pie(x ,y ,startang+90 - amt/2 + amt*i, startang+90 + amt/2 + amt*i, _c, 36 * effigy_lerp);
+				draw_pie(x, y, startang+90 - amt/2 + amt*i, startang+90 + amt/2 + amt*i, _c, 36 * effigy_lerp);
 			}
 			draw_set_alpha(0.4);
 			draw_line_width_color(x + lengthdir_x(10 * effigy_lerp, mdir), y + lengthdir_y(10 * effigy_lerp, mdir), x + lengthdir_x(36 * effigy_lerp, mdir), y + lengthdir_y(36 * effigy_lerp, mdir), 3, c_lime, c_lime);
@@ -297,6 +348,7 @@
 					case 2: category = "INVULNERABILITY"; break;
 					case 3: category = "EMPOWER"; break;
 					case 4: category = "INFINITE AMMO"; break;
+					case 6: category = "SPECIAL ALLY"; break;
 				}
 				
 				draw_text_nt(x, y - (60 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])}`); 
@@ -314,12 +366,20 @@
 	}
 
 #define assign_sprites
-	spr_idle = global.sprIdle[bskin];
-	spr_walk = global.sprWalk[bskin];
-	spr_hurt = global.sprHurt[bskin];
-	spr_dead = global.sprDead[bskin];
-	spr_sit2 = global.sprSit[bskin];
-	spr_sit1 = global.sprGoSit[bskin];
+	if(object_index = Player) {
+		spr_idle = global.sprIdle[bskin];
+		spr_walk = global.sprWalk[bskin];
+		spr_hurt = global.sprHurt[bskin];
+		spr_dead = global.sprDead[bskin];
+		spr_sit2 = global.sprSit[bskin];
+		spr_sit1 = global.sprGoSit[bskin];
+	}
+	
+	else if("name" in self and name = "EffigyOrbital") {
+		spr_idle = global.sprOrbital[type];
+		spr_glow = global.sprOrbitalGlow[type];
+		spr_dead = global.sprOrbitalDie;
+	}
 
 #define assign_sounds
 	snd_hurt = snd.EffigyHurt;
@@ -336,19 +396,25 @@
 	snd_cptn = snd.EffigyCaptain;
 
 #define get_category(mut)
-	for(var i = 1; i < array_length(categories); i++) {
+	if(mut = "disciple") {
+		return 6;
+	}
+	
+	else for(var i = 1; i < array_length(categories); i++) {
 		if(is_string(mut)){
 			if(array_find_index(categories[i], string_replace(string_replace(string_lower(mut), " ", ""), "_", "")) != -1) {
 				return i;
 			}
-		}else{
+		}
+		
+		else{
 			if(array_find_index(categories[i], mut) != -1) {
 				return i;
 			}
 		}
 	}
 	
-	return 0;
+	return 3;
 	
 #define get_sacrifice(mut)
 	with(Player) {
@@ -360,8 +426,11 @@
 			team = other.team;
 			type = mut;
 			
+			spr_idle = global.sprOrbital[type];
+			spr_glow = global.sprOrbitalGlow[type];
+			spr_dead = global.sprOrbitalDie;
+			
 			if(type = 2) {
-				image_blend = c_red;
 				var c = other;
 				with(obj_create(x, y, "CrystallineEffect")) {
 					creator = c;
@@ -371,9 +440,6 @@
 			if(array_length(instances_matching(instances_matching(CustomHitme, "name", name), "type", type)) > 1) with(instances_matching(instances_matching(CustomHitme, "name", name), "type", type)) {
 				my_health = maxhealth * 1.20;
 			}
-			
-			if(type = 3) image_blend = c_gray;
-			if(type = 4) image_blend = c_orange;
 			
 			repeat(GameCont.level - 1) {
 				maxhealth *= 1.1;
@@ -412,6 +478,11 @@
 			sound_play_pitch(sndFishWarrantEnd, 0.6 + random(0.3));
 			
 			return "@sINFINITE AMMO!"
+		break;
+		
+		case 6:
+			
+			return "@w@sSPECIAL ALLY!"
 		break;
 	}
 	

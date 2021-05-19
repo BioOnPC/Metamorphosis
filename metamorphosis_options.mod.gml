@@ -224,7 +224,7 @@
 						
 						if(array_length(instances_matching(Loadout, "selected", 1)) = 0 or splat > 0) {
 							draw_sprite_ext(sprGameOverCenterSplat, min(splat, 2), _x, _y, 1, 1, 90, c_white, 1);
-							draw_sprite_ext(spr[0], spr[1], _x - 17 - splat - hover, _y - 5 - shift, 1, 1, 0, hover ? (setting[1] ? c_white : c_gray) : (setting[1] ? c_gray : c_dkgray), 1);
+							draw_sprite_ext(skill_get_icon(SETTING.proto_mutation)[0], skill_get_icon(SETTING.proto_mutation)[1], _x - 17 - splat - hover, _y - 5 - shift, 1, 1, 0, hover ? (setting[1] ? c_white : c_gray) : (setting[1] ? c_gray : c_dkgray), 1);
 							draw_sprite(sprToggle, setting[1], _x - 19 - splat - hover, _y + 5 - shift);
 						}
 					}
@@ -300,6 +300,9 @@
 
 #define option_get(opt)
 	return mod_script_call("mod", "metamorphosis", "option_get", opt);
+
+#define skill_get_icon(_skill)
+	return mod_script_call("mod", "metamorphosis", "skill_get_icon", _skill);
 
 #define mouse_in_rectangle(_p, _x1, _y1, _x2, _y2, _gui)
 	 // Stolen from Squiddy's options API
@@ -383,5 +386,6 @@
 		file_unload(f);
 		exit;
     }
+   
 
 #macro SETTING global.settings

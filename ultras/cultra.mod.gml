@@ -120,7 +120,7 @@
 							}
 							
 							 // Check for Active Custom Ultras:
-							if(!_ultraGot){
+							if(!_ultraGot && ds_map_exists(_raceCUltraMap, _race)){
 								with(_raceCUltraMap[? _race]){
 									if(skill_get(self) != 0){
 										array_push(_ultraGive, _race);
@@ -383,9 +383,13 @@
 	
 #define game_activate()
 	/*
-		Reactivates all instances and unpauses the game
+		Reactivates all objects and unpauses the game
 	*/
 	
+	 // Deactivate Objects to Maintain Instance Order:
+	game_deactivate();
+	
+	 // Activate Objects:
 	with(UberCont) with(self){
 		event_perform(ev_alarm, 2);
 	}
