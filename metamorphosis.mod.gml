@@ -512,8 +512,11 @@
 	for(var i = 0; i < array_length(global.disabled_muts); i++) {
 		if(skill_get(global.disabled_muts[i])) {
 			var s = skill_decide();
-			if(s != mut_none) skill_set(s, skill_get(global.disabled_muts[i]));
-			skill_set(global.disabled_muts[i], 0);
+			if(s != mut_none) {
+				skill_set(s, skill_get(global.disabled_muts[i]));
+				with(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", global.disabled_muts[i])) skill = s; 
+				skill_set(global.disabled_muts[i], 0);
+			}
 		}
 	}
 
