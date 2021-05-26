@@ -116,6 +116,12 @@
 				}
 			}
 		}
+		
+		with(GameCont) if(area = 100 and array_length(instances_matching(Player, "race", "effigy"))) {
+			if(!audio_is_playing(snd.Artificing)) {
+				sound_play_music(snd.Artificing);
+			}
+		}
     	
     	exit;
     }
@@ -223,8 +229,9 @@
 		}
 	}
 	
-	 // Avoid duplicating ultras by accident
+	 
 	with(GameCont) {
+		 // Avoid duplicating ultras by accident
 		if("alreadyultra" not in self) {
 			if(level >= 10) alreadyultra = true;
 		} 
@@ -236,6 +243,9 @@
 			}
 			exit;
 		}
+		
+		 // Effigy's new track, so cool
+		if(area = 100 and array_length(instances_matching(Player, "race", "effigy")) and !audio_is_playing(snd.Artificing)) sound_play_music(snd.Artificing);
 	}
 	
     if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
@@ -244,14 +254,16 @@
         }
     }
     
-    if(SETTING.loop_mutations) {
-	    with(instances_matching_gt(GameCont, "loops", 1)) { // Free mutation for every loop past the first
-			if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
-				lstloop = loops;
-				skillpoints++;
+    with(instances_matching_gt(GameCont, "loops", 0)) { // Free mutation for every loop past the first
+		if(!variable_instance_exists(self, "lstloop") or lstloop != loops) {
+			lstloop = loops;
+			if(SETTING.loop_mutations and loops > 1) {
+	    		skillpoints++;
 				sound_play(sndLevelUp);
-			}
-	    }
+		    }
+		    
+		    if(array_length(instances_matching(Player, "race", "effigy"))) mod_variable_set("race", "effigy", "rerolls", 3);
+		}
     }
     
     with(instances_matching(mutbutton, "object_index", SkillIcon, EGSkillIcon)) { 
@@ -335,7 +347,7 @@
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);
 				if(array_length(global.current_muts) = 1) {
-					effigy_set_muts(global.current_muts[l - 1], skill_decide());
+					effigy_set_muts(global.current_muts[l - 1], skill_decide(0));
 				}
 				
 				else {
@@ -478,7 +490,7 @@
 			
 			if(array_find_index(global.disabled_muts, skill) != -1) {
 				disabledcheck = null; // retry if this fails
-				skill = skill_decide();
+				skill = skill_decide(0);
 				name = skill_get_name(skill);
 				text = skill_get_text(skill);
 				if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
@@ -511,7 +523,7 @@
 	 // Remove any previously obtained mutations that were Banished, typically for stuff like NTTE
 	for(var i = 0; i < array_length(global.disabled_muts); i++) {
 		if(skill_get(global.disabled_muts[i])) {
-			var s = skill_decide();
+			var s = skill_decide(0);
 			if(s != mut_none) {
 				skill_set(s, skill_get(global.disabled_muts[i]));
 				with(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", global.disabled_muts[i])) skill = s; 
@@ -521,7 +533,7 @@
 	}
 
 #define begin_step
-	if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_mut", null, 0)) {
+	if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_mut", null)) {
 		effigy_mut = 0;
 	
 		for(var e = 0; e < maxp; e++) {
@@ -595,7 +607,7 @@
 					creator = other;
 					num     = other.maxselect;
 					alarm0	= num + 1;
-					skill   = skill_decide();
+					skill   = skill_decide(skill_get_category(_skill));
 					name    = skill_get_name(skill);
 					text    = skill_get_text(skill);
 					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
@@ -605,6 +617,29 @@
 					}
 				}
 			}
+    	}
+    	
+    	if(!instance_exists(EGSkillIcon) and !instance_exists(CrownIcon) and skill_get("crowncranium") and instance_exists(SkillIcon) and mod_variable_get("race", "effigy", "rerolls")) {
+    		var unavail = 0;
+    		
+    		with(SkillIcon) {
+    			if(!skill_get_avail(skill)) unavail++;
+    		}
+    		
+    		if(unavail < instance_number(SkillIcon)) {
+    			maxselect++;
+    			with(instance_create(0, 0, SkillIcon)){
+					creator = other;
+					num     = other.maxselect;
+					alarm0	= num + 1;
+					skill   = "effigyreroll";
+					name    = `${skill_get_name(skill)} @g(${mod_variable_get("race", "effigy", "rerolls")} USES LEFT)`;
+					mod_variable_set("skill", "effigyreroll", "category", irandom_range(1, 4));
+					text    = `REROLL THESE @gMUTATIONS@s#INTO ${mod_script_call("skill", "effigyreroll", "category_names", mod_variable_get("skill", "effigyreroll", "category"))} MUTATIONS`;
+					mod_script_call("skill", skill, "skill_button");
+					image_index = mod_variable_get("skill", "effigyreroll", "category") - 1;
+    			}
+    		}
     	}
     }
     
@@ -930,7 +965,7 @@
 				my_health  = maxhealth;
 				size       = 1;
 				if(global.mut_quest != mut_none and global.mut_quest != -1) skill = global.mut_quest;
-				else skill = skill_decide();
+				else skill = skill_decide(0);
 				team	   = 1; // Make sure they aren't killed by corrupted vaults
 				
 				prompt = prompt_create(`HELP FIND@3(${skill_get_icon(skill)[0]}:${skill_get_icon(skill)[1]})?`);
@@ -1217,6 +1252,11 @@
 	}
 
 #define EffigyOrbital_begin_step
+	if(type = 6 and array_length(instances_matching_lt(instances_matching(CustomHitme, "name", name), "id", id))) {
+		instance_delete(self);
+		exit;
+	}
+
 	if(instance_exists(creator)) {
 		x = lerp(x, 
 				 creator.x + lengthdir_x(16, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
@@ -1277,6 +1317,10 @@
 			
 			case 4:
 				with(creator) infammo = max(infammo, current_time_scale * 2);
+			break;
+			
+			case 6:
+			
 			break;
 		}
 		
@@ -1932,8 +1976,8 @@
 #define effigy_get_muts
 	return [option_get("effigy_mut_1"), option_get("effigy_mut_2")];
 
-#define skill_decide
-	 // Stolen from NTTE
+#define skill_decide(_category)
+	 // Stolen from NTTE, modified to fit our needs
 	var _skillList = [],
 		_skillMods = mod_get_names("skill"),
 		_skillMax  = 30,
@@ -1948,6 +1992,7 @@
 			&& (_skill != mut_last_wish || skill_get(_skill) <= 0)
 			&& array_length(instances_matching(SkillIcon, "skill", _skill)) = 0
 			&& array_find_index(global.disabled_muts, _skill) = -1
+			&& (_category = 0 or array_find_index(global.mut_category[_category], _skill) != -1)
 		){
 			array_push(_skillList, _skill);
 			if(skill_get(_skill) == 0) _skillAll = false;
@@ -1983,6 +2028,27 @@
 	}
 	
 	return false;
+
+#define skill_get_category(mut)
+	if(mut = "disciple") {
+		return 6;
+	}
+	
+	else for(var i = 1; i < array_length(categories); i++) {
+		if(is_string(mut)){
+			if(array_find_index(categories[i], string_replace(string_replace(string_lower(mut), " ", ""), "_", "")) != -1) {
+				return i;
+			}
+		}
+		
+		else{
+			if(array_find_index(categories[i], mut) != -1) {
+				return i;
+			}
+		}
+	}
+	
+	return 3;
 
 #define current_cursed
 	var c = 0;

@@ -11,7 +11,7 @@
 	global.level_start = (instance_exists(GenCont) || instance_exists(Menu));
 
 #define skill_name    return "INSURGENCY";
-#define skill_text    return "@wWEAKER ENEMIES@s ARE REPLACED BY @wBANDITS#SOME @wBANDITS@s ARE ON YOUR SIDE";
+#define skill_text    return "@wWEAKER ENEMIES@s ARE REPLACED BY @wBANDITS#SOME @wBANDITS@s JOIN YOUR SIDE";
 #define skill_tip     return "SWAY THE MASSES";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -54,27 +54,29 @@
 
 			}
 		}
+	}
+	
+	with(instances_matching_le(Bandit, "my_health", 0)) {
+		if(random(25 * (1/skill_get(mod_current))) < 1) {
+			 // Spawn a friend
+			with(instance_create(x, y, Ally)) {
+				name	 = "INSURGENT"; // For replacing their idle after they finish rising
+				spr_walk = global.sprFlagAllyWalk;
+				spr_hurt = global.sprFlagAllyHurt;
+				spr_dead = global.sprFlagAllyDead;
 
-		with(Bandit) {
-			if(random(25 * (1/skill_get(mod_current))) < 1) {
-				 // Spawn a friend
-				with(instance_create(x, y, Ally)) {
-					spr_idle = global.sprFlagAllyIdle;
-					spr_walk = global.sprFlagAllyWalk;
-					spr_hurt = global.sprFlagAllyHurt;
-					spr_dead = global.sprFlagAllyDead;
-
-					if(instance_exists(Player)) {
-						creator = instance_nearest(x, y, Player);
-						team = creator.team;
-					}
+				if(instance_exists(Player)) {
+					creator = instance_nearest(x, y, Player);
+					team = creator.team;
 				}
-
-				 // Kill he (with no corpse!)
-				instance_delete(self);
 			}
+
+			 // Kill he (with no corpse!)
+			instance_delete(self);
 		}
 	}
+	
+	with(instances_matching(instances_matching(Ally, "name", "INSURGENT"), "spr_idle", sprAllyIdle)) spr_idle = global.sprFlagAllyIdle;
 
 	script_bind_draw(corpseflag, -1);
 

@@ -39,13 +39,14 @@
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
 			case "frog":     t += "@wHASTENED@s BOUNCES"; break;
 			case "parrot":   t += "@wPETS MOVE FASTER@s"; break;
-			default: if(t = "") t += "UPGRADES YOUR PASSIVE ABILITY"; break;
 		}
 		
 		if(race_id > 16 and mod_script_exists("race", race, "race_cc_text")) t += mod_script_call("race", race, "race_cc_text");
 		
 		t += "#";
 	}
+	
+	if(t = "") t += "UPGRADES YOUR PASSIVE ABILITY";
 	
 	return t;
 

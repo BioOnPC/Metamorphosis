@@ -6,8 +6,8 @@
 #macro snd mod_variable_get("mod", "metamorphosis", "snd")
 
 #define skill_name    return "DISCIPLE @d(NYI)@w";
-#define skill_text    return `${metacolor}SACRIFICE THIS ULTRA@s#FOR A SPECIAL ALLY#@dNOT YET IMPLEMENTED@`;
-#define skill_tip     return "IS THIS LEGAL?";
+#define skill_text    return `${metacolor}SACRIFICE THIS ULTRA@s#TO @bSTOP TIME@s#@dNOT YET IMPLEMENTED@`;
+#define skill_tip     return "CHANGE THE WORLD";
 //#define skill_icon    return global.sprSkillHUD;
 #define skill_button  /*sprite_index = global.sprSkillIcon;*/ with(GameCont) mutindex--;
 #define skill_take    

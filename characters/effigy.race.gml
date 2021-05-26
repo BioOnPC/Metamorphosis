@@ -1,5 +1,5 @@
 #define init
-	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(), skill_decide());
+	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(0), skill_decide(0));
 	global.sprIdle[0]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
 	global.sprWalk[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
 	global.sprHurt[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",   3, 24, 24);
@@ -36,6 +36,8 @@
 	
 	global.sprOrbitalDie = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOrbitalDie.png", 5, 12, 12);
 
+	global.rerolls = 0;
+
 	 // Reapply sprites if the mod is reloaded. we should add this to our older race mods //
 	with(instances_matching(Player, "race", mod_current)) { 
 		assign_sprites();
@@ -62,9 +64,7 @@
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
-/*#define race_cc_text		   
-	if(skill_get_at(2) != undefined) return `${metacolor}STORE@s THE @gMUTATION@s YOU PICKED LAST`;
-	else return "";*/
+#define race_cc_text		   return `${metacolor}REROLL@s SOME#MUTATION OPTIONS @wPER LOOP@s`;
 
 #define race_ultra_name
 	switch(argument0)
@@ -101,7 +101,10 @@
 	
 	 // NORMAL TIPS //
 	else return choose("METAMORPHICAL SCHEME", "GENE SPLICING", "FIELD EXPERIMENTS", "SACRIFICAL LAMB", "MAGICAL SCIENCES", "WHO ARE YOU", "EFFIGY IS LOYAL");
-	
+
+#define game_start
+	global.rerolls = 3;
+
 #define create
 	var e = effigy_get_muts();
 	skill_set(e[0], 1);
@@ -164,10 +167,18 @@
 	if(ultra_get(mod_current, 2)) with(instances_matching(instances_matching_le(enemy, "my_health", 0), "anathema", null)) {
 		anathema = true;
 		
-		var anathemaincrease = ceil(maxhealth/12);
-		trace(anathemaincrease);
-		with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
-			my_health = min(maxhealth, my_health + anathemaincrease);
+		var anathemaincrease = ceil(maxhealth/12),
+			orbitals = instances_matching(CustomHitme, "name", "EffigyOrbital");
+		
+		if(array_length(orbitals)) {
+			sound_play_pitchvol(sndRadMaggotDie, 1.4 + random(0.3), 0.4);
+			sound_play_pitchvol(sndToxicBoltGas, 1.5 + random(0.2), 0.4);
+			sound_play_pitchvol(sndGammaGutsProc, 1.2 + random(0.2), 0.4);
+			
+			with(orbitals) {
+				my_health = min(maxhealth, my_health + anathemaincrease);
+				instance_create(x, y, BulletHit).sprite_index = sprScorpionBulletHit;
+			}
 		}
 	}
 
@@ -178,7 +189,7 @@
 			var effigy_eligible_unsorted = [];
 			
 			while(skill_get_at(m) != undefined) {
-				if(skill_get_at(m) != mut_patience and (mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) or string_lower(`${skill_get_at(m)}`) = "disciple") and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), get_category(skill_get_at(m))]);
+				if(skill_get_at(m) != mut_patience and (mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) or string_lower(`${skill_get_at(m)}`) = "disciple") and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), skill_get_category(skill_get_at(m))]);
 				m++;
 			}
 			
@@ -256,7 +267,7 @@
 				}
 				
 				var t = `@w${skill_get_name(effigy_eligible[effigy_selected])} ${metacolor}SACRIFICED`,
-					c = get_category(effigy_eligible[effigy_selected]);
+					c = skill_get_category(effigy_eligible[effigy_selected]);
 				
 				if(c != 0) {
 					if(c != 6) {
@@ -304,7 +315,7 @@
 			draw_circle_color(x, y, 36 * effigy_lerp, c_green, c_green, 0);
 			for(var i = 0; i < array_length(effigy_eligible); i++){
 				var _c = make_color_rgb(72, 253, 8);
-				switch(get_category(effigy_eligible[i])){
+				switch(skill_get_category(effigy_eligible[i])){
 					case 1:
 						_c = make_color_rgb(41, 12, 12);
 						break;
@@ -343,7 +354,7 @@
 			draw_set_font(fntSmall);
 			draw_set_halign(fa_center);
 			if(effigy_selected != -1) {
-				switch(get_category(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])) {
+				switch(skill_get_category(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])) {
 					case 1: category = "BACKUP"; break;
 					case 2: category = "INVULNERABILITY"; break;
 					case 3: category = "EMPOWER"; break;
@@ -394,27 +405,6 @@
 	snd_spch = snd.EffigyThrone;
 	snd_idpd = snd.EffigyIDPD;
 	snd_cptn = snd.EffigyCaptain;
-
-#define get_category(mut)
-	if(mut = "disciple") {
-		return 6;
-	}
-	
-	else for(var i = 1; i < array_length(categories); i++) {
-		if(is_string(mut)){
-			if(array_find_index(categories[i], string_replace(string_replace(string_lower(mut), " ", ""), "_", "")) != -1) {
-				return i;
-			}
-		}
-		
-		else{
-			if(array_find_index(categories[i], mut) != -1) {
-				return i;
-			}
-		}
-	}
-	
-	return 3;
 	
 #define get_sacrifice(mut)
 	with(Player) {
@@ -503,9 +493,12 @@
 #define skill_get_icon(_skill)
 	return mod_script_call("mod", "metamorphosis", "skill_get_icon", _skill);
 	
-#define skill_decide
-	return mod_script_call("mod", "metamorphosis", "skill_decide");
-	
+#define skill_decide(_category)
+	return mod_script_call("mod", "metamorphosis", "skill_decide", _category);
+
+#define skill_get_category(mut)
+	return mod_script_call("mod", "metamorphosis", "skill_get_category", mut);
+
 #define obj_create(_x, _y, obj)
 	return mod_script_call("mod", "metamorphosis", "obj_create", _x, _y, obj);
 	

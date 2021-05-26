@@ -35,3 +35,4 @@
 /load ultras
 /loadcrown crowns/evolution
 /loadrace characters/effigy
+/loadskill characters/effigyreroll

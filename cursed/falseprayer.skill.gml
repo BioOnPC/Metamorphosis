@@ -36,7 +36,7 @@
 			
 			if(fork()) {
 				repeat(20) {
-					instance_create(x + random_range(20, -20), y + random_range(20, -20), FireFly);
+					if(instance_exists(self)) instance_create(x + random_range(20, -20), y + random_range(20, -20), FireFly);
 					wait 2;
 				}
 				
