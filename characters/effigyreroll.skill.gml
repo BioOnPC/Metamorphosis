@@ -16,11 +16,16 @@
 		sound_play_pitch(sndCrownGuardianAppear, 0.6 + random(0.2));
 		sound_play_pitch(sndStatueCharge, 0.8 + random(0.2));
 		
-		with(GameCont) skillpoints++;
+		with(GameCont) {
+			skillpoints++;
+			endpoints++;
+		}
 		if(fork()) {
 			var c = global.category;
 			
 			wait 0;
+			
+			GameCont.endpoints--;
 			
 			with(SkillIcon) {
 				if(skill_get_avail(skill)) {
@@ -43,16 +48,6 @@
 							image_index = skill;
 						}
 					}
-				}
-			}
-			
-			if(instance_number(mutbutton) <= 1) {
-				with(GameCont){
-					endpoints = 0;
-					
-					with(LevCont) instance_destroy();
-					if(skillpoints > 0) instance_create(0, 0, LevCont);
-					else instance_create(0, 0, GenCont);
 				}
 			}
 			
