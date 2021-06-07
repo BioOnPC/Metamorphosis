@@ -206,7 +206,7 @@
 			while(s != undefined) {
 				if((s != mut_patience and 
 					skill_get_category(s) != -1 and 
-					(!mod_script_exists("skill", s, "skill_sacrifice") or mod_script_call("skill", s, "skill_sacrifice") != false)) and 
+					(!mod_script_exists("skill", string(s), "skill_sacrifice") or mod_script_call("skill", string(s), "skill_sacrifice") != false)) and 
 					(mod_script_call("mod", "metamorphosis", "skill_get_avail", s) or string_lower(`${s}`) = "disciple") and 
 					array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", s)) = 0) {
 					array_push(effigy_eligible_unsorted, [s, skill_get_category(s)]);

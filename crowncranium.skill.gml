@@ -96,7 +96,7 @@
 				}
 				break;
 			default:
-				if(instances_matching_gt(instances_matching(Player, "race", raceList[i]), "race_id", 16)) {
+				with(instances_matching_gt(instances_matching(Player, "race", raceList[i]), "race_id", 16)) {
 					if(mod_script_exists("race", raceList[i], "race_cc_take")) mod_script_call("race", raceList[i], "race_cc_take");
 				}
 			break;
