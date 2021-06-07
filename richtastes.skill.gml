@@ -41,13 +41,13 @@
 		
 		if(object_index != BigWeaponChest) {
 			if(object_index = WeaponChest) {
-				if(random(24) < skill_get(mod_current)) {
+				if(random(50) < skill_get(mod_current)) {
 					instance_create(x, y, GoldChest);
 					instance_delete(self);
 				}
 			} 
 			
-			else if(random(10) < (0.5+0.5*skill_get(mod_current)) and (weapon_get_area(wep) > -1 and weapon_get_area(wep) <= 4)) {
+			else if(random(30) < (0.5+0.5*skill_get(mod_current)) and (weapon_get_area(wep) > -1 and weapon_get_area(wep) <= 4)) {
 				var p = instance_nearest(x, y, Player);
 				if(instance_exists(p)) wep = weapon_decide(0, 10, true, [p.wep, p.bwep]);
 			}

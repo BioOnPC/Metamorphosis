@@ -117,27 +117,7 @@
 	return mod_script_call("mod", "metamorphosis", "skill_decide");
 	
 #define skill_get_avail(_skill)
-	/*
-		Returns 'true' if the given skill can appear on the mutation selection screen, 'false' otherwise
-	*/
-	
-	if(skill_get_active(_skill)){
-		if(
-			_skill != mut_heavy_heart
-			|| skill_get(mut_heavy_heart) != 0
-			|| (GameCont.wepmuts >= 3 && GameCont.wepmuted == false)
-		){
-			if(
-				!is_string(_skill)
-				|| !mod_script_exists("skill", _skill, "skill_avail")
-				|| mod_script_call("skill", _skill, "skill_avail")
-			){
-				return true;
-			}
-		}
-	}
-	
-	return false;
+	return mod_script_call("mod", "metamorphosis", "skill_get_avail", _skill);
 	
 #define array_shuffle(_array)
 	var	_size = array_length(_array),

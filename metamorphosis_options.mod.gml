@@ -3,17 +3,18 @@
 	global.sprLogo = sprite_add("sprites/sprLogo.png", 1, 116, 12);
 	
     global.settings = {
-    	proto_mutation     : mut_none, // Figure out which mut is saved for proto mutations
-    	use_proto          : true, // For the toggle to use the proto mutation on any given run
-        shopkeeps		   : true, // Toggle vault shopkeepers
-        evolution_unlocked : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
-        allow_characters   : true, // Toggle the new characters
-        cursed_mutations   : true, // Toggle whether or not cursed mutations show up
-        custom_ultras      : true, // Toggle all custom ultras
-        loop_mutations     : true, // Toggle gaining a mutation each loop past the first
-        metamorphosis_tips : true, // Toggle custom tips
-        effigy_mut_1       : mut_none, // Effigy's first mutation
-        effigy_mut_2       : mut_none // Effigy's second mutation, both have to be done weird because we don't want to rewrite saves to accomodate arrays
+    	proto_mutation      : mut_none, // Figure out which mut is saved for proto mutations
+    	use_proto           : true, // For the toggle to use the proto mutation on any given run
+        shopkeeps		    : true, // Toggle vault shopkeepers
+        evolution_unlocked  : false, // Unlock the new crown. If you disable the vault shopkeepers, unlocking the crown is impossible without save editing
+        allow_characters    : true, // Toggle the new characters
+        cursed_mutations    : true, // Toggle whether or not cursed mutations show up
+        custom_ultras       : true, // Toggle all custom ultras
+        loop_mutations      : true, // Toggle gaining a mutation each loop past the first
+        metamorphosis_tips  : true, // Toggle custom tips
+        become_ungovernable : true, // ?
+        effigy_mut_1        : mut_none, // Effigy's first mutation
+        effigy_mut_2        : mut_none // Effigy's second mutation, both have to be done weird because we don't want to rewrite saves to accomodate arrays
     }
      // Remove reworked mutations here //
     lq_set(SETTING, "23_enabled", false);

@@ -177,6 +177,9 @@
 			speed		 = other.speed;
 		}
 		
+		sound_play_pitch(sndPickupDisappear, 1.4 + random(0.2));
+		sound_play_pitch(sndCursedPickupDisappear, 1.6 + random(0.3));
+		
 		 // Goodbye:
 		instance_delete(id);
 	}

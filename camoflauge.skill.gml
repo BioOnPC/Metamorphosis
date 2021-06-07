@@ -35,7 +35,7 @@
     	}
     	
     	with(Player) {
-    		if(random(12) < 1) {
+    		if(random(10) < 1) {
     			repeat(irandom_range(1, 3)) {
 	    			instance_create(x, y, Feather).sprite_index = sprLeaf;
 	    		}

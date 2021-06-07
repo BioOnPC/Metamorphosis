@@ -21,34 +21,41 @@
 			endpoints++;
 		}
 		if(fork()) {
-			var c = global.category;
+			var c = global.category, 
+				n = instance_number(mutbutton) - 1;
 			
 			wait 0;
 			
 			GameCont.endpoints--;
 			
 			with(SkillIcon) {
-				if(skill_get_avail(skill)) {
-					skill = skill_decide(c);
-					
-					if(skill = mut_none) {
-						with(instances_matching_gt(instances_matching(mutbutton, "creator", creator), "num", num)) {
-							num--;
-							alarm0--;
-						}
-						instance_destroy();
-					}
-					
-					else {
-						name  = skill_get_name(skill);
-						text  = skill_get_text(skill);
-						if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+				if(num < n) {
+					if(skill_get_avail(skill)) {
+						skill = skill_decide(c);
+						
+						if(skill = mut_none) { instance_destroy(); }
 						else {
-							sprite_index = sprSkillIcon;
-							image_index = skill;
+							name  = skill_get_name(skill);
+							text  = skill_get_text(skill);
+							if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+							else {
+								sprite_index = sprSkillIcon;
+								image_index = skill;
+							}
 						}
 					}
 				}
+				
+				else if(skill != "effigyreroll") {
+					instance_destroy();
+				}
+				
+				else {
+					num = n;
+				}
+				
+				if(instance_exists(self)) alarm0 = num + 1;
+				with(LevCont) maxselect = instance_number(mutbutton) - 1;
 			}
 			
 			exit;

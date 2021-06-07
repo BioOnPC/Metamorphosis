@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	global.sndSkillSlct = sound_add("../sounds/Ultras/sndUlt" + string_upper(string(mod_current)) + ".ogg");
 
 #define skill_name    return "UNDER THE WINGS";
 #define skill_text    return "DOUBLED @wPET@s SLOTS#A @wFEW FREE FRIENDS!";
@@ -8,7 +9,11 @@
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
 #define skill_take(_num)    
-	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) sound_play(sndBasicUltra);
+	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
+		sound_play(sndBasicUltra);
+		sound_play(global.sndSkillSlct);
+	}
+	
 	if(_num > 0) {
 		mod_variable_set("mod", "ntte", "pet_max", mod_variable_get("mod", "ntte", "pet_max") * (_num + 1));
 		with(instances_matching_ne(Player, "ntte_pet_max", null)){

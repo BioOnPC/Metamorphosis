@@ -1,13 +1,15 @@
 #define init
 	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(0), skill_decide(0));
-	global.sprIdle[0]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
-	global.sprWalk[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
-	global.sprHurt[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",   3, 24, 24);
-	global.sprDead[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Dead.png",   6, 24, 24);
-	global.sprSit[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Sit.png",    1, 12, 12);
-	global.sprGoSit[0]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png",  3, 12, 12);
-	global.sprMap[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapA.png",   1, 10, 10);
-	global.sprSkin[0]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
+	
+	global.sprPortrait[0] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Portrait.png", 1, 20, 240);
+	global.sprIdle[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
+	global.sprWalk[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
+	global.sprHurt[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",   3, 24, 24);
+	global.sprDead[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Dead.png",   6, 24, 24);
+	global.sprSit[0]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Sit.png",    1, 12, 12);
+	global.sprGoSit[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png",  3, 12, 12);
+	global.sprMap[0]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapA.png",   1, 10, 10);
+	global.sprSkin[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
 	
 	global.sprIdle[1]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
 	global.sprWalk[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
@@ -18,7 +20,10 @@
 	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
 	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
 	
-	global.sprSelect = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png", 1, 0,  0);
+	global.sprSelect   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png", 1, 0, 0);
+	global.sprUltraIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png",  3, 12, 16);
+	global.sprUltraHUD[0] = sprite_add("../sprites/HUD/Ultras/sprUltraEIDOLONHUD.png",  1, 8, 8);
+	global.sprUltraHUD[1] = sprite_add("../sprites/HUD/Ultras/sprUltraANATHEMAHUD.png", 1, 8, 8);
 
 	global.sprOrbital[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbital.png", 9, 12, 12);
 	global.sprOrbital[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbital.png", 9, 12, 12);
@@ -58,6 +63,7 @@
 	var e = effigy_get_muts();
 
 	return `START WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})#${metacolor}SACRIFICE@w YOUR MUTATIONS`;
+#define race_swep              return wep_rusty_revolver;
 #define race_menu_button       sprite_index = global.sprSelect;
 #define race_skins			   return 2;
 #define race_skin_button	   sprite_index = global.sprSkin[argument0];
@@ -72,6 +78,14 @@
 		case 1: return "EIDOLON"; break;
 		case 2: return "ANATHEMA"; break;
 	}
+
+#define race_ultra_button
+	sprite_index = global.sprUltraIcon;
+	image_index = argument0 - 1;
+	image_speed = 0;
+
+#define race_ultra_icon
+	return global.sprUltraIcon[argument0];
 
 #define race_ultra_text
 	switch(argument0)
@@ -92,7 +106,7 @@
 		}
 	}
 
-//#define race_portrait(_p, _b)  return race_sprite_raw("Portrait", _b);
+#define race_portrait(_p, _b)  return global.sprPortrait[0];
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             return 1 //option_get("effigy_unlocked");
 #define race_ttip
@@ -167,7 +181,7 @@
 	if(ultra_get(mod_current, 2)) with(instances_matching(instances_matching_le(enemy, "my_health", 0), "anathema", null)) {
 		anathema = true;
 		
-		var anathemaincrease = ceil(maxhealth/12),
+		var anathemaincrease = ceil(maxhealth/16),
 			orbitals = instances_matching(CustomHitme, "name", "EffigyOrbital");
 		
 		if(array_length(orbitals)) {
@@ -183,14 +197,22 @@
 	}
 
 	if(usespec or (canspec and button_check(index, "spec"))) {
-		if(button_pressed(index, "spec") and !instance_exists(LevCont)) {
+		if(button_pressed(index, "spec") and !instance_exists(LevCont) and !instance_exists(GenCont)) {
 			var m = 0;
 			
-			var effigy_eligible_unsorted = [];
+			var effigy_eligible_unsorted = [],
+				s = skill_get_at(m);
 			
-			while(skill_get_at(m) != undefined) {
-				if(skill_get_at(m) != mut_patience and (mod_script_call("mod", "metamorphosis", "skill_get_avail", skill_get_at(m)) or string_lower(`${skill_get_at(m)}`) = "disciple") and array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", skill_get_at(m))) = 0) array_push(effigy_eligible_unsorted, [skill_get_at(m), skill_get_category(skill_get_at(m))]);
+			while(s != undefined) {
+				if((s != mut_patience and 
+					skill_get_category(s) != -1 and 
+					(!mod_script_exists("skill", s, "skill_sacrifice") or mod_script_call("skill", s, "skill_sacrifice") != false)) and 
+					(mod_script_call("mod", "metamorphosis", "skill_get_avail", s) or string_lower(`${s}`) = "disciple") and 
+					array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", s)) = 0) {
+					array_push(effigy_eligible_unsorted, [s, skill_get_category(s)]);
+				}
 				m++;
+				s = skill_get_at(m);
 			}
 			
 			array_sort_sub(effigy_eligible_unsorted, 1, 0);

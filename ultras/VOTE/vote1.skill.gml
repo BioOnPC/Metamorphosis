@@ -32,7 +32,9 @@
 				sound_stop(sndMutant6No);
 				sound_play(skill_get(mut_throne_butt) ? sndPopPopUpg : sndPopPop);
 				if(fork()) {
+					var w = wep;
 					repeat((2 + ultra_get(race, 2)) * (skill_get(mut_throne_butt) + 1)) {
+						if(!instance_exists(self) or w != wep) exit;
 						player_fire(gunangle);
 						wait(6);
 					}

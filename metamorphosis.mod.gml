@@ -62,7 +62,7 @@
 
 	 // VARIOUS USEFUL VARIABLES //
 	global.begin_step    = script_bind_begin_step(begin_step, 0);
-	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips"];
+	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips", "become ungovernable"];
 	global.stats_list    = ["vault visits", "distance evolved", "quests completed", "times loaded"];
 	global.mutation_list = [];
 	global.disabled_muts = [];
@@ -117,11 +117,7 @@
 			}
 		}
 		
-		with(GameCont) if(area = 100 and array_length(instances_matching(Player, "race", "effigy"))) {
-			if(!audio_is_playing(snd.Artificing)) {
-				sound_play_music(snd.Artificing);
-			}
-		}
+		with(GameCont) if(area = 100 and array_length(instances_matching(Player, "race", "effigy")) and audio_is_playing(mus100) and !audio_is_playing(snd.Artificing)) sound_play_music(snd.Artificing);
     	
     	exit;
     }
@@ -245,7 +241,7 @@
 		}
 		
 		 // Effigy's new track, so cool
-		if(area = 100 and array_length(instances_matching(Player, "race", "effigy")) and !audio_is_playing(snd.Artificing)) sound_play_music(snd.Artificing);
+		if(area = 100 and array_length(instances_matching(Player, "race", "effigy")) and audio_is_playing(mus100) and !audio_is_playing(snd.Artificing)) sound_play_music(snd.Artificing);
 	}
 	
     if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
@@ -346,8 +342,9 @@
     		
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);
-				if(array_length(global.current_muts) = 1) {
-					effigy_set_muts(global.current_muts[l - 1], skill_decide(0));
+				if(l = 1) {
+					var emuts = effigy_get_muts();
+					effigy_set_muts(global.current_muts[l - 1], (emuts[0] != global.current_muts[l - 1] ? emuts[0] : emuts[1]));
 				}
 				
 				else {
@@ -635,7 +632,7 @@
 					skill   = "effigyreroll";
 					name    = `${skill_get_name(skill)} @g(${mod_variable_get("race", "effigy", "rerolls")} USES LEFT)`;
 					mod_variable_set("skill", "effigyreroll", "category", irandom_range(1, 4));
-					text    = `REROLL THESE @gMUTATIONS@s#INTO ${mod_script_call("skill", "effigyreroll", "category_names", mod_variable_get("skill", "effigyreroll", "category"))} MUTATIONS`;
+					text    = `REROLL THESE MUTATIONS#INTO ${mod_script_call("skill", "effigyreroll", "category_names", mod_variable_get("skill", "effigyreroll", "category"))} MUTATIONS`;
 					mod_script_call("skill", skill, "skill_button");
 					image_index = mod_variable_get("skill", "effigyreroll", "category") - 1;
     			}
@@ -759,6 +756,7 @@
 	draw_set_color($808080);
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
+	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 10 + random(2), false);
 	
 
 #define draw_dark_end
@@ -766,6 +764,7 @@
 	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) draw_circle(x, y, 10 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
+	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 5 + random(2), false);
 
 #define draw_bloom
 	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
@@ -983,6 +982,10 @@
 				image_index = 1;
 				image_speed = 0.4;
 				sprite_index = sprReviveArea;
+				mask_index = mskPlayer;
+				image_xscale = 0.5;
+				image_yscale = 0.5;
+				image_blend = c_lime;
 			}
 			break;
 			
@@ -1001,6 +1004,9 @@
 				spr_idle = sprFreak1Idle;
 				spr_walk = sprFreak1Walk;
 				spr_hurt = sprFreak1Hurt;
+				spr_dead = sprFreak1Dead;
+				spr_shadow = shd24;
+				
 				snd_hurt = sndFreakHurt;
 				right = 1;
 				wanderDir = direction;
@@ -1399,7 +1405,15 @@
 			team = _t;
 			creator = _c;
 		}
-		instance_create(x,y,ReviveFX);
+		
+		with(instance_create(x, y, ReviveFX)) {
+			image_blend = c_lime;
+			image_xscale = 0.5;
+			image_yscale = 0.5;
+		}
+		
+		sound_play_pitch(sndFreakPopoReviveArea, 1.5 + random(0.3));
+		sound_play_pitch(sndNecromancerRevive, 1.7 + random(0.2));
 		instance_destroy();
 	}
 
@@ -1422,8 +1436,9 @@
 		motion_add_ct(point_direction(near.x, near.y, x, y), 1);
 	}
 	if place_meeting(x + hspeed, y + vspeed, Wall) move_bounce_solid(true);
-    var right = sign(lengthdir_x(1, direction));
-    if(right == 0){right = 1;}
+	
+	enemy_face(direction);
+	
 	if(sprite_index == spr_hurt && image_index == sprite_get_number(spr_hurt) - 1){
 		sprite_index = spr_idle;
 	}
@@ -1459,8 +1474,11 @@
     motion_add(_dir, _spd);
 
 #define FreakFriend_destroy
-	instance_create(x,y,ReviveFX);
-	sound_play(sndFreakDead);
+	with(instance_create(x, y, Corpse)) {
+		sprite_index = other.spr_dead;
+		visible = true;
+		motion_add(other.speed, other.direction);
+	}
 	
 #define MeatBlob_step
 	if(!instance_exists(link)){raddrop = 0;instance_delete(self);exit;}
@@ -2034,6 +2052,10 @@
 		return 6;
 	}
 	
+	else if(is_string(mut) and mod_script_call("skill", mut, "skill_type") != undefined) {
+		return mod_script_call("skill", mut, "skill_type");
+	}
+	
 	else for(var i = 1; i < array_length(categories); i++) {
 		if(is_string(mut)){
 			if(array_find_index(categories[i], string_replace(string_replace(string_lower(mut), " ", ""), "_", "")) != -1) {
@@ -2085,7 +2107,7 @@
 	if(fork()) {
 		wait 4;
 		
-		for(var i = 0; i < 6; i++) {
+		for(var i = 0; i < 7; i++) {
 		    if(!options_open or array_length(instances_matching(instances_matching(CustomObject, "name", "MetaSettings"), "splat", 0)) > 0) exit;
 		    s = global.option_list[i];
 		    v = lq_get(SETTING, string_replace(s, " ", "_"));
@@ -2350,3 +2372,5 @@
 	array_copy(_new, array_length(_new), _array, _index + 1, array_length(_array) - (_index + 1));
 	
 	return _new;
+	
+#define enemy_face(_dir)                                                                        _dir = ((_dir % 360) + 360) % 360; if(_dir < 90 || _dir > 270) right = 1; else if(_dir > 90 && _dir < 270) right = -1;

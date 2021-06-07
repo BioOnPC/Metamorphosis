@@ -1,6 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16); 
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Ultras/sprUltra"   + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
+	global.sndSkillSlct = sound_add("../sounds/Ultras/sndUlt" + string_upper(string(mod_current)) + ".ogg");
 	
 #define skill_name    return "VOTE 2 B COOL";
 #define skill_text    return (random(200) > 1 ? "@yDECIDE YOUR FUTURE@s" : "@y¿QUIERES?");
@@ -20,6 +21,7 @@
 	 // Sound:
 	if(_num > 0 && instance_exists(LevCont)){
 		sound_play(sndBasicUltra);
+		sound_play(global.sndSkillSlct);
 	}
 	
 #define skill_lose
