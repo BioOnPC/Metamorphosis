@@ -3,6 +3,7 @@
 	global.sprCrownIcon    = sprite_add("../sprites/crowns/Evolution/sprCrownIcon.png",     1, 12, 16);
 	global.sprCrownIdle    = sprite_add("../sprites/crowns/Evolution/sprCrownIdle.png",    1,  8,  8);
 	global.sprCrownWalk    = sprite_add("../sprites/crowns/Evolution/sprCrownWalk.png",     6,  8,  8);
+	global.sndCrownSlct    = sound_add("../sounds/sndCrown" + string_upper(string(mod_current)) + ".ogg");
 	global.last_took = []; 
 	global.last_race = [];
 	global.level_start = false;
@@ -38,6 +39,11 @@
 	
 	 // Obtain Ultra:
 	GameCont.endpoints++;
+	
+	if(array_length(instances_matching(mutbutton, "crown", mod_current)) > 0) {
+		sound_play(sndMenuCrown);
+		sound_play(global.sndCrownSlct);
+	}
 	
 #define crown_lose
 	for(i = 0; i < array_length(global.last_took); i++) {
@@ -110,11 +116,11 @@
 	}
 	
 	repeat(mutNum) {
-		skill_set(skill_decide(), 1);
+		skill_set(skill_decide(0), 1);
 	}
 	
-#define skill_decide
-	return mod_script_call("mod", "metamorphosis", "skill_decide");
+#define skill_decide(_category)
+	return mod_script_call("mod", "metamorphosis", "skill_decide", _category);
 	
 #define skill_get_avail(_skill)
 	return mod_script_call("mod", "metamorphosis", "skill_get_avail", _skill);

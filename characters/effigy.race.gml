@@ -30,7 +30,7 @@
 	global.sprOrbital[3] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbital.png",   9, 12, 12);
 	global.sprOrbital[4] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbital.png",      9, 12, 12);
 	global.sprOrbital[5] = global.sprOrbital[3]; // No purpose other than avoiding errors
-	global.sprOrbital[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbital.png",     4, 12, 12);
+	global.sprOrbital[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbital.png",     9, 12, 12);
 	
 	global.sprOrbitalGlow[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbitalGlow.png", 9, 12, 12);
 	global.sprOrbitalGlow[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbitalGlow.png", 9, 12, 12);
@@ -85,7 +85,7 @@
 	image_speed = 0;
 
 #define race_ultra_icon
-	return global.sprUltraIcon[argument0];
+	return global.sprUltraHUD[argument0 - 1];
 
 #define race_ultra_text
 	switch(argument0)
