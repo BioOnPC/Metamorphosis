@@ -18,7 +18,7 @@
 	}
 	
 	else {
-		place_chests(global.visits);
+		if(!instance_exists(GenCont) and !instance_exists(LevCont)) place_chests(global.visits);
 	}
 
 #define step

@@ -65,7 +65,12 @@
 
 	return `START WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})#${metacolor}SACRIFICE@w YOUR MUTATIONS`;
 #define race_swep              return wep_rusty_revolver;
-#define race_menu_button       sprite_index = (option_get("effigy_tokens") > 0 ? global.sprSelect : global.sprSelectLock);
+#define race_menu_button    
+	if(fork()) {
+		wait 0;
+		if(instance_exists(self)) sprite_index = (option_get("effigy_tokens") > 0 ? global.sprSelect : global.sprSelectLock);
+		exit;
+	}
 #define race_skins			   return 2;
 #define race_skin_button	   sprite_index = global.sprSkin[argument0];
 #define race_lock              return `${metacolor}STORE MUTATIONS`;

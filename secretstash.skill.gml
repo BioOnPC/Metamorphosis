@@ -21,7 +21,7 @@
 	}
 	
 	else if(!global.taken) {
-		soda_spawn();
+		if(!instance_exists(GenCont) and !instance_exists(LevCont)) soda_spawn();
 		
 		global.taken += global.taken - _num;
 	}
