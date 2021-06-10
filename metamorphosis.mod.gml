@@ -67,6 +67,10 @@
 	global.sprFriendlyFreakIdle    = sprite_add("sprites/VFX/sprFriendlyFreakIdle.png",    6, 12, 12);
 	global.sprFriendlyFreakWalk    = sprite_add("sprites/VFX/sprFriendlyFreakWalk.png",    6, 12, 12);
 
+
+	 // ? //
+	global.sprLegume = sprite_add("sprites/sprLegume.png", 1, 9, 9);
+	
 	 // VARIOUS USEFUL VARIABLES //
 	global.begin_step    = script_bind_begin_step(begin_step, 0);
 	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips", "become ungovernable"];
@@ -278,7 +282,7 @@
 	    		option_set("effigy_tokens", t = undefined ? 1 : min(t + 1, 99));
 	    		metamorphosis_save();
 	    		
-	    		unlock_splat("", `+1 ${metacolor}EFFIGY TOKEN@s`, -1, -1);
+	    		unlock_splat("", `+1 ${metacolor}EFFIGY TOKEN@s` + (random(1000) < 1 ? `  @(${global.sprLegume})  ` : ""), -1, -1);
 		    }
 		}
     }
@@ -1951,6 +1955,8 @@
 	    		
 	    		if(!option_get("effigy_unlocked")) {
 	    			with(unlock_splat("MUTATION STORED", `${metacolor}EFFIGY UNLOCKED@s`, mod_variable_get("race", "effigy", "sprPortrait")[0], sndCharUnlock)) nam[1] = "EFFIGY";
+	    			option_set("effigy_unlocked", true);
+	    			metamorphosis_save();
 	    		}
 	    		else unlock_splat("MUTATION STORED", `+1 ${metacolor}EFFIGY TOKEN@s`, -1, -1);
 				
