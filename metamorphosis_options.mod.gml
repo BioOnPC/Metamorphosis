@@ -13,6 +13,7 @@
         loop_mutations      : true, // Toggle gaining a mutation each loop past the first
         metamorphosis_tips  : true, // Toggle custom tips
         become_ungovernable : true, // ?
+        effigy_tokens		: 0,    // Amount of tokens you have to play Effigy
         effigy_mut_1        : mut_none, // Effigy's first mutation
         effigy_mut_2        : mut_none // Effigy's second mutation, both have to be done weird because we don't want to rewrite saves to accomodate arrays
     }
@@ -87,7 +88,7 @@
 		draw_set_color(_color);
 		draw_set_alpha(_alpha);
 	}
-
+	
 	if(options_avail) {
 		for(var i = 0; i < maxp; i++) {
 			draw_set_visible_all(0);

@@ -60,6 +60,13 @@
 	global.sprMerchantDie      = sprite_add("sprites/Shop/sprMerchantDie.png",  6, 32, 32);
 	global.sprMerchantPuff     = sprite_add("sprites/Shop/sprMerchantPuff.png", 12, 32, 32);
 
+	 // CROWN CRANIUM
+	global.sprMeatBlob			   = sprite_add("sprites/Props/sprMeatBlob.png",	       1, 11, 12);
+	global.sprFriendlyRevive	   = sprite_add("sprites/VFX/sprFriendlyRevive.png",       8, 24, 24);
+	global.sprFriendlyReviveCircle = sprite_add("sprites/VFX/sprFriendlyReviveCircle.png", 4, 40, 40);
+	global.sprFriendlyFreakIdle    = sprite_add("sprites/VFX/sprFriendlyFreakIdle.png",    6, 12, 12);
+	global.sprFriendlyFreakWalk    = sprite_add("sprites/VFX/sprFriendlyFreakWalk.png",    6, 12, 12);
+
 	 // VARIOUS USEFUL VARIABLES //
 	global.begin_step    = script_bind_begin_step(begin_step, 0);
 	global.option_list   = ["shopkeeps", "allow characters", "cursed mutations", "custom ultras", "loop mutations", "metamorphosis tips", "become ungovernable"];
@@ -172,10 +179,17 @@
 	
 	global.mut_quest = mut_none; // Make sure the shopkeep doesn't have a quest active //
 	
+	mod_variable_set("skill", "secretstash", "taken", 0);
+	
+	with(instances_matching_lt(instances_matching(CustomObject, "name", "MetaUnlock"), "id", GameCont.id)){
+		instance_delete(self);
+	}
+	
 
 #define step
 	if(!instance_exists(global.begin_step)) global.begin_step = script_bind_begin_step(begin_step, 0);
-	script_bind_draw(cursed_mut_draw, -1001);
+	script_bind_draw(skill_effects, -1001);
+	script_bind_draw(effigy_token_draw, -2001);
 	
 	 // Setting setup:
 	with(instances_matching(Menu, "metamorphosis", null)) {
@@ -215,7 +229,7 @@
 		    	wait 1;
 		    	
 				var r = player_get_race(i);
-				if(_race[i] != r and r = "effigy") {
+				if(instance_exists(CharSelect) and instance_exists(Menu) and _race[i] != r and r = "effigy") {
 					sound_play(snd.EffigySelect);
 				}
 				_race[i] = r;
@@ -258,7 +272,14 @@
 				sound_play(sndLevelUp);
 		    }
 		    
-		    if(array_length(instances_matching(Player, "race", "effigy"))) mod_variable_set("race", "effigy", "rerolls", 3);
+		    if(array_length(instances_matching(Player, "race", "effigy"))) {
+		    	mod_variable_set("race", "effigy", "rerolls", 3);
+		    	var t = option_get("effigy_tokens");
+	    		option_set("effigy_tokens", t = undefined ? 1 : min(t + 1, 99));
+	    		metamorphosis_save();
+	    		
+	    		unlock_splat("", `+1 ${metacolor}EFFIGY TOKEN@s`, -1, -1);
+		    }
 		}
     }
     
@@ -530,6 +551,12 @@
 	}
 
 #define begin_step
+	with(instances_matching(CharSelect, "race", "effigy")) {
+		if(!option_get("effigy_tokens")){
+			noinput = 10;
+		}
+	}
+
 	if(array_length(instances_matching(Player, "race", "effigy")) > 0) with(instances_matching(LevCont, "effigy_mut", null)) {
 		effigy_mut = 0;
 	
@@ -589,6 +616,8 @@
 					image_index = skill;
 				}
 				
+				sacrifice = true;
+				
 				if(fork()) {
 					while(instance_exists(self)) {
 						wait 0;
@@ -638,6 +667,38 @@
     			}
     		}
     	}
+    }
+    
+    
+     /* HORROR CROWN CRANIUM */
+    with(instances_matching(LevCont, "hcc", null)) {
+    	hcc = true;
+	    var hnum = array_length(instances_matching(Player, "race", "horror"));
+	    if(!instance_exists(CrownIcon) and !instance_exists(EGSkillIcon) and skill_get("crowncranium") and hnum) {
+	    	with(LevCont) maxselect += hnum * skill_get("crowncranium");
+	    	with(SkillIcon) {
+	    		num += hnum;
+	    		alarm0 = num + 1;
+	    	}
+	    	
+	    	var ind = 0;
+	    	repeat(hnum * skill_get("crowncranium")) {
+	    		with(instance_create(0, 0, SkillIcon)){
+					creator = other;
+					num     = ind;
+					alarm0	= num + 1;
+					skill   = skill_decide(0);
+					name    = skill_get_name(skill);
+					text    = skill_get_text(skill);
+					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
+					else {
+						sprite_index = sprSkillIcon;
+						image_index = skill;
+					}
+				}
+				ind++;
+	    	}
+	    }
     }
     
     if(SETTING.cursed_mutations and !instance_exists(EGSkillIcon) and array_length(instances_matching_ne(SkillIcon, "curseified", null)) = 0) {
@@ -721,25 +782,55 @@
 		
 		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), 1, 1, sin(leadsleep * 0.1) * 10, c_white, vis);
 	}
+	
+#define effigy_token_draw
+	with(instances_matching(CharSelect, "race", "effigy")) {
+		var t = string(option_get("effigy_tokens"));
+		if(t) for(var i = 0; i < maxp; i++) {
+			draw_set_visible_all(0);
+			draw_set_visible(i, 1);
+			if(player_is_active(i)) {
+				var _x = view_xview[i] + xstart - 3,
+					_y = view_yview[i] + ystart;
+				
+				draw_set_color(make_color_rgb(190, 253, 8));
+				draw_roundrect(_x - 1, _y - 3, _x + (string_length(t) * 4) + 1, _y + 6, 0);
+				draw_set_color(c_white);
+				
+				draw_set_font(fntSmall);
+				draw_set_halign(fa_left);
+				draw_set_valign(fa_top);
+				draw_text_nt(_x + 1, _y, t);
+				draw_set_font(fntM);
+				
+				draw_set_visible_all(1);
+			}
+		}
+	}
+	
+	instance_destroy();
 
-#define cursed_mut_draw
+#define skill_effects
 	with(SkillIcon) {
+		if("counter" not in self){
+			counter = 0;
+		}
+		if(counter <= num){
+			counter++;
+			continue;
+		}
+		
+		var hover = 0;
+		for(i = 0; i <= maxp; i++) {
+			if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
+				hover = 1;
+			}
+		}
+		
 		if(mod_script_exists("skill", string(skill), "skill_cursed") and mod_script_call("skill", string(skill), "skill_cursed") = true) {
-			if("counter" not in self){
-				counter = 0;
-			}
-			if(counter <= num){
-				counter++;
-				continue;
-			}
 			var _x = x + sprite_xoffset;
 			var _y = y + sprite_yoffset;
-			var hover = 0;
-			for(i = 0; i <= maxp; i++) {
-				if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
-					hover = 1;
-				}
-			}
+			
 			draw_sprite(global.sprCursedOutline, (current_frame * (0.4/current_time_scale)) mod 4, x, y - hover);
 			if(depth != -1002) depth = -1002;
 			if(current_frame * (0.2/current_time_scale)) {
@@ -747,6 +838,12 @@
 					depth = other.depth;
 				}
 			}
+		}
+		
+		if("sacrifice" in self) {
+			draw_set_colour(make_color_rgb(190, 253, 8));
+			draw_rectangle(x - 1 - (sprite_width/2), y - 1 - (sprite_height/2) - hover, x + (sprite_width/2), y + (sprite_height/2) - hover, 0);
+			draw_set_color(c_white);
 		}
 	}
 	
@@ -756,7 +853,7 @@
 	draw_set_color($808080);
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
-	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 10 + random(2), false);
+	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 30 + random(2), false);
 	
 
 #define draw_dark_end
@@ -764,7 +861,7 @@
 	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) draw_circle(x, y, 10 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
-	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 5 + random(2), false);
+	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 15 + random(2), false);
 
 #define draw_bloom
 	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
@@ -981,35 +1078,37 @@
 			with(o){
 				image_index = 1;
 				image_speed = 0.4;
-				sprite_index = sprReviveArea;
+				sprite_index = global.sprFriendlyReviveCircle;
 				mask_index = mskPlayer;
 				image_xscale = 0.5;
 				image_yscale = 0.5;
-				image_blend = c_lime;
 			}
 			break;
 			
 		case "FreakFriend":
 			o = instance_create(_x, _y, CustomHitme);
 			with(o){
-				my_health = 4;
+				my_health = 12;
 				while(place_meeting(x, y, Wall)){
 					x = other.x+random(12)-6;
 					y = other.y+random(12)-6;
 				}
 				image_speed = 0.4;
-				friction = 0.25;
-				maxspeed = 0.5;
-				sprite_index = sprFreak1Idle;
-				spr_idle = sprFreak1Idle;
-				spr_walk = sprFreak1Walk;
+				walk = 0;
+				walkspeed = 0.4;
+				maxspeed = 3.5;
+				
+				spr_idle = global.sprFriendlyFreakIdle;
+				spr_walk = global.sprFriendlyFreakWalk;
 				spr_hurt = sprFreak1Hurt;
 				spr_dead = sprFreak1Dead;
 				spr_shadow = shd24;
+				sprite_index = spr_idle;
 				
 				snd_hurt = sndFreakHurt;
 				right = 1;
-				wanderDir = direction;
+				alarm0 = 20 + irandom(10);
+				on_alrm0 = script_ref_create(FreakFriend_alrm0);
 			}
 			break;
 			
@@ -1019,7 +1118,7 @@
 				my_health = 12;
 				raddrop = 4;
 				link = -4;
-				sprite_index = sprBloodBall;
+				sprite_index = global.sprMeatBlob;
 				mask_index = sprBloodBall;
 				spr_idle = sprBloodBall;
 				spr_hurt = sprBloodBall;
@@ -1039,6 +1138,31 @@
 					visible = false;
 					size = 6;
 				}
+			}
+			break;
+			
+		case "MetaUnlock": // Shamelessly stolen from NTTE
+			o = instance_create(_x, _y, CustomObject);
+			with(o){
+				 // Visual:
+				depth = UberCont.depth - 1;
+				
+				 // Vars:
+				persistent            = true;
+				unlock                = [];
+				unlock_sprit          = sprMutationSplat;
+				unlock_image          = 0;
+				unlock_delay          = 50;
+				unlock_index          = 0;
+				unlock_porty          = 0;
+				unlock_delay_continue = 0;
+				splash_sprit          = sprUnlockPopupSplat;
+				splash_image          = 0;
+				splash_delay          = 0;
+				splash_index          = -1;
+				splash_texty          = 0;
+				splash_timer          = 0;
+				splash_timer_max      = 150;
 			}
 			break;
 		
@@ -1404,64 +1528,95 @@
 		with(obj_create(x,y,"FreakFriend")){
 			team = _t;
 			creator = _c;
-		}
-		
-		with(instance_create(x, y, ReviveFX)) {
-			image_blend = c_lime;
-			image_xscale = 0.5;
-			image_yscale = 0.5;
+			
+			with(instance_create(x, y, ReviveFX)) {
+				sprite_index = global.sprFriendlyRevive;
+				image_xscale = 0.5;
+				image_yscale = 0.5;
+				depth = other.depth - 1;
+			}
 		}
 		
 		sound_play_pitch(sndFreakPopoReviveArea, 1.5 + random(0.3));
 		sound_play_pitch(sndNecromancerRevive, 1.7 + random(0.2));
 		instance_destroy();
 	}
+	
+	 // Secret.
+	with(instances_meeting(x, y, Revive)) {
+		with(instance_create(x, y, CustomHitme)) {
+			my_health = 999;
+			with(other) {
+				var ind = p;
+				event_perform(ev_collision, Player);
+				if(fork()) {
+					wait 0;
+					with(instances_matching(Player, "index", p)) {
+						if(race = "melting") race = "skeleton"; 
+					}
+					exit;
+				}
+				sound_play_pitch(sndUncurse, 0.8);
+				sound_play(sndLevelUp);
+				sound_play_pitch(sndSwapCursed, 0.7);
+			}
+			instance_destroy();
+		}
+	}
 
 #define FreakFriend_step
-	if(my_health <= 0){instance_destroy();exit;}//make them disappear in a poof
-	//reusing some AI from an older mod!
-	if(collision_line(x, y, creator.x, creator.y, Wall, false, false) == -4){
-		motion_add_ct(point_direction(x, y, creator.x, creator.y), 0.5);
-		wanderDir = direction;
+	if(alarm0 && !--alarm0 && !--alarm0 && (script_ref_call(on_alrm0) || !instance_exists(self))) exit;
+	if(!instance_exists(creator)) my_health = 0;
+	
+	 // Movement:
+	if(walk > 0){
+		walk -= current_time_scale;
+		speed += walkspeed * current_time_scale;
 	}
-	else if(random(4)<1){
-		wanderDir = (direction + point_direction(x,y,creator.x, creator.y)) / 2;
+	
+	if(speed > maxspeed){
+		speed = maxspeed;
 	}
-	motion_add_ct(wanderDir, 1);
-	speed = min(speed, 4);
-	if(distance_to_object(hitme) < 10){
-		x += 100;
-		var near = instance_nearest(x-100,y,hitme);
-		x -= 100;
-		motion_add_ct(point_direction(near.x, near.y, x, y), 1);
-	}
+	
 	if place_meeting(x + hspeed, y + vspeed, Wall) move_bounce_solid(true);
+	
+	 // Animate:
+	sprite_index = (sprite_index != spr_hurt || (image_index + image_speed >= image_number) || (image_index + image_speed < 0)) ? ((speed == 0) ? spr_idle : spr_walk) : sprite_index;
 	
 	enemy_face(direction);
 	
-	if(sprite_index == spr_hurt && image_index == sprite_get_number(spr_hurt) - 1){
-		sprite_index = spr_idle;
-	}
-	if(sprite_index != spr_hurt && sprite_index != spr_dead){
-		if(speed > 0){
-			sprite_index = spr_walk;
-		}else{
-			sprite_index = spr_idle;
-		}
-	}
-	//damage enemies
+	 // Handle enemies:
 	with(instances_meeting(x, y, enemy)){
 		if(projectile_canhit_melee(other) && "canmelee" in self && canmelee && meleedamage > 0){
 			projectile_hit(other, meleedamage);
 		}
+		
 		with(other){
 			if(projectile_canhit_melee(other)){
 				projectile_hit(other, 3);
-				sound_play(sndFreakMelee);
+				sound_play_pitch(sndFreakMelee, 1.2 + random(0.4));
 			}
 		}
 	}
 	
+	 // Die:
+	if(my_health <= 0) instance_destroy();
+
+#define FreakFriend_alrm0
+	alarm0 = 20 + irandom(10);
+	
+	var target = instance_nearest(x, y, enemy);
+	if(!instance_exists(target) or point_distance(target.x, target.y, creator.x, creator.y) > 128) {
+		target = creator;
+	}
+	
+	else {
+		alarm0 -= 5;
+	}
+	
+	direction = point_direction(x, y, target.x, target.y);
+	if(target.object_index != creator or point_distance(x, y, target.x, target.y) > 48) walk = alarm0;
+
 #define FreakFriend_draw
     draw_sprite_ext(sprite_index, image_index, x, y, image_xscale * right, image_yscale, image_angle, image_blend, image_alpha);
 	
@@ -1475,10 +1630,14 @@
 
 #define FreakFriend_destroy
 	with(instance_create(x, y, Corpse)) {
+		size = 1;
 		sprite_index = other.spr_dead;
-		visible = true;
-		motion_add(other.speed, other.direction);
+		image_xscale = other.right;
+		speed = min((other.speed + max(0, -other.my_health / 5)) * (8 * skill_get(mut_impact_wrists)), 16);
+		direction = other.direction;
 	}
+	
+	sound_play(sndFreakDead);
 	
 #define MeatBlob_step
 	if(!instance_exists(link)){raddrop = 0;instance_delete(self);exit;}
@@ -1746,6 +1905,8 @@
 			
 			sound_play(snd.GoldRush);
 		}
+		
+		with(instance_nearest(x, y, ChestOpen)) sprite_index = sprGoldChestOpen;
 	}
 	
 #define Shopkeep_step
@@ -1785,6 +1946,13 @@
 				option_set("evolution_unlocked", true);
 				var q = option_get("quests_completed");
 				option_set("quests_completed", q = undefined ? 1 : (q + 1))
+				var t = option_get("effigy_tokens");
+	    		option_set("effigy_tokens", t = undefined ? 1 : min(t + 1, 99));
+	    		
+	    		if(!option_get("effigy_unlocked")) {
+	    			with(unlock_splat("MUTATION STORED", `${metacolor}EFFIGY UNLOCKED@s`, mod_variable_get("race", "effigy", "sprPortrait")[0], sndCharUnlock)) nam[1] = "EFFIGY";
+	    		}
+	    		else unlock_splat("MUTATION STORED", `+1 ${metacolor}EFFIGY TOKEN@s`, -1, -1);
 				
 				metamorphosis_save();
 				
@@ -1836,6 +2004,221 @@
 	
 	if(sprite_index = global.sprMerchantPuff and image_index >= sprite_get_number(sprite_index) - 1) {
 		spr_idle = global.sprMerchantIdle;
+	}
+
+#define MetaUnlock_step
+	if(instance_exists(Menu)){
+		instance_destroy();
+		exit;
+	}
+	
+	depth = UberCont.depth - 1;
+	
+	 // Animate Corner Popup:
+	if(splash_delay > 0) splash_delay -= current_time_scale;
+	else{
+		var _img = 0;
+		if(instance_exists(Player) || instance_exists(BackMainMenu) || instance_exists(PauseButton)){
+			if(splash_timer > 0){
+				splash_timer -= current_time_scale;
+				
+				_img = sprite_get_number(splash_sprit) - 1;
+				
+				 // Text Offset:
+				if(splash_image >= _img && splash_texty > 0){
+					splash_texty -= current_time_scale;
+				}
+			}
+			else{
+				splash_texty = 2;
+				
+				 // Splash Next Unlock:
+				if(splash_index < array_length(unlock) - 1){
+					splash_index++;
+					splash_timer = splash_timer_max;
+				}
+			}
+		}
+		splash_image += clamp(_img - splash_image, -1, 1) * current_time_scale;
+	}
+	
+	 // Game Over Splash:
+	if(instance_exists(UnlockScreen)) unlock_delay = 1;
+	else if(!instance_exists(Player) && !instance_exists(BackMainMenu) && !instance_exists(PauseButton)){
+		while(
+			unlock_index >= 0                   &&
+			unlock_index < array_length(unlock) &&
+			unlock[unlock_index].spr == -1
+		){
+			unlock_index++; // No Game Over Splash
+		}
+		
+		if(unlock_index < array_length(unlock)){
+			 // Disable Game Over Screen:
+			with(GameOverButton){
+				if(game_letterbox) alarm_set(0, 30);
+				else instance_destroy();
+			}
+			with(TopCont){
+				gameoversplat = 0;
+				go_addy1 = 9999;
+				dead = false;
+			}
+			
+			 // Delay Unlocks:
+			if(unlock_delay > 0){
+				unlock_delay -= current_time_scale;
+				var _delayOver = (unlock_delay <= 0);
+				
+				unlock_delay_continue = 20;
+				unlock_porty = 0;
+				
+				 // Screen Dim + Letterbox:
+				with(TopCont){
+					visible = _delayOver;
+					if(darkness){
+					   visible = true;
+					   darkness = 2;
+					}
+				}
+				game_letterbox = _delayOver;
+				
+				 // Sound:
+				if(_delayOver){
+					sound_play(sndCharUnlock);
+					sound_play(unlock[unlock_index].snd);
+				}
+			}
+			else{
+				 // Animate Unlock Splash:
+				var _img = sprite_get_number(unlock_sprit) - 1;
+				unlock_image += clamp(_img - unlock_image, -1, 1) * current_time_scale;
+				
+				 // Portrait Offset:
+				if(unlock_porty < 3){
+					unlock_porty += current_time_scale;
+				}
+				
+				 // Next Unlock:
+				if(unlock_delay_continue > 0) unlock_delay_continue -= current_time_scale;
+				else for(var i = 0; i < maxp; i++){
+					if(button_pressed(i, "fire") || button_pressed(i, "okay")){
+						if(unlock_index < array_length(unlock)){
+							unlock_index++;
+							unlock_delay = 1;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
+		 // Done:
+		else{
+			with(TopCont){
+				go_addy1 = 55;
+				dead = true;
+			}
+			instance_destroy();
+		}
+	}
+	
+#define MetaUnlock_draw
+	var	_vx = view_xview_nonsync,
+		_vy = view_yview_nonsync,
+		_gw = game_width,
+		_gh = game_height;
+		
+	 // Game Over Splash:
+	if(unlock_delay <= 0){
+		if(unlock_image > 0){
+			var	_unlock = unlock[unlock_index],
+				_nam    = _unlock.nam[1],
+				_spr    = _unlock.spr,
+				_img    = _unlock.img,
+				_x      = _gw / 2,
+				_y      = _gh - 20;
+				
+			 // Unlock Portrait:
+			var	_px = _vx + _x - 60,
+				_py = _vy + _y + 9 + unlock_porty;
+				
+			draw_sprite(_spr, _img, _px, _py);
+			
+			 // Splash:
+			draw_sprite(unlock_sprit, unlock_image, _vx + _x, _vy + _y);
+			
+			 // Unlock Name:
+			var	_tx = _vx + _x,
+				_ty = _vy + _y - 92 + (unlock_porty < 2);
+				
+			draw_set_font(fntBigName);
+			draw_set_halign(fa_center);
+			draw_set_valign(fa_top);
+			
+			var _t = string_upper(_nam);
+			draw_text_nt(_tx, _ty, _t);
+			
+			 // Unlocked!
+			_ty += string_height(_t) + 3;
+			if(unlock_porty >= 3){
+				d3d_set_fog(1, 0, 0, 0);
+				draw_sprite(sprTextUnlocked, 4, _tx + 1, _ty);
+				draw_sprite(sprTextUnlocked, 4, _tx,     _ty + 1);
+				draw_sprite(sprTextUnlocked, 4, _tx + 1, _ty + 1);
+				d3d_set_fog(0, 0, 0, 0);
+				draw_sprite(sprTextUnlocked, 4, _tx,     _ty);
+			}
+			
+			 // Continue Button:
+			if(unlock_delay_continue <= 0){
+				var	_cx    = _x,
+					_cy    = _y - 4,
+					_blend = make_color_rgb(102, 102, 102);
+					
+				for(var i = 0; i < maxp; i++){
+					if(point_in_rectangle(mouse_x[i] - view_xview[i], mouse_y[i] - view_yview[i], _cx - 64, _cy - 12, _cx + 64, _cy + 16)){
+						_blend = c_white;
+						break;
+					}
+				}
+				
+				draw_sprite_ext(sprUnlockContinue, 0, _vx + _cx, _vy + _cy, 1, 1, 0, _blend, 1);
+			}
+		}
+	}
+	
+	 // Corner Popup:
+	if(splash_image > 0){
+		 // Splash:
+		var	_x = _vx + _gw,
+			_y = _vy + _gh;
+			
+		draw_sprite(splash_sprit, splash_image, _x, _y);
+		
+		 // Unlock Text:
+		if(splash_texty < 2){
+			var	_unlock = unlock[splash_index],
+				_nam    = _unlock.nam[0],
+				_txt    = _unlock.txt,
+				_tx     = _x - 4,
+				_ty     = _y - 16 + splash_texty;
+				
+			draw_set_font(fntM);
+			draw_set_halign(fa_right);
+			draw_set_valign(fa_bottom);
+			
+			 // Title:
+			if(_nam != ""){
+				draw_text_nt(_tx, _ty, _nam);
+			}
+			
+			 // Description:
+			if(splash_texty <= 0){
+				_ty += string_height(_nam + " ");
+				draw_text_nt(_tx, _ty, "@s" + _txt);
+			}
+		}
 	}
 
 #define prompt_create(_text)
@@ -1993,7 +2376,32 @@
 
 #define effigy_get_muts
 	return [option_get("effigy_mut_1"), option_get("effigy_mut_2")];
-
+	
+#define unlock_splat(_name, _text, _sprite, _sound)
+	 // Stolen from NTTE
+	 // Make Sure UnlockCont Exists:
+	if(!array_length(instances_matching_ne(instances_matching(CustomObject, "name", "MetaUnlock"), "id"))){
+		obj_create(0, 0, "MetaUnlock");
+	}
+	
+	 // Add New Unlock:
+	var _unlock = {
+		"nam" : [_name, _name], // [splash popup, gameover popup]
+		"txt" : _text,
+		"spr" : _sprite,
+		"img" : 0,
+		"snd" : _sound
+	};
+	
+	with(instances_matching_ne(instances_matching(CustomObject, "name", "MetaUnlock"), "id")){
+		if(splash_index >= array_length(unlock) - 1 && splash_timer <= 0){
+			splash_delay = 40;
+		}
+		array_push(unlock, _unlock);
+	}
+	
+	return _unlock;
+	
 #define skill_decide(_category)
 	 // Stolen from NTTE, modified to fit our needs
 	var _skillList = [],

@@ -1,7 +1,7 @@
 #define init
 	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(0), skill_decide(0));
 	
-	global.sprPortrait[0] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Portrait.png", 1, 20, 240);
+	global.sprPortrait[0] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Portrait.png", 1, 30, 250);
 	global.sprIdle[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
 	global.sprWalk[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
 	global.sprHurt[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Hurt.png",   3, 24, 24);
@@ -20,8 +20,9 @@
 	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
 	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
 	
-	global.sprSelect   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png", 1, 0, 0);
-	global.sprUltraIcon = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png",  3, 12, 16);
+	global.sprSelect      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png",     1, 0, 0);
+	global.sprSelectLock  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SelectLock.png", 1, 0, 0);
+	global.sprUltraIcon   = sprite_add("../sprites/Icons/Ultras/sprUltra" + string_upper(string(mod_current)) + "Icon.png",       3, 12, 16);
 	global.sprUltraHUD[0] = sprite_add("../sprites/HUD/Ultras/sprUltraEIDOLONHUD.png",  1, 8, 8);
 	global.sprUltraHUD[1] = sprite_add("../sprites/HUD/Ultras/sprUltraANATHEMAHUD.png", 1, 8, 8);
 
@@ -64,7 +65,7 @@
 
 	return `START WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})#${metacolor}SACRIFICE@w YOUR MUTATIONS`;
 #define race_swep              return wep_rusty_revolver;
-#define race_menu_button       sprite_index = global.sprSelect;
+#define race_menu_button       sprite_index = (option_get("effigy_tokens") > 0 ? global.sprSelect : global.sprSelectLock);
 #define race_skins			   return 2;
 #define race_skin_button	   sprite_index = global.sprSkin[argument0];
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
@@ -108,7 +109,9 @@
 
 #define race_portrait(_p, _b)  return global.sprPortrait[0];
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
-#define race_avail             return 1 //option_get("effigy_unlocked");
+#define race_avail             
+	return option_get("effigy_tokens");
+
 #define race_ttip
 	 // ULTRA TIPS //
 	if(instance_exists(GameCont) and GameCont.level >= 10 and random(5) < 1) return choose("UNEARTHLY SECRETS", "KNOW THE UNKNOWABLE", "BECOME REMADE", "EUREKA", "AUTOMATON KING");
@@ -118,8 +121,20 @@
 
 #define game_start
 	global.rerolls = 3;
+	
+	var t = option_get("effigy_tokens");
+	option_set("effigy_tokens", t = undefined ? 0 : max(t - 1, 0));
+	
+	mod_script_call("mod", "metamorphosis", "metamorphosis_save");
 
 #define create
+	 // Random lets you play locked characters: (Can remove once 9941+ gets stable build)
+	if(!race_avail()){
+		race = "fish";
+		player_set_race(index, race);
+		exit;
+	}
+	
 	var e = effigy_get_muts();
 	skill_set(e[0], 1);
 	skill_set(e[1], 1);

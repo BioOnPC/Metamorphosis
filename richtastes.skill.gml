@@ -1,9 +1,10 @@
 #define init
-	global.sprSkillIcon     = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
-	global.sprSkillHUD      = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
-	global.sprGoldAmmo      = sprite_add("sprites/VFX/sprGoldAmmo.png",      7, 5,  5);
-	global.sprGoldFatAmmo   = sprite_add("sprites/VFX/sprGoldFatAmmo.png",   7, 6,  6);
-	global.sprGoldAmmoChest = sprite_add("sprites/VFX/sprGoldAmmoChest.png", 7, 12, 8);
+	global.sprSkillIcon     		= sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD      		= sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sprGoldAmmo              = sprite_add("sprites/VFX/sprGoldAmmo.png",     		 7, 5,  5);
+	global.sprGoldFatAmmo           = sprite_add("sprites/VFX/sprGoldFatAmmo.png",  		 7, 6,  6);
+	global.sprGoldAmmoChest         = sprite_add("sprites/VFX/sprGoldAmmoChest.png",		 7, 12, 8);
+	global.sprGoldAmmoChestSteroids = sprite_add("sprites/VFX/sprGoldAmmoChestSteroids.png", 7, 12, 8);
 	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 
 #define skill_name    return "RICH TASTES";
@@ -24,11 +25,12 @@
 		}
 	}
 	
-	with(instances_matching([AmmoChest, AmmoPickup], "richtastes", null)) {
+	with(instances_matching(instances_matching([AmmoChest, AmmoPickup], "richtastes", null), "sprite_index", sprAmmo, sprAmmoChest, sprAmmoChestMystery, sprAmmoChestSteroids)) {
 		richtastes = "might be";
 		if(random(8) < skill_get(mod_current)) {
 			if(sprite_index = sprAmmo) sprite_index = (skill_get("magfingers") ? global.sprGoldFatAmmo : global.sprGoldAmmo);
-			else if(object_index = AmmoChest) sprite_index = global.sprGoldAmmoChest;
+			else if(object_index = AmmoChest) sprite_index = (sprite_index = sprAmmoChestSteroids ? global.sprGoldAmmoChestSteroids : global.sprGoldAmmoChest);
+			
 			with(obj_create(x, y, "RichPickup")) {
 				creator = other.id;
 				mask_index = other.mask_index;

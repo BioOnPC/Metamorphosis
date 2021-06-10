@@ -34,7 +34,7 @@
 			case "robot":    t += "@wWEAPON DROPS@s ARE#SOMETIMES @wDOUBLED@s"; break;
 			case "chicken":  t += "REGAIN LOST MAX @rHP@s FROM @wALL CHESTS@s"; break;
 			case "rebel":    t += "@rHEAL@s WHEN @wALLIES@s DIE"; break;
-			case "horror":   t += "@wREFUND@s TWO OF YOUR MUTATIONS"; break;
+			case "horror":   t += "EXTRA @gMUTATION@s CHOICE"; break;
 			case "rogue":    t += "@wENEMIES@s AND @bIDPD@s#DROP @bPORTAL STRIKES"; break;
 			case "skeleton": t += "KILLING CAN CREATE#FRIENDLY @pNECRO@s CIRCLES"; break;
 			case "frog":     t += "@wHASTENED@s BOUNCES"; break;
@@ -64,37 +64,6 @@
 
 	for(var i = 0; i < array_length(raceList); i++){
 		switch(raceList[i]){
-			case "horror":
-				repeat(skill_get(mod_current)){
-					var mutList = [];
-					var mutNum = 0;
-					while(skill_get_at(mutNum + 1) != null){
-						if(is_real(skill_get_at(mutNum)) || (is_string(skill_get_at(mutNum)) && mod_exists("skill", skill_get_at(mutNum)) && !mod_script_exists("skill", skill_get_at(mutNum), "skill_ultra"))){
-							array_push(mutList, skill_get_at(mutNum));
-						}
-						mutNum++;
-					}
-					repeat(2){
-						var check = true;
-						for(var i = 0; i < array_length(mutList); i++){
-							if(skill_get(mutList[i]) > 0){
-								check = false;
-							}
-						}
-						if(check){
-							break;
-						}
-						var skill = mutList[irandom(array_length(mutList)-1)];
-						while(skill_get(skill) <= 0){
-							skill = mutList[irandom(array_length(mutList)-1)];
-						}
-						skill_set(skill, 0);
-						if(skill != mut_patience){
-							GameCont.skillpoints += 1;
-						}
-					}
-				}
-				break;
 			default:
 				with(instances_matching_gt(instances_matching(Player, "race", raceList[i]), "race_id", 16)) {
 					if(mod_script_exists("race", raceList[i], "race_cc_take")) mod_script_call("race", raceList[i], "race_cc_take");
@@ -208,12 +177,21 @@
 												direction = direction + 180;
 												image_angle = image_angle + 180;
 												instance_create(x,y,Deflect);
+												instance_create(x, y, BulletHit).sprite_index = sprDiscDisappear;
+												sound_play_pitchvol(sndPickupDisappear, 1.4 + random(0.3), 0.7);
+												sound_play_pitchvol(sndCrystalShield, 0.8 + random(0.2), 0.5);
+												sound_play_pitchvol(sndShielderDeflect, 1.6 + random(0.1), 0.4);
 											}
 										}
 										with(instance_rectangle_bbox(x-50,y-50,x+50,y+50, enemy)){
 											motion_add(point_direction(other.x,other.y,x,y), 4);
 											instance_create(x - hspeed, y - vspeed, Dust);
 										}
+										
+										sound_play_pitchvol(sndWallBreakCrystal, 1.7 + random(0.3), 0.6);
+										sound_play_pitch(sndCrystalPropBreak, 1.4 + random(0.2));
+										sound_play_pitch(sndCrystalRicochet, 1.2 + random(0.4));
+										
 										wait(1);
 									}
 									exit;
@@ -228,7 +206,11 @@
 						if(object_index != WepPickup){
 							var p = instance_nearest(x,y,Player);
 							move_contact_solid(point_direction(x,y,p.x,p.y), 1);
-							if(irandom(4/current_time_scale) == 0) instance_create(x, y, Dust).depth = depth + 1;
+							if(irandom(4/current_time_scale) == 0) {
+								instance_create(x, y, Dust).depth = depth + 1;
+								sound_play_pitchvol(sndPortalFlyby1, 1.4 + random(0.2), 0.4);
+								sound_play_pitchvol(sndPortalFlyby2, 2.4 + random(0.2), 0.4);
+							}
 						}
 					}
 					break;
@@ -362,7 +344,8 @@
 					}
 					break;
 				case "skeleton":
-					with(instances_matching_le(enemy, "my_health", 0)){
+					with(instances_matching(instances_matching(Corpse, "speed", 0), "skelenecro", null)){
+						skelenecro = true;
 						if(irandom(8) == 0){
 							with(obj_create(x, y, "FriendlyNecro")){
 								creator = instance_nearest(x, y, Player);
