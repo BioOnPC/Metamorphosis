@@ -3,6 +3,7 @@
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 	global.newLevel = false;
+	global.draw = noone;
 
 #define skill_name    return "CROWN CRANIUM";
 #define skill_text    return desc_decide();
@@ -103,8 +104,18 @@
 		}
 	}
 	
-	
+#define cleanup
+	//unbind the draw script
+	with(global.draw){
+		instance_destroy();
+	}
+    
 #define step
+    // I'll make my own draw event! With blackjack and hookers!
+    if(!instance_exists(global.draw)){
+        global.draw = script_bind_draw(draw, -8);
+    }
+	
 	if(instance_exists(GenCont)) global.newLevel = true;
 	else if(global.newLevel){
 		global.newLevel = false;
@@ -218,19 +229,33 @@
 					if(instance_exists(enemy)){
 						with(Player) {
 							if("craniumplant" not in self){
-								craniumplant = 0;
+								craniumplant = 0;		//how much plant has moved for charging
+								craniumplantcharge = 0;	//how much plant has killed for charging
+								craniumplantvisual = 0;	//how long the visual indicator for charge should show
 							}
 							
-							var _x = x;
-							var _y = y;
-							if(fork()){
+							//create charge when enemies die
+							with(instances_matching_le(enemy, "my_health", 0)){
+								other.craniumplantcharge += maxhealth;
+								if(ceil(other.craniumplantcharge*6/50) > ceil((other.craniumplantcharge - maxhealth)*6/50)){
+									other.craniumplantvisual = 30;
+								}
+							}
+							
+							//only charge up the next plant when you have enough charge to spawn it
+							if(craniumplantcharge > 50 && fork()){
+								var _x = x;
+								var _y = y;
 								wait(0);
 								if(instance_exists(self)) craniumplant += point_distance(x,y,_x,_y);
 								exit;
 							}
-							//if they've moved the equivalent of 40 tiles (wall width) spawn a sapling
-							if(craniumplant > 75 * 12){
-								craniumplant -= 75 * 12;
+							
+							//if they've moved the equivalent of 40 tiles (wall width) and have enough charge spawn a sapling
+							if(craniumplantcharge > 50 && craniumplant > 40 * 12){
+								craniumplantcharge -= 50;
+								craniumplant -= 40 * 12;
+								other.craniumplantvisual = 30;
 								repeat(3) {
 									with(instance_create(x, y, Sapling)) {
 										team = other.team;
@@ -408,6 +433,37 @@
 			}
 		}
 	}
+
+#define draw
+//plant crown cranium
+with(instances_matching_ge(Player, "craniumplantvisual", 1)){
+	draw_set_alpha(min(craniumplantvisual/10, 1));
+
+	var bubble1 = ceil(6-max(min(craniumplantcharge*6/50, 6), 0));
+	draw_set_color(make_color_rgb(255,150,150));
+	draw_rectangle(x - 5, y - 18, x - 2, y - 15, 0);
+	draw_sprite_part_ext(sprBubble, 2, 0, 0, sprite_get_width(sprBubble), sprite_get_height(sprBubble), x - 7, y - 20, 1, 1, make_color_rgb(255,150,175), min(craniumplantvisual/10, 1));
+	if(bubble1 < 6){
+		draw_set_color(make_color_rgb(225,0,0));
+		draw_rectangle(x - 5, y - 18 + ceil(bubble1/2), x - 2, y - 15, 0);
+		draw_sprite_part_ext(sprBubble, 2, 0, bubble1, sprite_get_width(sprBubble), sprite_get_height(sprBubble)-bubble1, x - 7, y - 20 + bubble1, 1, 1, c_red, min(craniumplantvisual/10, 1));
+	}
+	
+	var bubble2 = ceil(6-max(min((craniumplantcharge-50)*6/50, 6), 0));
+	draw_set_color(make_color_rgb(255,150,150));
+	draw_rectangle(x + 3, y - 18, x + 6, y - 15, 0);
+	draw_sprite_part_ext(sprBubble, 2, 0, 0, sprite_get_width(sprBubble), sprite_get_height(sprBubble), x + 1, y - 20, 1, 1, make_color_rgb(255,150,175), min(craniumplantvisual/10, 1));
+	if(bubble2 < 6){
+		draw_set_color(make_color_rgb(225,0,0));
+		draw_rectangle(x + 3, y - 18 + ceil(bubble2/2), x + 6, y - 15, 0);
+		draw_sprite_part_ext(sprBubble, 2, 0, bubble2, sprite_get_width(sprBubble), sprite_get_height(sprBubble)-bubble2, x + 1, y - 20 + bubble2, 1, 1, c_red, min(craniumplantvisual/10, 1));
+	}
+	
+	draw_set_alpha(1);
+	
+	craniumplantvisual--;
+}
+
 
 #define instance_rectangle_bbox(_x1, _y1, _x2, _y2, _obj)
 	/*
