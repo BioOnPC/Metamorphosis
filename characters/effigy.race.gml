@@ -401,7 +401,7 @@
 					case 2: category = "INVULNERABILITY"; break;
 					case 3: category = "EMPOWER"; break;
 					case 4: category = "INFINITE AMMO"; break;
-					case 6: category = "SPECIAL ALLY"; break;
+					case 6: category = "RAD BEAM"; break;
 				}
 				
 				draw_text_nt(x, y - (60 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])}`); 
@@ -450,6 +450,8 @@
 	
 #define get_sacrifice(mut)
 	with(Player) {
+		instance_create(x, y, PortalClear);
+		
 		if("effigy_orbital" not in self) effigy_orbital = [];
 		with(obj_create(x, y, "EffigyOrbital")) {
 			index = array_length(other.effigy_orbital);
@@ -474,7 +476,29 @@
 			}
 			
 			repeat(GameCont.level - 1) {
-				maxhealth *= 1.1;
+				maxhealth *= 1.05;
+			}
+			
+			if(type = 6) {
+				if(fork()) {
+					wait 35;
+					if(instance_exists(self)) with(obj_create(x, y, "CustomBeam")) {
+						direction = other.creator.gunangle;
+						other.beam = id;
+						//image_yscale = 3;
+						
+						sound_play_pitch(sndNothingBeamStart, 0.6 + random(0.2));
+						sound_play_pitch(sndLaserCrystalCharge, 0.4 + random(0.2));
+						sound_play_pitch(sndHyperCrystalRelease, 0.2 + random(0.2));
+						sound_play_pitch(sndLaserCannonUpg, 0.6 + random(0.2));
+						sound_play_pitch(sndPlasmaHugeUpg, 0.4 + random(0.2));
+						sound_play_pitch(sndUltraLaserUpg, 0.6 + random(0.2));
+					}
+					
+					exit;
+				}
+				
+				maxhealth = 160;
 			}
 			
 			my_health = maxhealth;
@@ -513,8 +537,11 @@
 		break;
 		
 		case 6:
+			sound_play_pitch(sndLaserCannonCharge, 0.2 + random(0.2));
+			sound_play_pitchvol(sndHyperCrystalChargeExplo, 0.6 + random(0.2), 0.4);
+			sound_play_pitchvol(sndNothingBeamWarn, 0.4 + random(0.2), 0.6);
 			
-			return "@w@sSPECIAL ALLY!"
+			return "@sRAD BEAM!"
 		break;
 	}
 	
