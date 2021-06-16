@@ -877,7 +877,7 @@
 		
 		var hover = 0;
 		for(i = 0; i <= maxp; i++) {
-			if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
+			if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + floor(sprite_width/2), y + floor(sprite_height/2))) {
 				hover = 1;
 			}
 		}
@@ -1688,7 +1688,7 @@
 	xprevious = x;
 	yprevious = y;
 	
-	if (random(4) < current_time_scale && instance_is(other, Wall)){
+	if (random(2) < current_time_scale && instance_is(other, Wall)){
 		with(other){
 			instance_create(x, y, FloorExplo);
 			instance_destroy();
@@ -1703,11 +1703,11 @@
 	// do some effects here so it looks better
 #define CustomBeam_projectile
 	if (other.team != team){
-		instance_delete(other);
+	    with(other) mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
 	}
 	
 #define CustomBeam_grenade
-	instance_delete(other);
+	with(other) mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
 	
 #define CustomBeam_anim
 	
@@ -1821,8 +1821,8 @@
 				if("beam" in self and instance_exists(beam)) with(beam) {
 					var goalx = other.x + lengthdir_x(96, other.gunangle),
 						goaly = other.y + lengthdir_y(96, other.gunangle),
-						angdiff = point_direction(x, y, goalx, goaly) - 
-								  point_direction(x, y, x + lengthdir_x(96, direction), y + lengthdir_y(96, direction));
+						angdiff = angle_difference(point_direction(x, y, goalx, goaly),
+												   point_direction(x, y, x + lengthdir_x(96, direction), y + lengthdir_y(96, direction)));
 						ang = (array_length(control_point) ? 
 						       min(abs(angdiff), 8) * sign(angdiff) : 
 						       point_direction(x, y, goalx, goaly));
