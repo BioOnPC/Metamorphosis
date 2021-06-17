@@ -1,7 +1,7 @@
 #define init
 	global.sprSkillIcon = sprite_add("../sprites/Icons/Cursed/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("../sprites/HUD/Cursed/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
-	//global.sndSkillSlct = sound_add("../sounds/Cursed/sndCurse" + string_upper(string(mod_current)) + ".ogg");
+	global.sndSkillSlct = sound_add("../sounds/Cursed/sndCurse" + string_upper(string(mod_current)) + ".ogg");
 	global.hpamt = (4 * skill_get(mod_current)) + ((GameCont.loops * 2) * (skill_get("insurgency") + 1))
 
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
@@ -16,7 +16,7 @@
 		sound_play(sndMut);
 		sound_play_pitch(sndCursedChest, 1.2);
 		sound_play(sndBigCursedChest);
-		//sound_play(global.sndSkillSlct);
+		sound_play(global.sndSkillSlct);
 	}
 #define skill_avail   return false;
 #define skill_cursed  return true; // for metamorphosis

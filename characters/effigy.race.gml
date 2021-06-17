@@ -12,15 +12,16 @@
 	global.sprSkin[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
 	global.sprSkinL[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinALocked.png",  1, 16, 16);
 	
-	global.sprIdle[1]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
-	global.sprWalk[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
-	global.sprHurt[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "HurtB.png",   3, 24, 24);
-	global.sprDead[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "DeadB.png",   6, 24, 24);
-	global.sprSit[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SitB.png",    1, 12, 12);
-	global.sprGoSit[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
-	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
-	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
-	global.sprSkinL[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinBLocked.png",   1, 16, 16);
+	global.sprPortrait[1] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "BPortrait.png", 1, 40, 236);
+	global.sprIdle[1]     =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
+	global.sprWalk[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
+	global.sprHurt[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "HurtB.png",   3, 24, 24);
+	global.sprDead[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "DeadB.png",   6, 24, 24);
+	global.sprSit[1]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SitB.png",    1, 12, 12);
+	global.sprGoSit[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
+	global.sprMap[1]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
+	global.sprSkin[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
+	global.sprSkinL[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinBLocked.png",   1, 16, 16);
 	
 	global.sprSelect      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png",     1, 0, 0);
 	global.sprSelectLock  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SelectLock.png", 1, 0, 0);
@@ -143,7 +144,7 @@
 		}
 	}
 
-#define race_portrait(_p, _b)  return global.sprPortrait[0];
+#define race_portrait(_p, _b)  return global.sprPortrait[_b];
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             
 	return option_get("effigy_tokens");

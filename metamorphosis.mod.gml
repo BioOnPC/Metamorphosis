@@ -419,7 +419,7 @@
     		if(array_length(instances_matching(Player, "race", "effigy")) and m >= 13 and !option_get("effigy_skin_1")) {
 				option_set("effigy_skin_1", 1);
 				metamorphosis_save();
-				with(unlock_splat("EFFIGY B-SKIN UNLOCKED", `FOR OBTAINING 13 MUTATIONS`, mod_variable_get("race", "effigy", "sprPortrait")[0], sndCharUnlock)) nam[1] = "EFFIGY B";
+				with(unlock_splat("EFFIGY B-SKIN UNLOCKED", `FOR OBTAINING 13 MUTATIONS`, mod_variable_get("race", "effigy", "sprPortrait")[1], sndCharUnlock)) nam[1] = "EFFIGY B";
     		}
     		
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
@@ -463,7 +463,7 @@
 	    	var v = option_get("vault_visits");
 		    option_set("vault_visits", v = undefined ? 1 : (v + 1));
     		
-	    	if(option_get("shopkeeps")) {
+	    	if(option_get("shopkeeps") and (!mod_exists("mod", "vagabonds_master") or !mod_variable_exists("mod", "vagabonds_master", "settings") or !mod_variable_get("mod", "vagabonds_master", "settings").setting_newvault)) {
 	    		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
 	    		var ffloor = instance_furthest(10016, 10016, Floor),
 	    			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
@@ -1153,6 +1153,8 @@
 				splat = 0;
 				tooltip = "";
 				index = 0;
+				setting = ["test", true];
+				page = "test";
 				
 				on_click   = null;
 				on_release = null;
@@ -2148,7 +2150,7 @@
 	sound_play_pitch(sndClick, 1 + random(0.2));
 
 #define MetaPage_click
-	with(instances_matching(CustomObject, "name", "MetaButton", "MetaMut")) instance_destroy();
+	with(instances_matching(CustomObject, "name", "MetaButton", "MetaMut")) if(name != "MetaSettings") instance_destroy();
 
 	with(instances_matching(CustomObject, "name", "MetaSettings")) {
 		splat = 0;
@@ -2175,6 +2177,8 @@
 		
 		page = other.index;
 	}
+	
+	//with(instances_matching(CustomObject, "name", "MetaSettings")) instance_destroy();
 
 #define MetaNone_step
 	//if(next) 
@@ -2226,11 +2230,12 @@
 	else {
 		sound_play(sndClick);
 		sound_play(sndMenuStats);
+		
+		page = 0;
+		
 		options_create();
 		
 		var skill_list = mod_get_names("skill");
-	
-		page = 0;
 		
 		global.mutation_list = [];
 		
@@ -2913,7 +2918,7 @@
 		    s = global.option_list[i];
 		    v = lq_get(SETTING, string_replace(s, " ", "_"));
 		    
-		    with(obj_create(x, y, "MetaButton")) {
+		    with(obj_create(0, 0, "MetaButton")) {
 		    	setting = [s, v];
 		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
 		    	on_click = script_ref_create(MetaButton_click);
@@ -2924,7 +2929,7 @@
 		    }
 		    
 		    if(array_length(instances_matching(CustomObject, "name", "MetaPage")) < 3 and i < 3) {
-		    	with(obj_create(x, y, "MetaButton")) {
+		    	with(obj_create(0, 0, "MetaButton")) {
 					name = "MetaPage";
 					index = i;
 					page = other.pages[i];
