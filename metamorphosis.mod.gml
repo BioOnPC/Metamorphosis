@@ -244,7 +244,7 @@
 #define step
 	if(!instance_exists(global.begin_step)) global.begin_step = script_bind_begin_step(begin_step, 0);
 	script_bind_draw(skill_effects, -1001);
-	script_bind_draw(effigy_token_draw, -2001);
+	script_bind_draw(effigy_token_draw, -1005);
 	
 	 // Setting setup:
 	with(instances_matching(Menu, "metamorphosis", null)) {
@@ -415,6 +415,12 @@
     	
     	if(fork()) {
     		wait 0;
+    		
+    		if(array_length(instances_matching(Player, "race", "effigy")) and m >= 13 and !option_get("effigy_skin_1")) {
+				option_set("effigy_skin_1", 1);
+				metamorphosis_save();
+				with(unlock_splat("EFFIGY B-SKIN UNLOCKED", `FOR OBTAINING 13 MUTATIONS`, mod_variable_get("race", "effigy", "sprPortrait")[0], sndCharUnlock)) nam[1] = "EFFIGY B";
+    		}
     		
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);

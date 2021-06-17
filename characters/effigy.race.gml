@@ -10,6 +10,7 @@
 	global.sprGoSit[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png",  3, 12, 12);
 	global.sprMap[0]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapA.png",   1, 10, 10);
 	global.sprSkin[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
+	global.sprSkinL[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinALocked.png",  1, 16, 16);
 	
 	global.sprIdle[1]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
 	global.sprWalk[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
@@ -19,6 +20,7 @@
 	global.sprGoSit[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
 	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
 	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
+	global.sprSkinL[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinBLocked.png",   1, 16, 16);
 	
 	global.sprSelect      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png",     1, 0, 0);
 	global.sprSelectLock  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SelectLock.png", 1, 0, 0);
@@ -72,7 +74,36 @@
 		exit;
 	}
 #define race_skins			   return 2;
-#define race_skin_button	   sprite_index = global.sprSkin[argument0];
+#define race_skin_avail(_skin)
+	var _playersActive = 0;
+	for(var i = 0; i < maxp; i++){
+		_playersActive += player_is_active(i);
+	}
+	
+	 // Normal:
+	if(_playersActive <= 1){
+		return (_skin = 0 || option_get(`effigy_skin_${_skin}`));
+	}
+	
+	 // Co-op Bugginess:
+	return true;
+	
+#define race_skin_name(_skin)
+	if(race_skin_avail(_skin)){
+		return chr(65 + _skin) + " SKIN";
+	}
+	else{
+		return race_skin_lock(_skin);
+	}
+	
+#define race_skin_lock(_skin)
+	switch(_skin){
+		case 0 : return "EDIT THE SAVE FILE LMAO";
+		case 1 : return "OBTAIN @g13 MUTATIONS@w#IN ONE RUN";
+	}
+	
+#define race_skin_button(_skin)
+	sprite_index = (_skin = 0 || option_get(`effigy_skin_${_skin}`) ? global.sprSkin[argument0] : global.sprSkinL[argument0]);
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
