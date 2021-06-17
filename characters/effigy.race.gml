@@ -63,7 +63,7 @@
 #define race_text
 	var e = effigy_get_muts();
 
-	return `STARTS WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})## ${metacolor}SACRIFICE@w MUTATIONS`;
+	return `STARTS WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})##${metacolor}SACRIFICE@w MUTATIONS`;
 #define race_swep              return wep_rusty_revolver;
 #define race_menu_button    
 	if(fork()) {
