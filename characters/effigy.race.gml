@@ -172,7 +172,7 @@
 		exit;
 	}
 	
-	if(!option_get(`effigy_skin_${bskin}`)) bskin = 0;
+	if(bskin != 0 and !option_get(`effigy_skin_${bskin}`)) bskin = 0;
 	
 	var e = effigy_get_muts();
 	skill_set(e[0], 1);
