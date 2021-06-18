@@ -38,7 +38,7 @@
 	with(Player) {
 		if(chickendeaths = 0) chickendeaths += 2;
 		
-		with(instance_rectangle(x - 24, y - 24, x + 24, y + 24, instances_matching_ne(projectile, "team", team))) {
+		with(instance_rectangle(x - 24 - (maxhealth/2), y - 24 - (maxhealth/2), x + 24 + (maxhealth/2), y + 24 + (maxhealth/2), instances_matching_ne(projectile, "team", team))) {
 			var lstspd = speed;
 			motion_add(point_direction(x, y, other.x, other.y), speed * 0.2);
 			speed = lstspd;
