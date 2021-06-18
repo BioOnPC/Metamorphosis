@@ -144,7 +144,7 @@
 		}
 	}
 
-#define race_portrait(_p, _b)  return global.sprPortrait[_b];
+#define race_portrait(_p, _b)  return (option_get(`effigy_skin_${_b}`) ? global.sprPortrait[_b] : global.sprPortrait[0]);
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             
 	return option_get("effigy_tokens");
@@ -166,11 +166,13 @@
 
 #define create
 	 // Random lets you play locked characters: (Can remove once 9941+ gets stable build)
-	if(!race_avail()){
+	if(!option_get("effigy_unlocked")){
 		race = "fish";
 		player_set_race(index, race);
 		exit;
 	}
+	
+	if(!option_get(`effigy_skin_${bskin}`)) bskin = 0;
 	
 	var e = effigy_get_muts();
 	skill_set(e[0], 1);
