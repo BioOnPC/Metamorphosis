@@ -1,7 +1,7 @@
 #define init
 	global.sprSkillIcon 	= sprite_add("../sprites/Icons/Cursed/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillIconHolo = sprite_add("../sprites/Icons/Cursed/sprSkill" + string_upper(string(mod_current)) + "Holo.png", 1, 12, 16);
-	global.sprSkillHUD  	= sprite_add("../sprites/HUD/Cursed/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sprSkillHUD  	= sprite_add("../sprites/HUD/Cursed/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  9,  9);
 	global.sndSkillSlct 	= sound_add("../sounds/Cursed/sndCurse" + string_upper(string(mod_current)) + ".ogg");
 
 #macro cursecolor `@(color:${make_color_rgb(255, 202, 56)})`

@@ -42,9 +42,9 @@
 	    		with(other) {
 	    			haste(other.damage * 20, 0.6 * skill_get(mod_current));
 	    		}
-	
+				var p = other;
 	    		with(projectile) {
-	    			if(instance_exists(self) and id != other.id and point_distance(x, y, other.x, other.y) < 64) {
+	    			if(instance_exists(self) and team != p.team and id != other.id and point_distance(x, y, other.x, other.y) < 64) {
 						sound_play_pitchvol(sndGoldChest, 6 + random(0.4), .4);
 						sound_play_pitchvol(sndGoldPickup, 1.3 + random(0.4), .4);
 	    				mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");

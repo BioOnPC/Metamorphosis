@@ -10,15 +10,18 @@
 	global.sprGoSit[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSit.png",  3, 12, 12);
 	global.sprMap[0]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapA.png",   1, 10, 10);
 	global.sprSkin[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinA.png",  1, 16, 16);
+	global.sprSkinL[0]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinALocked.png",  1, 16, 16);
 	
-	global.sprIdle[1]   =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
-	global.sprWalk[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
-	global.sprHurt[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "HurtB.png",   3, 24, 24);
-	global.sprDead[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "DeadB.png",   6, 24, 24);
-	global.sprSit[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SitB.png",    1, 12, 12);
-	global.sprGoSit[1]  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
-	global.sprMap[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
-	global.sprSkin[1]   = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
+	global.sprPortrait[1] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "BPortrait.png", 1, 40, 236);
+	global.sprIdle[1]     =  sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "IdleB.png",   4, 24, 24);
+	global.sprWalk[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "WalkB.png",   6, 24, 24);
+	global.sprHurt[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "HurtB.png",   3, 24, 24);
+	global.sprDead[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "DeadB.png",   6, 24, 24);
+	global.sprSit[1]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SitB.png",    1, 12, 12);
+	global.sprGoSit[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "GoSitB.png",  3, 12, 12);
+	global.sprMap[1]      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "MapB.png",    1, 10, 10);
+	global.sprSkin[1]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinB.png",   1, 16, 16);
+	global.sprSkinL[1]    = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SkinBLocked.png",   1, 16, 16);
 	
 	global.sprSelect      = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Select.png",     1, 0, 0);
 	global.sprSelectLock  = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "SelectLock.png", 1, 0, 0);
@@ -63,7 +66,7 @@
 #define race_text
 	var e = effigy_get_muts();
 
-	return `START WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})#${metacolor}SACRIFICE@w YOUR MUTATIONS`;
+	return `STARTS WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})##${metacolor}SACRIFICE@w MUTATIONS`;
 #define race_swep              return wep_rusty_revolver;
 #define race_menu_button    
 	if(fork()) {
@@ -72,7 +75,36 @@
 		exit;
 	}
 #define race_skins			   return 2;
-#define race_skin_button	   sprite_index = global.sprSkin[argument0];
+#define race_skin_avail(_skin)
+	var _playersActive = 0;
+	for(var i = 0; i < maxp; i++){
+		_playersActive += player_is_active(i);
+	}
+	
+	 // Normal:
+	if(_playersActive <= 1){
+		return (_skin = 0 || option_get(`effigy_skin_${_skin}`));
+	}
+	
+	 // Co-op Bugginess:
+	return true;
+	
+#define race_skin_name(_skin)
+	if(race_skin_avail(_skin)){
+		return chr(65 + _skin) + " SKIN";
+	}
+	else{
+		return race_skin_lock(_skin);
+	}
+	
+#define race_skin_lock(_skin)
+	switch(_skin){
+		case 0 : return "EDIT THE SAVE FILE LMAO";
+		case 1 : return "OBTAIN @g13 MUTATIONS@w#IN ONE RUN";
+	}
+	
+#define race_skin_button(_skin)
+	sprite_index = (_skin = 0 || option_get(`effigy_skin_${_skin}`) ? global.sprSkin[argument0] : global.sprSkinL[argument0]);
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
@@ -112,7 +144,7 @@
 		}
 	}
 
-#define race_portrait(_p, _b)  return global.sprPortrait[0];
+#define race_portrait(_p, _b)  return (option_get(`effigy_skin_${_b}`) ? global.sprPortrait[_b] : global.sprPortrait[0]);
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             
 	return option_get("effigy_tokens");
@@ -134,11 +166,13 @@
 
 #define create
 	 // Random lets you play locked characters: (Can remove once 9941+ gets stable build)
-	if(!race_avail()){
+	if(!option_get("effigy_unlocked")){
 		race = "fish";
 		player_set_race(index, race);
 		exit;
 	}
+	
+	if(bskin != 0 and !option_get(`effigy_skin_${bskin}`)) bskin = 0;
 	
 	var e = effigy_get_muts();
 	skill_set(e[0], 1);
@@ -401,7 +435,7 @@
 					case 2: category = "INVULNERABILITY"; break;
 					case 3: category = "EMPOWER"; break;
 					case 4: category = "INFINITE AMMO"; break;
-					case 6: category = "SPECIAL ALLY"; break;
+					case 6: category = "RAD BEAM"; break;
 				}
 				
 				draw_text_nt(x, y - (60 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])}`); 
@@ -450,6 +484,8 @@
 	
 #define get_sacrifice(mut)
 	with(Player) {
+		instance_create(x, y, PortalClear);
+		
 		if("effigy_orbital" not in self) effigy_orbital = [];
 		with(obj_create(x, y, "EffigyOrbital")) {
 			index = array_length(other.effigy_orbital);
@@ -474,7 +510,29 @@
 			}
 			
 			repeat(GameCont.level - 1) {
-				maxhealth *= 1.1;
+				maxhealth *= 1.05;
+			}
+			
+			if(type = 6) {
+				if(fork()) {
+					wait 35;
+					if(instance_exists(self)) with(obj_create(x, y, "CustomBeam")) {
+						direction = other.creator.gunangle;
+						other.beam = id;
+						//image_yscale = 3;
+						
+						sound_play_pitch(sndNothingBeamStart, 0.6 + random(0.2));
+						sound_play_pitch(sndLaserCrystalCharge, 0.4 + random(0.2));
+						sound_play_pitch(sndHyperCrystalRelease, 0.2 + random(0.2));
+						sound_play_pitch(sndLaserCannonUpg, 0.6 + random(0.2));
+						sound_play_pitch(sndPlasmaHugeUpg, 0.4 + random(0.2));
+						sound_play_pitch(sndUltraLaserUpg, 0.6 + random(0.2));
+					}
+					
+					exit;
+				}
+				
+				maxhealth = 160;
 			}
 			
 			my_health = maxhealth;
@@ -513,8 +571,11 @@
 		break;
 		
 		case 6:
+			sound_play_pitch(sndLaserCannonCharge, 0.2 + random(0.2));
+			sound_play_pitchvol(sndHyperCrystalChargeExplo, 0.6 + random(0.2), 0.4);
+			sound_play_pitchvol(sndNothingBeamWarn, 0.4 + random(0.2), 0.6);
 			
-			return "@w@sSPECIAL ALLY!"
+			return "@sRAD BEAM!"
 		break;
 	}
 	

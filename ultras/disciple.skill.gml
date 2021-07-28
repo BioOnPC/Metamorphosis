@@ -5,8 +5,8 @@
 #macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
 #macro snd mod_variable_get("mod", "metamorphosis", "snd")
 
-#define skill_name    return "DISCIPLE @d(NYI)@w";
-#define skill_text    return `${metacolor}SACRIFICE THIS ULTRA@s#TO @bSTOP TIME@s#@dNOT YET IMPLEMENTED@`;
+#define skill_name    return "DISCIPLE";
+#define skill_text    return `${metacolor}SACRIFICE THIS ULTRA@s#TO SUMMON A @gGIANT RAD BEAM@s`;
 #define skill_tip     return "CHANGE THE WORLD";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  

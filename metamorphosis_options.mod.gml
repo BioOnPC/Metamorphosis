@@ -154,7 +154,7 @@
 							text += "@s";
 						}
 						
-						text += page;
+						if("page" in self) text += page;
 						
 						draw_set_halign(fa_right);
 						draw_set_valign(fa_top);
@@ -286,7 +286,7 @@
 		if(array_length(mouse_in_rectangle(index, drawx - left_off, drawy - top_off, drawx + right_off, drawy + bottom_off, 0)) > 0) {
 			if(button_pressed(index, "fire")) {
 				click = 1;
-				script_ref_call(on_click);
+				mod_script_call(on_click[0], on_click[1], on_click[2])
 			}
 			
 			else click = 0;

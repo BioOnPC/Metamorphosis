@@ -90,6 +90,55 @@
 	 // GET EM //
 	global.mut_quest = mut_none;
 	
+	var _surface = surface_create(1, 4);
+
+	if (surface_exists(_surface)){
+		surface_set_target(_surface);
+		
+		draw_clear_alpha(c_white, 1);
+		
+		surface_reset_target();
+		
+		surface_save(_surface, "1x4 white pixels.png");
+		
+		surface_free(_surface);
+	}
+	
+	global.mask = sprite_add("1x4 white pixels.png", 1, 0, 2);
+	
+	// array that all beams get added to
+	global.beams = [];
+	
+	global.debug_draw = false;
+	
+	// make the list of beams persist in case someone reloads the mod while one's being used for whatever reason
+	var _persist = instances_matching(CustomObject, CONTROLLER, mod_current);
+	
+	if (array_length(_persist) > 0){
+		var _restored = false;
+		
+		with(_persist){
+			if (!_restored){
+				_restored = true;
+				
+				global.beams = beams;
+			}
+			
+			instance_delete(self);
+		}
+	}
+	
+	global.beta = false;
+	
+	try{
+		global.beta = !null;
+	}
+	
+	catch(_error){
+		global.beta = false;
+	};
+	
+	
 	with(Menu) {
 		mode = 0;
 		event_perform(ev_step, ev_step_end);
@@ -137,7 +186,8 @@
 #macro mod_current_type script_ref_create(0)[0]
 #macro bbox_center_x (bbox_left + bbox_right + 1) / 2
 #macro bbox_center_y (bbox_top + bbox_bottom + 1) / 2
-#macro infinity 1/0
+#macro infinity (global.beta ? 1 / 0 : 1000000)
+#macro negative_infinity (global.beta ? -1 / 0 : -1000000)
 #macro snd global.snd
 
  // Mod Macros:
@@ -148,6 +198,7 @@
 #macro options_avail instance_exists(Menu) and (Menu.mode = 1 or options_open)
 #macro quest global.mut_quest
 #macro categories global.mut_category
+#macro CONTROLLER mod_current + "." + mod_current_type + " controller"
 
  // Custom Instance Macros:
 #macro CrystallineEffect instances_matching(CustomObject, "name", "CrystallineEffect")
@@ -193,7 +244,7 @@
 #define step
 	if(!instance_exists(global.begin_step)) global.begin_step = script_bind_begin_step(begin_step, 0);
 	script_bind_draw(skill_effects, -1001);
-	script_bind_draw(effigy_token_draw, -2001);
+	script_bind_draw(effigy_token_draw, -1005);
 	
 	 // Setting setup:
 	with(instances_matching(Menu, "metamorphosis", null)) {
@@ -365,6 +416,12 @@
     	if(fork()) {
     		wait 0;
     		
+    		if(array_length(instances_matching(Player, "race", "effigy")) and m >= 13 and !option_get("effigy_skin_1")) {
+				option_set("effigy_skin_1", 1);
+				metamorphosis_save();
+				with(unlock_splat("EFFIGY B-SKIN UNLOCKED", `FOR OBTAINING 13 MUTATIONS`, mod_variable_get("race", "effigy", "sprPortrait")[1], sndCharUnlock)) nam[1] = "EFFIGY B";
+    		}
+    		
     		if(instance_number(Player) = 0 and array_length(global.current_muts) > 0) {
 				var l = array_length(global.current_muts);
 				if(l = 1) {
@@ -406,7 +463,7 @@
 	    	var v = option_get("vault_visits");
 		    option_set("vault_visits", v = undefined ? 1 : (v + 1));
     		
-	    	if(option_get("shopkeeps")) {
+	    	if(option_get("shopkeeps") and (!mod_exists("mod", "vagabonds_master") or !mod_variable_exists("mod", "vagabonds_master", "settings") or !mod_variable_get("mod", "vagabonds_master", "settings").setting_newvault)) {
 	    		 // Find the furthest floor in the crown vault and find the direction its in, rounded to 90 degrees
 	    		var ffloor = instance_furthest(10016, 10016, Floor),
 	    			shop_dir = grid_lock(point_direction(x, y, ffloor.x, ffloor.y), 90);
@@ -826,7 +883,7 @@
 		
 		var hover = 0;
 		for(i = 0; i <= maxp; i++) {
-			if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + (sprite_width/2), y + (sprite_height/2))) {
+			if(point_in_rectangle(mouse_x[i], mouse_y[i], x - (sprite_width/2), y - (sprite_height/2), x + floor(sprite_width/2), y + floor(sprite_height/2))) {
 				hover = 1;
 			}
 		}
@@ -845,7 +902,7 @@
 		}
 		
 		if("sacrifice" in self) {
-			draw_set_colour(make_color_rgb(190, 253, 8));
+			draw_set_colour(make_color_rgb(68, 197, 22));
 			draw_rectangle(x - 1 - (sprite_width/2), y - 1 - (sprite_height/2) - hover, x + (sprite_width/2), y + (sprite_height/2) - hover, 0);
 			draw_set_color(c_white);
 		}
@@ -858,7 +915,7 @@
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 30 + random(2), false);
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 60 + random(2), false);
 	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 30 + random(2), false);
-	
+	if(array_length(instances_matching(CustomObject, "name", "CustomBeam"))) with(instances_matching(CustomObject, "name", "CustomBeam")) draw_custombeam(c_gray, 1, 1, 128 + sin(current_frame) * 3, false, true);
 
 #define draw_dark_end
 	draw_set_color($000000);
@@ -866,16 +923,29 @@
 	with(instances_matching(CustomProp, "name", "Shopkeep")) draw_circle(x, y, 20 + random(2), false);	
 	with(instances_matching(CustomProp, "name", "Mutator")) draw_circle(x, y, 40 + random(2), false);
 	with(instances_matching(CustomHitme, "name", "FreakFriend")) draw_circle(x, y, 15 + random(2), false);
+	if(array_length(instances_matching(CustomObject, "name", "CustomBeam"))) with(instances_matching(CustomObject, "name", "CustomBeam")) draw_custombeam(c_black, 1, 1, 48 + sin(current_frame) * 3, false, true);
 
 #define draw_bloom
 	with(instances_matching(CustomHitme, "name", "EffigyOrbital")) {
 		var hp = (my_health/maxhealth);
 		draw_sprite_ext(spr_glow, image_index, x, y, (image_xscale * 1.5) * right, image_yscale * 1.5, image_angle, image_blend, 0.2 * hp);
 	}
+	
+	if(array_length(instances_matching(CustomObject, "name", "CustomBeam"))) with(instances_matching(CustomObject, "name", "CustomBeam")) draw_custombeam(image_blend, image_alpha * 0.1, 1.5);
 
 #define cleanup
 	with(global.begin_step) instance_destroy();
 
+	with(instance_create(0, 0, CustomObject)){
+		variable_instance_set(self, CONTROLLER, mod_current);
+		persistent = true;
+		
+		beams = global.beams;
+	}
+	
+	if (sprite_exists(global.mask)){
+		sprite_delete(global.mask);
+	}
 	
  //				--- OBJECT SCRIPTS ---			//
 #define obj_create(_x, _y, _name)
@@ -889,6 +959,70 @@
 	 // Create Object:
 	var o = noone;
 	switch(_name){
+		case "BeamChild":
+			o = instance_create(_x, _y, CustomSlash);
+			
+			with(o){
+				depth = object_get_depth(NothingBeam);
+				sprite_index = global.mask;
+				mask_index = global.mask;
+				
+				team = other.team;
+				creator = other.creator;
+				
+				on_anim = script_ref_create(CustomBeam_anim);
+				on_wall = script_ref_create(CustomBeam_wall);
+				on_hit = script_ref_create(CustomBeam_hit);
+				on_projectile = script_ref_create(CustomBeam_projectile);
+				on_grenade = script_ref_create(CustomBeam_grenade);
+			}
+			break;
+		
+		case "CustomBeam":
+			o = instance_create(_x, _y, CustomObject);
+		
+			with(o){
+				depth = object_get_depth(NothingBeam);
+				mask_index = global.mask;
+				
+				array_push(global.beams, self);
+				
+				sprite_index = sprNothingBeamStretch;
+				sprite_start = sprNothingBeam;
+				sprite_end = -1;
+				sprite_particle = sprNothingBeamParticle;
+				
+				// false if the sprites go vertically (throne beam), true if they're horizontal (laser)
+				transpose = false;
+				
+				// maximum distance for hitscan, alarm to activate hitscan
+				// currently the alarm runs itself again every frame because it changes angle when its creator aims
+				max_dist = 512;
+				alarm0 = 1;
+				
+				// some weird timer I made that increases faster the longer it's there, subtracts from image_yscale
+				existed = 0.01;
+				
+				team = ("team" in other ? other.team : id);
+				creator = (instance_is(other, FireCont) && "creator" in other ? other.creator : other);
+				
+				// damage gets scaled by image_yscale / (sprite_index size / 2)
+				damage = 2;
+				
+				// point array override, for when you want a shape or something instead of a hitscan beam
+				points = [];
+				
+				// acts as [_x2, _y2] in bezier_curve if length of >= 2
+				// use this to make the beam curve without specifying the points array
+				control_point = [];
+				curve_step = 0.2;
+				
+				// beam children, for more accurate hitboxes
+				children = [];
+				on_destroy = script_ref_create(CustomBeam_cleanup);
+			}
+		break;
+		
 		case "CrystallineEffect":
 			o = instance_create(_x, _y, CustomObject);
 			with(o){
@@ -1019,6 +1153,8 @@
 				splat = 0;
 				tooltip = "";
 				index = 0;
+				setting = ["test", true];
+				page = "test";
 				
 				on_click   = null;
 				on_release = null;
@@ -1240,6 +1376,11 @@
 		}
 	}
 
+#define BeamChild_draw
+	if (global.debug_draw){
+		draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+	}
+
 #define CheekPouch_step
 	if(instance_exists(creator) && "nexthurt" in creator){
 		var _time = creator.nexthurt - current_frame;
@@ -1360,6 +1501,240 @@
 			}
 		}
 	}
+#define CustomBeam_begin_step
+	if (!"texture_width" in self){
+		exit;
+	}
+	
+	var end_x = x + lengthdir_x(image_xscale, image_angle);
+	var end_y = y + lengthdir_y(image_xscale, image_angle);
+	
+	var _points = points;
+	var point_count = array_length(_points);
+	
+	children = instances_matching_ne(children, "id");
+	
+	if (point_count < 2){
+		_points = [[x, y], [end_x, end_y]];
+		
+		if (array_length(control_point) >= 2){
+			_points = bezier_curve(x, y, control_point[0], control_point[1], end_x, end_y, curve_step);
+		}
+		
+		point_count = array_length(_points);
+	}
+	
+	var child_count = array_length(children);
+	
+	if (child_count < point_count - 1){
+		repeat(point_count - 1 - child_count){
+			array_push(children, obj_create(0, 0, "BeamChild"));
+		}
+	}
+	
+	var _scale = image_yscale;
+	var _extra = texture_width;
+	var _damage = damage;
+	
+	for (var i = 0; point_count - 1 > i; i ++){
+		var _child = children[i];
+		var _point1 = _points[i];
+		var _point2 = _points[i + 1];
+		
+		var _px1 = _point1[0];
+		var _py1 = _point1[1];
+		var _px2 = _point2[0];
+		var _py2 = _point2[1];
+		
+		var _dir = point_direction(_px1, _py1, _px2, _py2);
+		
+		with(_child){
+			image_yscale = _scale;
+			image_angle = _dir;
+			
+			var _x = lengthdir_x(_extra, _dir);
+			var _y = lengthdir_y(_extra, _dir);
+			
+			x = _px1 - _x * sign(i);
+			y = _py1 - _y * sign(i);
+			xprevious = x;
+			yprevious = y;
+			
+			image_xscale = point_distance(x, y, _px2 + _x * sign(i), _py2 + _y * sign(i));
+			damage = _damage * (_scale / (_extra / 4));
+		}
+	}
+
+#define CustomBeam_step
+	// adjust angle and position with creator
+	if (instance_exists(creator)){
+		if ("gunangle" in creator){
+			direction += clamp(angle_difference(creator.gunangle, direction) * 0.1, -3, 3);
+			direction = ((direction % 360) + 360) % 360;
+			image_angle = direction;
+		}
+		
+		x = creator.x;
+		y = creator.y;
+	}
+	
+	else{
+		direction = current_frame % 360;
+		image_angle = direction;
+	}
+	
+	// remove sprite, multiply image_yscale to make collisions accurate, store texture
+	if (!"last_texture" in self){
+		texture = sprite_get_texture(sprite_index, floor(image_index));
+		last_texture = texture;
+		texture_width = (transpose ? sprite_height : sprite_width);
+		image_yscale *= (texture_width / 4);
+		sprite_index = -1;
+		
+		// particles
+		// they seemed better with the random translation being half of below
+		repeat(12){
+			var _add = choose(-90, 90);
+			var _pos = translate_rotate(x, y, random(image_yscale), 0, image_angle + _add);
+			var beam_scale = max(2, image_yscale / (texture_width / 4));
+			
+			with(instance_create(_pos[0], _pos[1], NothingBeamParticle)){
+				motion_add(other.image_angle + random(35) * sign(_add), 18);
+				sprite_index = other.sprite_particle;
+				image_angle = direction;
+				image_xscale = beam_scale / 2;
+				image_yscale = beam_scale / 2;
+				depth = other.depth - 1;
+			}
+		}
+		
+		CustomBeam_begin_step();
+	}
+	
+	// detect sprite changes
+	if (sprite_index != -1){
+		texture = sprite_get_texture(sprite_index, floor(image_index));
+		texture_width = (transpose ? sprite_height : sprite_width);
+		last_texture = texture;
+		image_yscale *= (texture_width / 4);
+		sprite_index = -1;
+	}
+	
+	// if the user changes the texture instead, validate and use a default value when invalid
+	if (texture != last_texture){
+		if (texture_get_width(texture) <= 0 || texture_get_height(texture) <= 0){
+			texture = sprite_get_texture(sprNothingBeamStretch, 0);
+		}
+		
+		last_texture = texture;
+	}
+	
+	var _scale = max(0, image_yscale - existed);
+	
+	if (random(2) < current_time_scale){
+		var _pos = translate_rotate(x, y, random(image_yscale * 2), 0, choose(image_angle - 90, image_angle + 90));
+		var beam_scale = max(2, image_yscale / (texture_width / 4));
+		
+		// more particles
+		with(instance_create(_pos[0], _pos[1], NothingBeamParticle)){
+			motion_add(other.image_angle, 18);
+			sprite_index = other.sprite_particle;
+			image_angle = direction;
+			image_xscale = beam_scale / 2;
+			image_yscale = beam_scale / 2;
+			depth = other.depth - 1;
+		}
+	}
+	
+	// if beam really small, beam go bye
+	if (image_yscale <= texture_width * 0.05){
+		instance_destroy();
+		exit;
+	}
+	
+	// hitscan but it auto-repeats
+	if (alarm0 && !--alarm0 && !--alarm0){
+		CustomBeam_alrm0();
+		
+		alarm0 = 1;
+		image_yscale = _scale;
+		existed *= 1.03;
+		
+		exit;
+	}
+
+// binary-search hitscan
+// see collision_line_first
+#define CustomBeam_alrm0
+	image_xscale = max_dist;
+	
+	var _yscale = image_yscale;
+	image_yscale = min(_yscale, 2);
+	
+	if (place_meeting(x, y, Wall)){
+		var _sx = lengthdir_x(image_xscale, image_angle);
+		var _sy = lengthdir_y(image_xscale, image_angle);
+		
+		while (abs(_sx) >= 1 || abs(_sy) >= 1){
+			_sx /= 2;
+			_sy /= 2;
+			
+			if (place_meeting(x, y, Wall)){
+				image_xscale -= point_distance(0, 0, _sx, _sy);
+			}
+			
+			else{
+				image_xscale += point_distance(0, 0, _sx, _sy);
+			}
+		}
+	}
+	
+	image_yscale = _yscale;
+
+// it's a slash, try not to get stuck on walls
+#define CustomBeam_wall
+	xprevious = x;
+	yprevious = y;
+	
+	if (random(2) < current_time_scale && instance_is(other, Wall)){
+		with(other){
+			instance_create(x, y, FloorExplo);
+			instance_destroy();
+		}
+	}
+
+#define CustomBeam_hit
+	if (projectile_canhit(other)){
+		projectile_hit(other, damage);
+	}
+	
+	// do some effects here so it looks better
+#define CustomBeam_projectile
+	if (other.team != team){
+	    with(other) mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
+	}
+	
+#define CustomBeam_grenade
+	with(other) mod_script_call("skill", "selectivefocus", "selectivefocus_destroy");
+	
+#define CustomBeam_anim
+	
+	
+#define CustomBeam_draw
+	draw_custombeam();
+	
+#define CustomBeam_cleanup
+	var _index = array_find_index(global.beams, self);
+	
+	if (_index >= 0){
+		var _new = array_slice(global.beams, 0, _index);
+		array_copy(_new, _index, global.beams, _index + 1, array_length(global.beams) - (_index + 1));
+		global.beams = _new;
+	}
+	
+	with(instances_matching_ne(children, "id")){
+		instance_delete(self);
+	}
 	
 #define EffigyOrbital_step
 	if(instance_exists(Portal) or instance_exists(LevCont) or !instance_exists(creator)) {
@@ -1386,17 +1761,12 @@
 	}
 
 #define EffigyOrbital_begin_step
-	if(type = 6 and array_length(instances_matching_lt(instances_matching(CustomHitme, "name", name), "id", id))) {
-		instance_delete(self);
-		exit;
-	}
-
 	if(instance_exists(creator)) {
 		x = lerp(x, 
-				 creator.x + lengthdir_x(16, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 creator.x + lengthdir_x(16, (GameCont.timer * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
 				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
 		y = lerp(y, 
-				 creator.y + lengthdir_y(16, (current_frame * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
+				 creator.y + lengthdir_y(16, (GameCont.timer * 2) + (360 * (index/array_length(creator.effigy_orbital)))), 
 				 max(creator.speed/creator.maxspeed, 0.2) * current_time_scale);
 		
 		right = creator.right;
@@ -1454,7 +1824,19 @@
 			break;
 			
 			case 6:
+				gunangle = creator.gunangle;
 			
+				if("beam" in self and instance_exists(beam)) with(beam) {
+					var goalx = other.x + lengthdir_x(96, other.gunangle),
+						goaly = other.y + lengthdir_y(96, other.gunangle),
+						angdiff = angle_difference(point_direction(x, y, goalx, goaly),
+												   point_direction(x, y, x + lengthdir_x(96, direction), y + lengthdir_y(96, direction)));
+						ang = (array_length(control_point) ? 
+						       min(abs(angdiff), 8) * sign(angdiff) : 
+						       point_direction(x, y, goalx, goaly));
+					control_point[0] = (array_length(control_point) ? other.x + lengthdir_x(96, direction + ang) : goalx);
+					control_point[1] = (array_length(control_point) > 1 ? other.y + lengthdir_y(96, direction + ang) : goaly);
+				}
 			break;
 		}
 		
@@ -1499,6 +1881,13 @@
 			sound_play_pitch(sndFishWarrantEnd, 1.4 + random(0.4));
 			sound_play_pitch(sndSwapShotgun, 0.5 + random(0.1));
 			sound_play_pitch(sndFlamerStop, 0.4 + random(0.2));
+		break;
+		
+		case 6:
+			sound_play_pitchvol(sndBecomeNothingStartup, 0.4 + random(0.2), 0.6);
+			sound_play_pitchvol(sndNothing2DeadStart, 0.4 + random(0.2), 0.6);
+			
+			if("beam" in self and instance_exists(beam)) with(beam) instance_destroy();
 		break;
 	}
 	
@@ -1761,7 +2150,7 @@
 	sound_play_pitch(sndClick, 1 + random(0.2));
 
 #define MetaPage_click
-	with(instances_matching(CustomObject, "name", "MetaButton", "MetaMut")) instance_destroy();
+	with(instances_matching(CustomObject, "name", "MetaButton", "MetaMut")) if(name != "MetaSettings") instance_destroy();
 
 	with(instances_matching(CustomObject, "name", "MetaSettings")) {
 		splat = 0;
@@ -1788,6 +2177,8 @@
 		
 		page = other.index;
 	}
+	
+	//with(instances_matching(CustomObject, "name", "MetaSettings")) instance_destroy();
 
 #define MetaNone_step
 	//if(next) 
@@ -1839,11 +2230,12 @@
 	else {
 		sound_play(sndClick);
 		sound_play(sndMenuStats);
+		
+		page = 0;
+		
 		options_create();
 		
 		var skill_list = mod_get_names("skill");
-	
-		page = 0;
 		
 		global.mutation_list = [];
 		
@@ -2526,7 +2918,7 @@
 		    s = global.option_list[i];
 		    v = lq_get(SETTING, string_replace(s, " ", "_"));
 		    
-		    with(obj_create(x, y, "MetaButton")) {
+		    with(obj_create(0, 0, "MetaButton")) {
 		    	setting = [s, v];
 		    	index = array_length(instances_matching(CustomObject, "name", "MetaButton"));
 		    	on_click = script_ref_create(MetaButton_click);
@@ -2537,7 +2929,7 @@
 		    }
 		    
 		    if(array_length(instances_matching(CustomObject, "name", "MetaPage")) < 3 and i < 3) {
-		    	with(obj_create(x, y, "MetaButton")) {
+		    	with(obj_create(0, 0, "MetaButton")) {
 					name = "MetaPage";
 					index = i;
 					page = other.pages[i];
@@ -2788,3 +3180,248 @@
 	return _new;
 	
 #define enemy_face(_dir)                                                                        _dir = ((_dir % 360) + 360) % 360; if(_dir < 90 || _dir > 270) right = 1; else if(_dir > 90 && _dir < 270) right = -1;
+
+
+ // ALL OF THESE SHITS ARE FOR EFFIGY'S ULTRA C LASER
+#define draw_custombeam
+	/// draw_custombeam(_blend = image_blend, _alpha = image_alpha, _mul = 1, _add = 0, _texture = true, _round = false)
+	var _blend = argument_count > 0 ? argument[0] : image_blend;
+var _alpha = argument_count > 1 ? argument[1] : image_alpha;
+var _mul = argument_count > 2 ? argument[2] : 1;
+var _add = argument_count > 3 ? argument[3] : 0;
+var _texture = argument_count > 4 ? argument[4] : true;
+var _round = argument_count > 5 ? argument[5] : false;
+	var _scale = image_yscale / (texture_width / 4) * _mul;
+	var start_dist = (transpose ? sprite_get_width(sprite_start) : sprite_get_height(sprite_start)) * _scale;
+	var end_dist = (transpose ? sprite_get_width(sprite_end) : sprite_get_height(sprite_end)) * _scale;
+	
+	// laser starts here
+	// sprite_start gets drawn here
+	// you need to adjust offsets for whatever sprite you choose
+	// however, I tested with sprNothingBeam and sprNothingBeamStretch and it just works
+	var visual_x = x + lengthdir_x(start_dist, image_angle);
+	var visual_y = y + lengthdir_y(start_dist, image_angle);
+	
+	var transposed_angle = image_angle + (!transpose ? 90 : 0);
+	
+	if (!global.debug_draw){
+		draw_sprite_ext(sprite_start, 0, visual_x, visual_y, _scale, _scale, transposed_angle, _blend, _alpha);
+	}
+	
+	var _length = (global.debug_draw ? 0 : max(0, image_xscale - start_dist - end_dist));
+	var beam_end_x = visual_x + lengthdir_x(_length, image_angle);
+	var beam_end_y = visual_y + lengthdir_y(_length, image_angle);
+	
+	if (_length > 0){
+		var _points = points;
+		
+		if (array_length(_points) >= 2){
+			BeamShape_draw(_points, texture_width / 2, _add, _scale, _blend, _alpha, true, (_texture ? texture : null), transpose);
+		}
+		
+		else{
+			_points = [[visual_x, visual_y], [beam_end_x, beam_end_y]];
+			
+			if (array_length(control_point) >= 2){
+				_points = bezier_curve(visual_x, visual_y, control_point[0], control_point[1], beam_end_x, beam_end_y, curve_step);
+			}
+			
+			BeamShape_draw(_points, texture_width / 2, _add, _scale, _blend, _alpha, false, (_texture ? texture : null), transpose);
+		}
+		
+		var point_count = array_length(_points);
+		
+		var second_to_last = _points[point_count - 2];
+		var final_point = _points[point_count - 1];
+		
+		var _dir = point_direction(second_to_last[0], second_to_last[1], final_point[0], final_point[1]);
+		
+		beam_end_x = final_point[0] + lengthdir_x(end_dist, _dir);
+		beam_end_y = final_point[1] + lengthdir_y(end_dist, _dir);
+		
+		transposed_angle = _dir + (!transpose ? 90 : 0);
+		
+		if (_round){
+			for (var i = 0; point_count > i; i ++){
+				var _point = _points[i];
+				draw_circle_color(_point[0], _point[1], (texture_width / 2) * _scale + _add, _blend, _blend, false);
+			}
+		}
+	}
+	
+	if (!global.debug_draw){
+		draw_sprite_ext(sprite_end, 0, beam_end_x, beam_end_y, _scale, _scale, transposed_angle, _blend, _alpha);
+	}
+
+#define bezier_curve(_x1, _y1, _x2, _y2, _x3, _y3, _step)
+	var _points = [];
+	
+	for (var i = 0; 1 >= i; i += _step){
+		var _lx1 = lerp(_x1, _x2, i);
+		var _ly1 = lerp(_y1, _y2, i);
+		var _lx2 = lerp(_x2, _x3, i);
+		var _ly2 = lerp(_y2, _y3, i);
+		
+		var _cx = lerp(_lx1, _lx2, i);
+		var _cy = lerp(_ly1, _ly2, i);
+		
+		array_push(_points, [_cx, _cy]);
+	}
+	
+	return _points;
+	
+	// draws lines of width _radius * 2 * _scale connected by _points
+	// _points can be any length >= 2
+	// ...
+	// texture can be provided instead of drawing a solid line (_texture)
+	// _transpose should be true if your sprite faces horizontally instead of vertically
+#define BeamShape_draw
+	/// BeamShape_draw(_points, _radius, _addr, _scale, _blend, _alpha, _loop = true, ?_texture = undefined, _transpose = false)
+	var _points = argument[0], _radius = argument[1], _addr = argument[2], _scale = argument[3], _blend = argument[4], _alpha = argument[5];
+var _loop = argument_count > 6 ? argument[6] : true;
+var _texture = argument_count > 7 ? argument[7] : undefined;
+var _transpose = argument_count > 8 ? argument[8] : false;
+	var real_texture = (!is_undefined(_texture));
+	
+	if ((real_texture && (texture_get_width(_texture) <= 0 || texture_get_height(_texture) <= 0)) || !is_real(_radius)){
+		return false;
+	}
+	
+	var point_count = array_length(_points);
+	
+	if (point_count <= 0){
+		return false;
+	}
+	
+	if (real_texture){
+		draw_primitive_begin_texture(pr_trianglestrip, _texture);
+	}
+	
+	else{
+		draw_primitive_begin(pr_trianglestrip);
+	}
+	
+	var _uvs = (_transpose ? 
+		[[0, 0],
+		[0, 1]]
+		:
+		[[0, 0],
+		[1, 0]]
+	);
+	
+	var uv_left = _uvs[0];
+	var uv_right = _uvs[1];
+	
+	var uv_x1 = uv_left[0];
+	var uv_y1 = uv_left[1];
+	var uv_x2 = uv_right[0];
+	var uv_y2 = uv_right[1];
+	
+	var _max = (_loop ? point_count : point_count - 1);
+	
+	// >= because the shape should be closed
+	for (var i = 0; _max >= i; i ++){
+		var _point1 = _points[(((i - 1) % point_count) + point_count) % point_count];
+		var _point2 = _points[((i % point_count) + point_count) % point_count];
+		var _point3 = _points[(((i + 1) % point_count) + point_count) % point_count];
+		
+		var _px1 = _point1[0];
+		var _py1 = _point1[1];
+		var _px2 = _point2[0];
+		var _py2 = _point2[1];
+		var _px3 = _point3[0];
+		var _py3 = _point3[1];
+		
+		// add _radius
+		var _dir1 = point_direction(_px1, _py1, _px2, _py2);
+		
+		var _right1 = _dir1 + 90;
+		var _left1 = _dir1 - 90;
+		var _right2 = _dir2 + 90;
+		var _left2 = _dir2 - 90;
+		
+		var _ox1 = lengthdir_x(_radius, _right1) * _scale + lengthdir_x(_addr, _right1);
+		var _oy1 = lengthdir_y(_radius, _right1) * _scale + lengthdir_y(_addr, _right1);
+		var _nx1 = lengthdir_x(_radius, _left1) * _scale + lengthdir_x(_addr, _left1);
+		var _ny1 = lengthdir_y(_radius, _left1) * _scale + lengthdir_y(_addr, _left1);
+		
+		var _dir2 = point_direction(_px2, _py2, _px3, _py3);
+		
+		var _ox2 = lengthdir_x(_radius, _right2) * _scale + lengthdir_x(_addr, _right2);
+		var _oy2 = lengthdir_y(_radius, _right2) * _scale + lengthdir_y(_addr, _right2);
+		var _nx2 = lengthdir_x(_radius, _left2) * _scale + lengthdir_x(_addr, _left2);
+		var _ny2 = lengthdir_y(_radius, _left2) * _scale + lengthdir_y(_addr, _left2);
+		
+		var _ii = [false];
+		var _oi = [false];
+		
+		if (i){
+			// calculate intersections so draws look nice and don't overlap (expensive?)
+			_ii = line_segment_intersection(_px1 + _ox1, _py1 + _oy1, _px2 + _ox1, _py2 + _oy1, _px3 + _ox2, _py3 + _oy2, _px2 + _ox2, _py2 + _oy2);
+			_oi = line_segment_intersection(_px1 + _nx1, _py1 + _ny1, _px2 + _nx1, _py2 + _ny1, _px3 + _nx2, _py3 + _ny2, _px2 + _nx2, _py2 + _ny2);
+		}
+		
+		if (!_ii[0]){
+			_ii = [false, _px2 + _ox1, _py2 + _oy1];
+		}
+		
+		if (!_oi[0]){
+			_oi = [false, _px2 + _nx1, _py2 + _ny1];
+		}
+		
+		var _first = (i ? _ii : _oi);
+		var _second = (i ? _oi : _ii);
+		
+		if (real_texture){
+			draw_vertex_texture_color(_first[1], _first[2], uv_x1, uv_y1, _blend, _alpha);
+			// draw_sprite_ext(sprPopoNade, 0, _first[1], _first[2], 1, 1, 0, c_black, 1);
+			draw_vertex_texture_color(_second[1], _second[2], uv_x2, uv_y2, _blend, _alpha);
+			// draw_sprite_ext(sprPopoNade, 0, _second[1], _second[2], 1, 1, 0, c_white, 1);
+		}
+		
+		else{
+			draw_vertex_color(_first[1], _first[2], _blend, _alpha);
+			// draw_sprite_ext(sprPopoNade, 0, _first[1], _first[2], 1, 1, 0, c_black, 1);
+			draw_vertex_color(_second[1], _second[2], _blend, _alpha);
+			// draw_sprite_ext(sprPopoNade, 0, _second[1], _second[2], 1, 1, 0, c_white, 1);
+		}
+	}
+	
+	draw_primitive_end();
+	
+	return true;
+
+// https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+#define line_intersection(_x1, _y1, _x2, _y2, _x3, _y3, _x4, _y4)
+	var _d = (_x1 - _x2) * (_y3 - _y4) - (_y1 - _y2) * (_x3 - _x4);
+	
+	if (_d == 0){
+		return [false];
+	}
+	
+	return [
+		true,
+		((_x1 * _y2 - _y1 * _x2) * (_x3 - _x4) - (_x1 - _x2) * (_x3 * _y4 - _y3 * _x4)) / _d,
+		((_x1 * _y2 - _y1 * _x2) * (_y3 - _y4) - (_y1 - _y2) * (_x3 * _y4 - _y3 * _x4)) / _d
+	];
+
+#define line_segment_intersection(_x1, _y1, _x2, _y2, _x3, _y3, _x4, _y4)
+	var _d = (_x1 - _x2) * (_y3 - _y4) - (_y1 - _y2) * (_x3 - _x4);
+	var _t = ((_x1 - _x3) * (_y3 - _y4) - (_y1 - _y3) * (_x3 - _x4)) / _d;
+	var _u = ((_x2 - _x1) * (_y1 - _y3) - (_y2 - _y1) * (_x1 - _x3)) / _d;
+	
+	if (0 > _t || _t > 1 || 0 > _u || _u > 1){
+		return [false];
+	}
+	
+	return [
+		true,
+		(_x1 + _t * (_x2 - _x1)),
+		(_y1 + _t * (_y2 - _y1))
+	];
+
+// https://yal.cc/2d-pivot-points/
+#define translate_rotate(_x, _y, _xlength, _ylength, _dir)
+	var new_x = _x + lengthdir_x(_xlength, _dir) + lengthdir_x(_ylength, _dir - 90);
+	var new_y = _y + lengthdir_y(_xlength, _dir) + lengthdir_y(_ylength, _dir - 90);
+	return [new_x, new_y];

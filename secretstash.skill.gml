@@ -23,15 +23,15 @@
 	else if(!global.taken) {
 		if(!instance_exists(GenCont) and !instance_exists(LevCont)) soda_spawn();
 		
-		global.taken += global.taken - _num;
+		global.taken += _num - global.taken;
 	}
 	
-#define skill_avail     return mod_exists("mod", "defpack tools");
+#define skill_avail     return (mod_exists("mod", "defpack tools") and (instance_exists(Menu) or instance_exists(LevCont) or skill_get(mod_current) > 0));
 #define skill_sacrifice return false; // Stop Effigy from sacrificing this mutation
 #define step
 	if(!instance_exists(GenCont) and !global.taken) {
 		soda_spawn();
-		global.taken += global.taken - skill_get(mod_current);
+		global.taken += skill_get(mod_current) - global.taken;
 	}
 
 #define soda_spawn
@@ -44,6 +44,7 @@
 	vfloors = instances_matching(Floor, "stashlocated", true);
 	
 	repeat(10 + (skill_get(mod_current) * 4)) {
+		if(!array_length(vfloors)) exit;
 		var locfloor = vfloors[irandom(array_length(vfloors) - 1)]; 
 		with(instance_create(locfloor.x + (locfloor.sprite_width/2), locfloor.y + (locfloor.sprite_height/2), SodaMachine)) {
 			spr_idle = global.sprMachine;
