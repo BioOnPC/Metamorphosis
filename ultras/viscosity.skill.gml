@@ -22,7 +22,7 @@
 		if(viscous_lsthealth > my_health) {
 			var viscdiff = viscous_lsthealth - my_health,
 				visccost = 75 - max((skill_get("viscosity") - 1) * 10, 50);
-			if(instance_exists(GameCont)) {
+			if(instance_exists(GameCont) && viscdiff) {
 				repeat(viscdiff) {
 					if(GameCont.rad >= visccost) {
 						GameCont.rad -= visccost;
