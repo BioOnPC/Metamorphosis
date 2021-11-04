@@ -1,6 +1,4 @@
 #define init
-	if(effigy_get_muts()[0] = mut_none or effigy_get_muts()[1] = mut_none) effigy_set_muts(skill_decide(0), skill_decide(0));
-	
 	global.sprPortrait[0] = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Portrait.png", 1, 30, 250);
 	global.sprIdle[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Idle.png",   4, 24, 24);
 	global.sprWalk[0]     = sprite_add("../sprites/Characters/Effigy/spr" + string_upper(string(mod_current)) + "Walk.png",   6, 24, 24);
@@ -29,19 +27,17 @@
 	global.sprUltraHUD[0] = sprite_add("../sprites/HUD/Ultras/sprUltraEIDOLONHUD.png",  1, 8, 8);
 	global.sprUltraHUD[1] = sprite_add("../sprites/HUD/Ultras/sprUltraANATHEMAHUD.png", 1, 8, 8);
 
-	global.sprOrbital[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbital.png", 9, 12, 12);
-	global.sprOrbital[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbital.png", 9, 12, 12);
-	global.sprOrbital[3] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbital.png",   9, 12, 12);
-	global.sprOrbital[4] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbital.png",      9, 12, 12);
-	global.sprOrbital[5] = global.sprOrbital[3]; // No purpose other than avoiding errors
-	global.sprOrbital[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbital.png",     9, 12, 12);
+	global.sprOrbitaloffensive = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbital.png", 9, 12, 12);
+	global.sprOrbitaldefensive = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbital.png", 9, 12, 12);
+	global.sprOrbitalutility   = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbital.png",   9, 12, 12);
+	global.sprOrbitalammo 	   = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbital.png",      9, 12, 12);
+	global.sprOrbitalultra     = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbital.png",     9, 12, 12);
 	
-	global.sprOrbitalGlow[1] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbitalGlow.png", 9, 12, 12);
-	global.sprOrbitalGlow[2] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbitalGlow.png", 9, 12, 12);
-	global.sprOrbitalGlow[3] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbitalGlow.png",   9, 12, 12);
-	global.sprOrbitalGlow[4] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbitalGlow.png",      9, 12, 12);
-	global.sprOrbitalGlow[5] = global.sprOrbital[3]; // No purpose other than avoiding errors
-	global.sprOrbitalGlow[6] = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbitalGlow.png",     9, 12, 12);
+	global.sprOrbitalGlowoffensive = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOffensiveOrbitalGlow.png", 9, 12, 12);
+	global.sprOrbitalGlowdefensive = sprite_add("../sprites/Characters/Effigy/Orbitals/sprDefensiveOrbitalGlow.png", 9, 12, 12);
+	global.sprOrbitalGlowutility   = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUtilityOrbitalGlow.png",   9, 12, 12);
+	global.sprOrbitalGlowammo	   = sprite_add("../sprites/Characters/Effigy/Orbitals/sprAmmoOrbitalGlow.png",      9, 12, 12);
+	global.sprOrbitalGlowultra	   = sprite_add("../sprites/Characters/Effigy/Orbitals/sprUltraOrbitalGlow.png",     9, 12, 12);
 	
 	global.sprOrbitalDie = sprite_add("../sprites/Characters/Effigy/Orbitals/sprOrbitalDie.png", 5, 12, 12);
 
@@ -57,21 +53,21 @@
 		assign_sprites();
 	}
 
-#macro categories mod_variable_get("mod", "metamorphosis", "mut_category")
-#macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`
-#macro SETTING mod_variable_get("mod", "metamorphosis_options", "settings")
-#macro snd mod_variable_get("mod", "metamorphosis", "snd")
+#macro metacolor																`@(color:${make_color_rgb(110, 140, 110)})`
+#macro scr																		mod_variable_get("mod", "metamorphosis", "scr")
+#macro snd																		mod_variable_get("mod", "metamorphosis", "snd")
+#macro call																		script_ref_call
 
 #define race_name              return "EFFIGY";
 #define race_text
-	var e = effigy_get_muts();
+	var e = call(scr.save_get, "metamorphosis", "effigy_mut");
 
-	return `STARTS WITH@3(${skill_get_icon(e[0])[0]}:${skill_get_icon(e[0])[1]})AND@3(${skill_get_icon(e[1])[0]}:${skill_get_icon(e[1])[1]})##${metacolor}SACRIFICE@w MUTATIONS`;
+	return `STARTS WITH@3(${call(scr.skill_get_icon, e[0])[0]}:${call(scr.skill_get_icon, e[0])[1]})AND@3(${call(scr.skill_get_icon, e[1])[0]}:${call(scr.skill_get_icon, e[1])[1]})##${metacolor}SACRIFICE@w MUTATIONS`;
 #define race_swep              return wep_rusty_revolver;
 #define race_menu_button    
 	if(fork()) {
 		wait 0;
-		if(instance_exists(self)) sprite_index = (option_get("effigy_tokens") > 0 ? global.sprSelect : global.sprSelectLock);
+		if(instance_exists(self)) sprite_index = (call(scr.save_get, "metamorphosis", "effigy_tokens") > 0 ? global.sprSelect : global.sprSelectLock);
 		exit;
 	}
 #define race_skins			   return 2;
@@ -83,7 +79,7 @@
 	
 	 // Normal:
 	if(_playersActive <= 1){
-		return (_skin = 0 || option_get(`effigy_skin_${_skin}`));
+		return (_skin = 0 || call(scr.save_get, "metamorphosis", `effigy_skin_${_skin}`));
 	}
 	
 	 // Co-op Bugginess:
@@ -104,7 +100,7 @@
 	}
 	
 #define race_skin_button(_skin)
-	sprite_index = (_skin = 0 || option_get(`effigy_skin_${_skin}`) ? global.sprSkin[argument0] : global.sprSkinL[argument0]);
+	sprite_index = (_skin = 0 || call(scr.save_get, "metamorphosis", `effigy_skin_${_skin}`) ? global.sprSkin[argument0] : global.sprSkinL[argument0]);
 #define race_lock              return `${metacolor}STORE MUTATIONS`;
 #define race_unlock            return `FOR ${metacolor}STORING MUTATIONS`;
 #define race_tb_text           return "GAIN AN @gADDITIONAL MUTATION@s OPTION#FOR SACRIFICED MUTATIONS";
@@ -144,10 +140,10 @@
 		}
 	}
 
-#define race_portrait(_p, _b)  return (option_get(`effigy_skin_${_b}`) ? global.sprPortrait[_b] : global.sprPortrait[0]);
+#define race_portrait(_p, _b)  return (call(scr.save_get, "metamorphosis", `effigy_skin_${_b}`) ? global.sprPortrait[_b] : global.sprPortrait[0]);
 #define race_mapicon(_p, _b)   return global.sprMap[_b];
 #define race_avail             
-	return option_get("effigy_tokens");
+	return call(scr.save_get, "metamorphosis", "effigy_tokens");
 
 #define race_ttip
 	 // ULTRA TIPS //
@@ -159,24 +155,23 @@
 #define game_start
 	global.rerolls = 3;
 	
-	var t = option_get("effigy_tokens");
-	option_set("effigy_tokens", t = undefined ? 0 : max(t - 1, 0));
-	
-	mod_script_call("mod", "metamorphosis", "metamorphosis_save");
+	var t = call(scr.save_get, "metamorphosis", "effigy_tokens", 1);
+	call(scr.save_set, "metamorphosis", "effigy_tokens", t);
 
 #define create
 	 // Random lets you play locked characters: (Can remove once 9941+ gets stable build)
-	if(!option_get("effigy_unlocked")){
+	if(!call(scr.save_get, "metamorphosis", "effigy_unlocked")){
 		race = "fish";
 		player_set_race(index, race);
 		exit;
 	}
 	
-	if(bskin != 0 and !option_get(`effigy_skin_${bskin}`)) bskin = 0;
+	if(bskin != 0 and !call(scr.save_get, "metamorphosis", `effigy_skin_${bskin}`)) bskin = 0;
 	
-	var e = effigy_get_muts();
-	skill_set(e[0], 1);
-	skill_set(e[1], 1);
+	var e = call(scr.save_get, "metamorphosis", "effigy_mut");
+	with(e) {
+		skill_set(self, 1);
+	}
 	
 	assign_sprites();
 	assign_sounds();
@@ -258,12 +253,11 @@
 				s = skill_get_at(m);
 			
 			while(s != undefined) {
-				if((s != mut_patience and 
-					skill_get_category(s) != -1 and 
+				if((s != mut_patience and
 					(!mod_script_exists("skill", string(s), "skill_sacrifice") or mod_script_call("skill", string(s), "skill_sacrifice") != false)) and 
-					(mod_script_call("mod", "metamorphosis", "skill_get_avail", s) or string_lower(`${s}`) = "disciple") and 
+					(call(scr.skill_get_avail, s, 1) or string_lower(`${s}`) = "disciple") and 
 					array_length(instances_matching(instances_matching(CustomObject, "name", "OrchidSkill"), "skill", s)) = 0) {
-					array_push(effigy_eligible_unsorted, [s, skill_get_category(s)]);
+					array_push(effigy_eligible_unsorted, [s, call(scr.skill_get_category, s)]);
 				}
 				m++;
 				s = skill_get_at(m);
@@ -343,10 +337,10 @@
 				}
 				
 				var t = `@w${skill_get_name(effigy_eligible[effigy_selected])} ${metacolor}SACRIFICED`,
-					c = skill_get_category(effigy_eligible[effigy_selected]);
+					c = call(scr.skill_get_category, effigy_eligible[effigy_selected]);
 				
-				if(c != 0) {
-					if(c != 6) {
+				if(c != -1) {
+					if(c != "ultra") {
 						array_push(effigy_sacrificed, effigy_eligible[effigy_selected]);
 						with(GameCont) skillpoints++;
 					}
@@ -358,7 +352,7 @@
 					skill_set(effigy_eligible[effigy_selected], 0);
 					t += `#${get_sacrifice(c)}`;
 					if(ultra_get(race, 1)) {
-						t += `#${get_sacrifice(irandom_range(1, 4))}`;
+						t += `#${get_sacrifice(choose("offensive", "defensive", "ammo", "utility"))}`;
 						sound_play_pitch(sndLevelUltra, 1.7 + random(0.2));
 					}
 				}
@@ -391,17 +385,17 @@
 			draw_circle_color(x, y, 36 * effigy_lerp, c_green, c_green, 0);
 			for(var i = 0; i < array_length(effigy_eligible); i++){
 				var _c = make_color_rgb(72, 253, 8);
-				switch(skill_get_category(effigy_eligible[i])){
-					case 1:
+				switch(call(scr.skill_get_category, effigy_eligible[i])){
+					case "offensive":
 						_c = make_color_rgb(41, 12, 12);
 						break;
-					case 2:
+					case "defensive":
 						_c = make_color_rgb(102, 0, 24);
 						break;
-					case 3:
+					case "utility":
 						_c = make_color_rgb(16, 39, 79);
 						break;
-					case 4:
+					case "ammo":
 						_c = make_color_rgb(171, 156, 22);
 						break;
 					case 5:
@@ -430,12 +424,12 @@
 			draw_set_font(fntSmall);
 			draw_set_halign(fa_center);
 			if(effigy_selected != -1) {
-				switch(skill_get_category(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])) {
-					case 1: category = "BACKUP"; break;
-					case 2: category = "INVULNERABILITY"; break;
-					case 3: category = "EMPOWER"; break;
-					case 4: category = "INFINITE AMMO"; break;
-					case 6: category = "RAD BEAM"; break;
+				switch(call(scr.skill_get_category, effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])) {
+					case "offensive": category = "BACKUP"; break;
+					case "defensive": category = "INVULNERABILITY"; break;
+					case "ammo": category = "INFINITE AMMO"; break;
+					case "ultra": category = "RAD BEAM"; break;
+					default: category = "EMPOWER"; break;
 				}
 				
 				draw_text_nt(x, y - (60 * effigy_lerp) + (2 * effigy_hover), `${skill_get_name(effigy_eligible[max(min(effigy_selected, array_length(effigy_eligible) - 1), 0)])}`); 
@@ -447,7 +441,7 @@
 			for(var i = 0; i < array_length(effigy_eligible); i++) {
 				curang = startang + (amt * i);
 				
-				draw_sprite_ext(skill_get_icon(effigy_eligible[i])[0], skill_get_icon(effigy_eligible[i])[1], x - (lengthdir_x(32, curang) * effigy_lerp), y - (lengthdir_y(32, curang) * effigy_lerp) - (effigy_selected = i ? effigy_hover : 0), effigy_lerp, effigy_lerp, 0, (effigy_selected = i ? c_white : c_gray), effigy_lerp);
+				draw_sprite_ext(call(scr.skill_get_icon, effigy_eligible[i])[0], call(scr.skill_get_icon, effigy_eligible[i])[1], x - (lengthdir_x(32, curang) * effigy_lerp), y - (lengthdir_y(32, curang) * effigy_lerp) - (effigy_selected = i ? effigy_hover : 0), effigy_lerp, effigy_lerp, 0, (effigy_selected = i ? c_white : c_gray), effigy_lerp);
 			}
 		}
 	}
@@ -463,8 +457,8 @@
 	}
 	
 	else if("name" in self and name = "EffigyOrbital") {
-		spr_idle = global.sprOrbital[type];
-		spr_glow = global.sprOrbitalGlow[type];
+		spr_idle = mod_variable_get("mod", mod_current, `sprOrbital${type}`);
+		spr_glow = mod_variable_get("mod", mod_current, `sprOrbitalGlow${type}`);
 		spr_dead = global.sprOrbitalDie;
 	}
 
@@ -487,20 +481,20 @@
 		instance_create(x, y, PortalClear);
 		
 		if("effigy_orbital" not in self) effigy_orbital = [];
-		with(obj_create(x, y, "EffigyOrbital")) {
+		with(call(scr.obj_create, x, y, "EffigyOrbital")) {
 			index = array_length(other.effigy_orbital);
 			array_push(other.effigy_orbital, id);
 			creator = other;
 			team = other.team;
 			type = mut;
 			
-			spr_idle = global.sprOrbital[type];
-			spr_glow = global.sprOrbitalGlow[type];
+			spr_idle = mod_variable_get("race", mod_current, `sprOrbital${type}`);
+			spr_glow = mod_variable_get("race", mod_current, `sprOrbitalGlow${type}`);
 			spr_dead = global.sprOrbitalDie;
 			
-			if(type = 2) {
+			if(type = "defensive") {
 				var c = other;
-				with(obj_create(x, y, "CrystallineEffect")) {
+				with(call(scr.obj_create, x, y, "CrystallineEffect")) {
 					creator = c;
 				}
 			}
@@ -513,10 +507,10 @@
 				maxhealth *= 1.05;
 			}
 			
-			if(type = 6) {
+			if(type = "ultra") {
 				if(fork()) {
 					wait 35;
-					if(instance_exists(self)) with(obj_create(x, y, "CustomBeam")) {
+					if(instance_exists(self)) with(call(scr.obj_create, x, y, "CustomBeam")) {
 						direction = other.creator.gunangle;
 						other.beam = id;
 						//image_yscale = 3;
@@ -540,13 +534,13 @@
 	}
 
 	switch(mut) {
-		case 1: // OFFENSIVE -- Summon an allied gunner drone for all players
+		case "offensive": // OFFENSIVE -- Summon an allied gunner drone for all players
 			sound_play_pitch(sndSwapMotorized, 0.6 + random(0.2));
 			sound_play_pitch(sndHorrorPortal, 0.8 + random(0.3));
 			return "@sBACKUP!"
 		break;
 		
-		case 2: // DEFENSIVE -- Summon an orbital that blocks a limited number of shots
+		case "defensive": // DEFENSIVE -- Summon an orbital that blocks a limited number of shots
 			sound_play_pitch(sndCrystalShield, 0.6 + random(0.2));
 			sound_play_pitch(sndShielderDeflect, 1.4 + random(0.4));
 			sound_play_pitch(sndEliteShielderTeleport, 1.4 + random(0.4));
@@ -555,58 +549,31 @@
 			return "@sINVULNERABILITY!";
 		break;
 		
-		case 3: // UTILITY -- Empowered, gives haste + increased accuracy 
-			sound_play_pitch(sndDogGuardianJump, 0.6 + random(0.2));
-			sound_play_pitch(sndDogGuardianLand, 1.4 + random(0.2));
-			sound_play_pitch(sndHammer, 0.6 + random(0.3));
-			
-			return "@sEMPOWERED!";
-		break;
-		
-		case 4:  // AMMO -- Get infinte ammo for a certain amount of time
+		case "ammo":  // AMMO -- Get infinte ammo for a certain amount of time
 			sound_play_pitch(sndLightningShotgunUpg, 0.3 + random(0.4));
 			sound_play_pitch(sndFishWarrantEnd, 0.6 + random(0.3));
 			
 			return "@sINFINITE AMMO!"
 		break;
 		
-		case 6:
+		case "ultra":
 			sound_play_pitch(sndLaserCannonCharge, 0.2 + random(0.2));
 			sound_play_pitchvol(sndHyperCrystalChargeExplo, 0.6 + random(0.2), 0.4);
 			sound_play_pitchvol(sndNothingBeamWarn, 0.4 + random(0.2), 0.6);
 			
 			return "@sRAD BEAM!"
 		break;
+		
+		default: // UTILITY -- Empowered, gives haste + increased accuracy 
+			sound_play_pitch(sndDogGuardianJump, 0.6 + random(0.2));
+			sound_play_pitch(sndDogGuardianLand, 1.4 + random(0.2));
+			sound_play_pitch(sndHammer, 0.6 + random(0.3));
+			
+			return "@sEMPOWERED!";
+		break;
 	}
 	
 	return "";
-
-#define effigy_set_muts(first, second)
-	return mod_script_call("mod", "metamorphosis", "effigy_set_muts", first, second);
-
-#define effigy_get_muts
-	return mod_script_call("mod", "metamorphosis", "effigy_get_muts");
-
-#define option_set(opt, val)
-	return mod_script_call("mod", "metamorphosis", "option_set", opt, val);
-
-#define option_get(opt)
-	return mod_script_call("mod", "metamorphosis", "option_get", opt);
-	
-#define skill_get_icon(_skill)
-	return mod_script_call("mod", "metamorphosis", "skill_get_icon", _skill);
-	
-#define skill_decide(_category)
-	return mod_script_call("mod", "metamorphosis", "skill_decide", _category);
-
-#define skill_get_category(mut)
-	return mod_script_call("mod", "metamorphosis", "skill_get_category", mut);
-
-#define obj_create(_x, _y, obj)
-	return mod_script_call("mod", "metamorphosis", "obj_create", _x, _y, obj);
-	
-#define array_delete(_array, _index)
-	return mod_script_call("mod", "metamorphosis", "array_delete", _array, _index);
 	
 #define draw_pie(x ,y ,startang, endang, colour, radius)
 
@@ -635,3 +602,4 @@ if (argument2 > 0) { // no point even running if there is nothing to display (al
         
     }
 }
+

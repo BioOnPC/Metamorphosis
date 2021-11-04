@@ -12,7 +12,7 @@
 #define crown_name        return "CROWN OF EVOLUTION";
 #define crown_text        return "GET AN ADDITIONAL @gULTRA MUTATION#@wRANDOMIZE@s MUTATIONS EACH AREA";
 #define crown_tip         return "A HIGHER BEING";
-#define crown_avail		  return (instance_exists(GameCont) and GameCont.loops > 0 and GameCont.level >= 10) ? option_get("evolution_unlocked") : 0;
+#define crown_avail		  return (instance_exists(GameCont) and GameCont.loops > 0 and GameCont.level >= 10);
 	
 #define crown_button
 	sprite_index = global.sprCrownIcon;

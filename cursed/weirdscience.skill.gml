@@ -49,7 +49,7 @@
 	
     if((current_frame % (40 + (skill_get(mod_current) * 10))) < current_time_scale) {
     	var amt = 0;
-    	with(enemy) {
+    	with(instances_matching_ne(enemy, "object_index", RavenFly)) {
     		if(my_health < maxhealth) {
     			my_health += min(maxhealth - my_health, 5 + (instance_exists(GameCont) ? GameCont.loops : 0));
     			amt++;

@@ -28,7 +28,7 @@
     
     with(instances_matching(HPPickup, "crystallinepickup", null)) {
     	crystallinepickup = 1;
-    	with(obj_create(x, y, "CrystallinePickup")) {
+    	with(call(scr.obj_create, x, y, "CrystallinePickup")) {
     		creator = other.id;
     	}
     }
@@ -44,4 +44,5 @@
 	
 	instance_destroy();
 
-#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call

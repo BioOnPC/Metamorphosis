@@ -24,7 +24,7 @@
 	with(AmmoPickup) {
 	    if("adrenalinepickup" not in self) {
 	    	adrenalinepickup = 1;
-	    	with(obj_create(x, y, "AdrenalinePickup")) {
+	    	with(call(scr.obj_create, x, y, "AdrenalinePickup")) {
 	    		creator = other.id;
 	    	}
 	    }
@@ -64,4 +64,5 @@
 		}
 	}
 
-#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call

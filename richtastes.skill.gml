@@ -31,7 +31,7 @@
 			if(sprite_index = sprAmmo) sprite_index = (skill_get("magfingers") ? global.sprGoldFatAmmo : global.sprGoldAmmo);
 			else if(object_index = AmmoChest) sprite_index = (sprite_index = sprAmmoChestSteroids ? global.sprGoldAmmoChestSteroids : global.sprGoldAmmoChest);
 			
-			with(obj_create(x, y, "RichPickup")) {
+			with(call(scr.obj_create, x, y, "RichPickup")) {
 				creator = other.id;
 				mask_index = other.mask_index;
 			}
@@ -56,7 +56,8 @@
 		}
 	}
 	
-#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call
 
 #define weapon_decide(_hardMin, _hardMax, _gold, _noWep)
 	/*

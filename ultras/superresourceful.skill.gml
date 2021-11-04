@@ -8,7 +8,8 @@
 #define skill_tip     return "ARMS RACE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon; with(GameCont) mutindex--;
- // Sound:
+#define skill_take(_num)
+     // Sound:
 	if(_num > 0 && instance_exists(LevCont)){
 		sound_play(sndBasicUltra);
 		sound_play(global.sndSkillSlct);

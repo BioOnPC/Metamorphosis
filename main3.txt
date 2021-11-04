@@ -1,0 +1,37 @@
+/loadskill atomicpores
+/loadskill racingthoughts
+/loadskill insurgency
+/loadskill pyromania
+/loadskill magfingers
+/loadskill selectivefocus
+/loadskill grace
+/loadskill crystallinegrowths
+/loadskill camoflauge
+/loadskill dividedelbows
+/loadskill turtleshell
+/loadskill leadeyelids
+/loadskill cheekpouch
+//loadskill busybody
+/loadskill secretstash
+/loadskill crowncranium
+/loadskill linkedlobes
+/loadskill thinktank
+/loadskill richtastes
+
+// CURSED MUTATIONS
+/loadskill cursed/adrenaline
+/loadskill cursed/decayingflesh
+/loadskill cursed/vacuumvacuoles
+/loadskill cursed/scartissue
+/loadskill cursed/displacement
+/loadskill cursed/repentance
+/loadskill cursed/impatience
+/loadskill cursed/falseprayer
+/loadskill cursed/portalinstability
+/loadskill cursed/weirdscience
+/loadskill cursed/bloodshotsclera
+
+/load ultras
+/loadcrown crowns/evolution
+/loadrace characters/effigy
+/loadskill characters/effigyreroll

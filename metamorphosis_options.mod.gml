@@ -28,8 +28,13 @@
 #macro metacolor `@(color:${make_color_rgb(110, 140, 110)})`;
 #macro options_open global.option_open
 #macro options_avail instance_exists(Menu) and (Menu.mode = 1 or options_open)
+#macro scr																		mod_variable_get("mod", "metamorphosis", "scr")
+#macro call																		script_ref_call
+#macro SETTING global.settings
 
 #define step
+	if(!mod_variable_get("mod", "metamorphosis", "libLoaded")) exit;
+
 	script_bind_draw(menu_draw, -1005); // you know the kind of lazy where you do the harder thing because getting everything ready to do the easy thing seems too hard? that is what this script is the culmination of
 	
 	if(options_open) {
@@ -76,6 +81,8 @@
 	}
 
 #define menu_draw
+	if(!mod_variable_get("mod", "metamorphosis", "libLoaded")) exit;
+	
 	if(options_open) {
 		var _color = draw_get_color();
 		var _alpha = draw_get_alpha();
@@ -178,7 +185,7 @@
 							draw_text_nt(xx + 5, yy - 28 + splat + shift, skill_get_name(string_digits(s) != "" ? real(s) : s) + `#  @(color:${setting[1] ? c_dkgray : c_maroon})(${setting[1] ? "ENABLED" : "DISABLED"})`);
 						
 							
-							if(!option_get(`${s}_seen`)) {
+							if(!call(scr.save_get, "metamorphosis", `${s}_seen`)) {
 								var s = string_split(d, "#"),
 									c = 0;
 								
@@ -209,7 +216,7 @@
 						
 						var clr = [(setting[1] ? c_gray : c_maroon), (setting[1] ? c_dkgray : make_color_rgb(56, 0, 0))]; // Hover and non-hover sprite color
 						
-						if(option_get(`${string_replace(setting[0], "_enabled", "")}_seen`)) {
+						if(call(scr.save_get, mod_current, `${string_replace(setting[0], "_enabled", "")}_seen`)) {
 							clr = [(setting[1] ? c_white : c_red), (setting[1] ? c_gray : c_maroon)];
 						}
 						
@@ -217,7 +224,7 @@
 					}
 				}
 				
-				else if(SETTING.proto_mutation != mut_none) {
+				else if(call(scr.save_get, "metamorphosis", "proto_mutation") != mut_none) {
 					with(instances_matching(CustomObject, "name", "MetaProto")) {
 						_x    = view_xview[i] + game_width + 12;
 						_y    = view_yview[i] + (game_height/2) - 10;
@@ -226,7 +233,7 @@
 						
 						if(array_length(instances_matching(Loadout, "selected", 1)) = 0 or splat > 0) {
 							draw_sprite_ext(sprGameOverCenterSplat, min(splat, 2), _x, _y, 1, 1, 90, c_white, 1);
-							draw_sprite_ext(skill_get_icon(SETTING.proto_mutation)[0], skill_get_icon(SETTING.proto_mutation)[1], _x - 17 - splat - hover, _y - 5 - shift, 1, 1, 0, hover ? (setting[1] ? c_white : c_gray) : (setting[1] ? c_gray : c_dkgray), 1);
+							draw_sprite_ext(call(scr.skill_get_icon, call(scr.save_get, "metamorphosis", "proto_mutation"))[0], call(scr.skill_get_icon, call(scr.save_get, "metamorphosis", "proto_mutation"))[1], _x - 17 - splat - hover, _y - 5 - shift, 1, 1, 0, hover ? (setting[1] ? c_white : c_gray) : (setting[1] ? c_gray : c_dkgray), 1);
 							draw_sprite(sprToggle, setting[1], _x - 19 - splat - hover, _y + 5 - shift);
 						}
 					}
@@ -246,7 +253,7 @@
 						case "distance evolved": text = `HIGHEST AMOUNT OF AREAS VISITED#WITH THE ${metacolor}CROWN OF EVOLUTION@w`; break;
 						case "quests completed": text = `AMOUNT OF TIMES#YOU'VE ${metacolor}STORED MUTATIONS@w`; break;
 						case "times loaded": text = `AMOUNT OF TIMES YOU'VE LOADED THIS MOD#${metacolor}THANKS!@w :)`; break;
-						case "use_proto": text = `${metacolor}${skill_get_name(SETTING.proto_mutation)}`; break;
+						case "use_proto": text = `${metacolor}${skill_get_name(call(scr.save_get, "metamorphosis", "proto_mutation"))}`; break;
 					}
 					
 					if(text != "") draw_tooltip(mouse_x[i], mouse_y[i] - 6, text);
@@ -299,12 +306,6 @@
 			lq_set(p_hover, `p${index}`, 0);
 		}
 	}
-
-#define option_get(opt)
-	return mod_script_call("mod", "metamorphosis", "option_get", opt);
-
-#define skill_get_icon(_skill)
-	return mod_script_call("mod", "metamorphosis", "skill_get_icon", _skill);
 
 #define mouse_in_rectangle(_p, _x1, _y1, _x2, _y2, _gui)
 	 // Stolen from Squiddy's options API
@@ -388,6 +389,3 @@
 		file_unload(f);
 		exit;
     }
-   
-
-#macro SETTING global.settings

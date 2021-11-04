@@ -55,7 +55,7 @@
 				
 			if(_num > 0){ // Make sure you actually got projectiles to fire
 				with(bastion_projectiles){
-					repeat(1 + irandom((2 * _skill) / _num)){ // Sometimes double the projectiles released
+					repeat(skill_get(mod_current)){ // Sometimes double the projectiles released
 						var o = instance_create(x, y, object_index);
 						variable_instance_set_list(o, self);
 						

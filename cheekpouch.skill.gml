@@ -65,7 +65,7 @@
     		array_push(pickupchoose, "SpiritPickup");
     	}
     	
-    	obj_create(x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
+    	call(scr.obj_create, x, y, pickupchoose[irandom(array_length(pickupchoose) - 1)]);
     	
     	sound_play_pitch(sndHammerHeadEnd, 1.4 + random(0.3));
     	sound_play_pitch(sndEXPChest, 1.7 + random(0.2));
@@ -73,4 +73,5 @@
     }
     
     
-#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'telib', 'obj_create', _x, _y, _obj);
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call

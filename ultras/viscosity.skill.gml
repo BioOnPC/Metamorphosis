@@ -26,7 +26,7 @@
 				repeat(viscdiff) {
 					if(GameCont.rad >= visccost) {
 						GameCont.rad -= visccost;
-						my_health += viscous_lsthealth;
+						my_health += 1;
 						 // EFFECTS
 						sound_play_pitch(sndRadMaggotDie, 0.8);
 						sound_play(sndImpWristKill);

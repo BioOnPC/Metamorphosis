@@ -4,7 +4,7 @@
 	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 
 #define skill_name    return "DIVIDED ELBOWS";
-#define skill_text    return "@wREFLECTED PROJECTILES@s#ARE DUPLICATED";
+#define skill_text    return "@wALL PROJECTILES@s CAN BE @wREFLECTED@s#DUPLICATE @wREFLECTED PROJECTILES@s";
 #define skill_tip     return "GET OUTTA HERE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -17,6 +17,8 @@
 	
 #define step
     with(projectile) {
+    	if(("creator" not in self or (!instance_exists(creator) or creator.object_index != Player)) and speed != 0 and typ > 1) typ = 1;
+    	
     	if(!variable_instance_exists(self, "lstteam")) lstteam = team;
 	    if(instance_exists(Player) and lstteam != team and instance_nearest(x, y, Player).team = team) {
 	    	direction += 10 * skill_get(mod_current);
@@ -24,7 +26,7 @@
 	    	lstteam = team;
 	    	
 	    	 // Stolen from NTTE's "instance_clone". Yokin is epic, give the NTTE money, etc. etc
-			var dir = -20 * skill_get(mod_current);
+			var dir = -10 * skill_get(mod_current);
 			repeat(skill_get(mod_current)){
 				with(instance_copy(false)){
 					with(variable_instance_get_names(self)){
@@ -38,14 +40,14 @@
 					
 					direction += dir;
 					image_angle += dir;
-					dir += 20;
+					dir += 10;
 				}
 			}
 			
 			with(instance_create(x, y, GuardianDeflect)) mask_index = mskNone;
 			sound_play(sndCocoonBreak);
 			
-			view_shake_at(x, y, 5 * damage);
+			view_shake_at(x, y, damage);
 			sleep(2 * damage);
 	    }
     }

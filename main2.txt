@@ -1,0 +1,2 @@
+/allowmod libLoader
+/allowmod metamorphosis

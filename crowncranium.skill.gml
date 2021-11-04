@@ -87,7 +87,7 @@
 				case "melting":
 					repeat(5 * (GameCont.loops+1)){
 						with(instance_random(Floor)){
-							obj_create(x, y, "MeatBlob");
+							call(scr.obj_create, x, y, "MeatBlob");
 						}
 					}
 				break;
@@ -372,7 +372,7 @@
 					with(instances_matching(instances_matching(Corpse, "speed", 0), "skelenecro", null)){
 						skelenecro = true;
 						if(irandom(8) == 0){
-							with(obj_create(x, y, "FriendlyNecro")){
+							with(call(scr.obj_create, x, y, "FriendlyNecro")){
 								creator = instance_nearest(x, y, Player);
 								team = creator.team;
 							}
@@ -576,7 +576,7 @@ with(instances_matching_ge(Player, "craniumplantvisual", 1)){
 	ds_list_destroy(_list);
 	
 	return _wepDecide;
-	
-#define obj_create(_x, _y, _obj)                                            	return	mod_script_call_nc('mod', 'metamorphosis', 'obj_create', _x, _y, _obj);
+
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call
 #define haste(amt, pow)                                            	    		return mod_script_call('mod', 'metamorphosis', 'haste', amt, pow);
-#define option_set(opt, val)													return mod_script_call("mod", "metamorphosis", "option_set", opt, val);

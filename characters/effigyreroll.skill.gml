@@ -2,10 +2,14 @@
 	global.sprSkillIcon = sprite_add("../sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 4, 12, 16);
 	//global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	//global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
-	global.category     = irandom_range(1, 4);
+	global.category     = ["offensive", "defensive", "utility", "ammo"];
+	global.cur_category = 0;
+
+#macro scr																		mod_variable_get("mod", "metamorphosis", "scr")
+#macro call																		script_ref_call
 
 #define skill_name    return "REROLL";
-#define skill_text    return `REROLL THESE @gMUTATIONS@s#INTO ${category_names(global.category)} MUTATIONS`;
+#define skill_text    return `REROLL THESE @gMUTATIONS@s#INTO ${global.category[global.cur_category]} MUTATIONS`;
 #define skill_tip     return "STOP";
 //#define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -21,7 +25,7 @@
 			endpoints++;
 		}
 		if(fork()) {
-			var c = global.category, 
+			var c = global.cur_category, 
 				n = instance_number(mutbutton) - 1;
 			
 			wait 0;
@@ -30,8 +34,8 @@
 			
 			with(SkillIcon) {
 				if(num < n) {
-					if(skill_get_avail(skill)) {
-						skill = skill_decide(c);
+					if(call(scr.skill_get_avail, skill)) {
+						skill = call(scr.skill_decide, 0, c);
 						
 						if(skill = mut_none) { instance_destroy(); }
 						else {
@@ -65,24 +69,6 @@
 	}
 	
 	skill_set(mod_current, 0);
-
-#define category_names(_category)
-	switch(_category) {
-		case 1: return "@wOFFENSIVE@s"; break;
-		case 2: return "@rDEFENSIVE@s"; break;
-		case 3: return "@bUTILITY@s"; break;
-		case 4: return "@yAMMO@s"; break;
-		default: return "???"; break;
-	}
-
-#define skill_get_avail(_skill)
-	return mod_script_call("mod", "metamorphosis", "skill_get_avail", _skill);
-
-#define skill_decide(_category)
-	return mod_script_call("mod", "metamorphosis", "skill_decide", _category);
-
-#define skill_get_category(mut)
-	return mod_script_call("mod", "metamorphosis", "skill_get_category", mut);
 
 #define array_delete(_array, _index)
 	return mod_script_call("mod", "metamorphosis", "array_delete", _array, _index);

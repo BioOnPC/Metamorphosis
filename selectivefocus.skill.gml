@@ -109,7 +109,7 @@
 			selectivefocus_initial_destroy = 0;
 			
 			if(instance_is(creator, enemy) || (!instance_exists(creator) && team == 1)){
-				if(random(power(5, 1 / skill_get(mod_current))) < 1){
+				if(random(power(7, 1 / skill_get(mod_current))) < 1){
 					selectivefocus_destroy();
 				}
 			}
