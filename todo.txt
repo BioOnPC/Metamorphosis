@@ -1,0 +1,10 @@
+/*
+    TODO:
+    - Revise Decaying Flesh, False Prayer, Portal Instability, and Weird Science, all of them don't really work too well
+    - Revise Rich Tastes, turn it into a powerup mutation like Cheek Pouches, enemies pop into cash on death?
+    - Refine Think Tank, it's a bit funky and could feel better if the chests were delayed somehow. also buggy
+    - Turn sleep into a global effect
+    - Add Dental Caps, Steel Wool, and Blood-shot Sclera
+    - Revise Impact Wrists (?)
+    - Revise quest system
+*/

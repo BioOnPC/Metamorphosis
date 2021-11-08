@@ -32,7 +32,7 @@
 		global.libLoaded = true;
 		
 		call(["mod", "lib", "getRef"], "mod", mod_current, "scr");
-		call(scr.obj_setup, mod_current, ["AdrenalinePickup", "BeamChild", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "CustomBeam", "EffigyOrbital", "MutRefresher", "MetaButton", "RichPickup", "Shopkeep", "Mutator"]);
+		call(scr.obj_setup, mod_current, ["AdrenalinePickup", "BeamChild", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "CustomBeam", "EffigyOrbital", "MutRefresher", "MetaButton", "Shopkeep", "Mutator"]);
 		
 		call(scr.save_load, mod_current, {
 			proto_mutation      : mut_none, // Figure out which mut is saved for proto mutations
@@ -108,8 +108,6 @@
 			EffigyUltraC  = sound_add("sounds/Ultras/sndUltDisciple.ogg");
 			
 			Artificing = sound_add("sounds/Vault/mus100c.ogg");
-			
-			GoldRush = sound_add("sounds/sndGoldRush.ogg");
 		}
 	//#endregion
 	
@@ -260,12 +258,29 @@
 	
 	global.mut_quest = mut_none; // Make sure the shopkeep doesn't have a quest active //
 	
-	mod_variable_set("skill", "secretstash", "taken", 0);
-	
 	with(instances_matching_lt(instances_matching(CustomObject, "name", "MetaUnlock"), "id", GameCont.id)){
 		instance_delete(self);
 	}
+
+#define level_start
+	 // For powerup mutations:
+	var _t = 0; 
 	
+	 // Find the total HP of the stage:
+	with(enemy) {
+		_t += my_health;
+	}
+	
+	if(skill_get("richtastes")) {
+		var _m = ceil(_t * 0.5);
+		
+		while(_m > 0) {
+			with(enemy) if(call(scr.chance, 1, 3)) {
+				_m -= my_health;
+				richtastes_select = true;
+			}
+		}
+	}
 
 #define step
 	if(!global.libLoaded){exit;}
@@ -405,36 +420,8 @@
 	
     
     with(Player) {
-    	if("hastened" not in self) {
-    		hastened = 0;
-    		hastened_power = 0;
-    	}
-    	
     	if("crystallinegrowth" not in self) {
     		crystallinegrowth = 0;
-    	}
-    	
-    	if(hastened > 0) {
-    		 // FAST EFFECTS
-			if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
-				with(instance_create(x - (hspeed * 2) + orandom(3), y - (vspeed * 2) + orandom(3), BoltTrail)) {
-					creator = other; 
-					image_angle = other.direction;
-				    image_yscale = 1.4;
-				    image_xscale = other.speed * 4;
-				}
-			}
-			
-			hastened -= current_time_scale;
-    	
-	    	if(hastened <= 0) {
-	    		reloadspeed -= hastened_power;
-	    		maxspeed -= hastened_power;
-	    		hastened_power = 0;
-	    		
-	    		sound_play_pitch(sndLabsTubeBreak, 1.4 + random(0.2));
-				sound_play_pitch(sndSwapGold, 0.8 + random(0.1));
-	    	}
     	}
     	
     	if(crystallinegrowth > 0) {
@@ -788,6 +775,34 @@
 	    		tip = tip_generate();
 	    	}
 	    }
+    }
+    
+    with(instances_matching_ne(Player, "hastened", null)) {
+        if(array_length(hastened)) {
+            if(speed > 0 and (current_frame mod (current_time_scale * 2)) = 0) { 
+				with(instance_create(x - (hspeed * 3) + orandom(3), y - (vspeed * 3) + orandom(3), BoltTrail)) {
+					creator = other; 
+					image_angle = other.direction;
+				    image_yscale = 1.4;
+				    image_xscale = other.speed * 4;
+				}
+			}
+        }
+        
+        with(hastened) {
+            duration -= current_time_scale;
+            if(duration <= 0) {
+				other.maxspeed -= increase;
+		        other.reloadspeed -= increase;
+				
+				other.hastened = call(scr.array_delete, other.hastened, array_find_index(other.hastened, self));
+				
+				if(array_length(other.hastened = 0)) {
+	                sound_play_pitch(sndLabsTubeBreak, 1.4 + random(0.2));
+					sound_play_pitch(sndSwapGold, 0.8 + random(0.1));
+				}
+            }
+        }
     }
 
 #define draw
@@ -1531,7 +1546,7 @@
 			break;
 			
 			default:
-				with(creator) haste(current_time_scale * 2, 0.8);
+				with(creator) haste(current_time_scale, 0.8);
 			break;
 		}
 		
@@ -2087,44 +2102,6 @@
 
 	mod_variable_set("mod", "metamorphosis_options", "option_open", !options_open);
 
-#define RichPickup_create(_x, _y)
-	with(call(scr.obj_create, _x, _y, "RichPickup")){
-		return self;
-	}
-
-#define RichPickup_step
-	if(instance_exists(creator)) {
-		if(irandom(12/current_time_scale) == 0) {
-			instance_create(x + random_range(sprite_get_width(creator.sprite_index)/2, -(sprite_get_width(creator.sprite_index)/2)), y + random_range(sprite_get_height(creator.sprite_index)/2, -(sprite_get_height(creator.sprite_index)/2)), CaveSparkle).depth = depth - 1;
-		}
-	}
-	
-	//var c = object_get_parent(creator);
-	
-	/*if(fork()) {
-		wait 0;
-		if(!instance_exists(self) and c = chestprop) with(instance_nearest(x, y, ChestOpen))
-		exit;
-	}*/
-
-	AdrenalinePickup_step();
-	
-#define RichPickup_destroy
-	var _player = instance_nearest(x, y, Player);
-	if(instance_exists(_player) && place_meeting(x, y, _player)){
-		with(_player){
-			var _duration = (other.num * 50) * (skill_get("richtastes") + skill_get("magfingers"));
-			haste(_duration, 0.4);
-			
-			 // Effects:
-			sleep(30);
-			
-			sound_play_pitch(snd.GoldRush, 1 + random(0.3));
-		}
-		
-		with(instance_nearest(x, y, ChestOpen)) sprite_index = sprGoldChestOpen;
-	}
-
 #define Shopkeep_create(_x, _y)
 	with(instance_create(_x, _y, CustomProp)){
 		 // Visual:
@@ -2277,18 +2254,12 @@
 
 #define haste(amt, pow)
 	if(amt > 0 and pow > 0) {
-		if(hastened < amt) hastened = amt;
-		
-		if(hastened_power = 0) {
-			hastened_power = pow;
-			reloadspeed    += pow;
-			maxspeed	   += pow;
-		}
-		
-		else if(hastened_power < pow) {
-			reloadspeed += pow - hastened_power;
-			maxspeed    += pow - hastened_power;
-			hastened_power = pow;
+		if("hastened" not in self) hastened = [];
+		maxspeed += pow;
+		reloadspeed += pow;
+		array_push(hastened, {duration : amt, increase : pow});
+		with(hastened[array_length(hastened) - 1]) {
+		    return self;
 		}
 	}
 

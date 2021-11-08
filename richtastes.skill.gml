@@ -5,10 +5,11 @@
 	global.sprGoldFatAmmo           = sprite_add("sprites/VFX/sprGoldFatAmmo.png",  		 7, 6,  6);
 	global.sprGoldAmmoChest         = sprite_add("sprites/VFX/sprGoldAmmoChest.png",		 7, 12, 8);
 	global.sprGoldAmmoChestSteroids = sprite_add("sprites/VFX/sprGoldAmmoChestSteroids.png", 7, 12, 8);
-	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
+	global.sndSkillSlct 			= sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
+	global.sndGoldRush 				= sound_add("sounds/sndGoldRush.ogg");
 
 #define skill_name    return "RICH TASTES";
-#define skill_text    return "@yAMMO@s SOMETIMES @wHASTENS@s YOU#@wHASTENED @yGOLDEN WEAPONS";
+#define skill_text    return "SOME KILLS GRANT @wHASTE@s#@yGOLDEN WEAPONS@s RELOAD FASTER";
 #define skill_tip     return "GOLDEN GRILL";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -19,107 +20,56 @@
 	}
 
 #define step
+	 // Speed up golden weapons gogogogogo:
 	with(Player) {
 		if(weapon_get_gold(wep) or (race = "steroids" and weapon_get_gold(bwep))) {
-			mod_script_call("mod", "metamorphosis", "haste", 10, 0.6);
-		}
-	}
-	
-	with(instances_matching(instances_matching([AmmoChest, AmmoPickup], "richtastes", null), "sprite_index", sprAmmo, sprAmmoChest, sprAmmoChestMystery, sprAmmoChestSteroids)) {
-		richtastes = "might be";
-		if(random(8) < skill_get(mod_current)) {
-			if(sprite_index = sprAmmo) sprite_index = (skill_get("magfingers") ? global.sprGoldFatAmmo : global.sprGoldAmmo);
-			else if(object_index = AmmoChest) sprite_index = (sprite_index = sprAmmoChestSteroids ? global.sprGoldAmmoChestSteroids : global.sprGoldAmmoChest);
+			 // Reloadspeed nonsense:
+			if(weapon_get_gold(wep) and reload) 						reload  -= (reloadspeed * (0.6 + ((weapon_get_gold(bwep) and race = "steroids") * 0.6))) * current_time_scale; 
+			if(race = "steroids" and weapon_get_gold(bwep) and breload) breload -= (reloadspeed * (0.6 + (weapon_get_gold(wep) * 0.6))) * current_time_scale; 
 			
-			with(call(scr.obj_create, x, y, "RichPickup")) {
-				creator = other.id;
-				mask_index = other.mask_index;
+			 // VFX:
+			if(call(scr.chance_ct, 1, 8)) {
+				repeat(irandom_range(1, 3)) {
+					with(instance_create(x + call(scr.orandom, sprite_width/2), y + call(scr.orandom, sprite_height/2), BulletHit)) sprite_index = sprCaveSparkle;
+				}
 			}
 		}
 	}
 	
-	with(instances_matching([WeaponChest, WepPickup], "richtastes", null)) {
-		richtastes = ":)";
-		
-		if(object_index != BigWeaponChest) {
-			if(object_index = WeaponChest) {
-				if(random(50) < skill_get(mod_current)) {
-					instance_create(x, y, GoldChest);
-					instance_delete(self);
+	 // Haste players on some kills:
+	with(instances_matching_ne(enemy, "richtastes_select", null)) {
+		if(instance_exists(self) and object_index != RavenFly) {
+			if(my_health > 0) {
+				 // VFX:
+				if(call(scr.chance_ct, 1, 10)) {
+					repeat(irandom_range(1, 3)) {
+						with(instance_create(x + call(scr.orandom, sprite_width/3), y + call(scr.orandom, sprite_height/3), BulletHit)) sprite_index = sprCaveSparkle;
+					}
 				}
-			} 
+			}
 			
-			else if(random(30) < (0.5+0.5*skill_get(mod_current)) and (weapon_get_area(wep) > -1 and weapon_get_area(wep) <= 4)) {
-				var p = instance_nearest(x, y, Player);
-				if(instance_exists(p)) wep = weapon_decide(0, 10, true, [p.wep, p.bwep]);
+			else if("richhaste" not in self) {
+				 // Make sure this only happens once, there are some weirdy enemies that stay at 0 hp for a bit
+				richhaste = true;
+				
+				 // VFX:
+				repeat(6 + irandom(4)) {
+					call(scr.fx, x, y, 2 + random(5), Feather).sprite_index = sprMoney;
+				}
+				
+				with(Player) {
+					 // Haste:
+					call(["mod", "metamorphosis", "haste"], 40 + (skill_get(mod_current) * 20), 0.4);
+					
+					 // FX:
+					sound_play_pitch(global.sndGoldRush, 1 + random(0.3));
+					repeat(6 + irandom(4)) {
+						call(scr.fx, x, y, 2 + random(5), Feather).sprite_index = sprMoney;
+					}
+				}
 			}
 		}
 	}
 	
 #macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
 #macro  call																					script_ref_call
-
-#define weapon_decide(_hardMin, _hardMax, _gold, _noWep)
-	/*
-		Returns a random weapon that spawns within the given difficulties
-		Takes standard weapon chest spawning conditions into account
-		
-		Ex:
-			wep = weapon_decide(0, GameCont.hard, false, [wep, bwep]);
-	*/
-	
-	 // Robot:
-	for(var i = 0; i < maxp; i++) if(player_get_race(i) == "robot") _hardMax++;
-	_hardMin += (5 * ultra_get("robot", 1));
-	
-	 // Just in Case:
-	_hardMax = max(0, _hardMax);
-	_hardMin = min(_hardMin, _hardMax);
-	
-	 // Default:
-	var _wepDecide = wep_screwdriver;
-	if(_gold != 0){
-		_wepDecide = choose(wep_golden_wrench, wep_golden_machinegun, wep_golden_shotgun, wep_golden_crossbow, wep_golden_grenade_launcher, wep_golden_laser_pistol);
-		if(GameCont.loops > 0 && random(2) < 1){
-			_wepDecide = choose(wep_golden_screwdriver, wep_golden_assault_rifle, wep_golden_slugger, wep_golden_splinter_gun, wep_golden_bazooka, wep_golden_plasma_gun);
-		}
-	}
-	
-	 // Decide:
-	var	_list    = ds_list_create(),
-		_listMax = weapon_get_list(_list, _hardMin, _hardMax);
-		
-	ds_list_shuffle(_list);
-	
-	for(var i = 0; i < _listMax; i++){
-		var	_wep    = ds_list_find_value(_list, i),
-			_canWep = true;
-			
-		 // Weapon Exceptions:
-		if(_wep == _noWep || (is_array(_noWep) && array_find_index(_noWep, _wep) >= 0)){
-			_canWep = false;
-		}
-		
-		 // Gold Check:
-		else if((_gold > 0 && !weapon_get_gold(_wep)) || (_gold < 0 && weapon_get_gold(_wep) == 0)){
-			_canWep = false;
-		}
-		
-		 // Specific Spawn Conditions:
-		else switch(_wep){
-			case wep_super_disc_gun       : if("curse" not in self || curse <= 0) _canWep = false; break;
-			case wep_golden_nuke_launcher : if(!UberCont.hardmode)                _canWep = false; break;
-			case wep_golden_disc_gun      : if(!UberCont.hardmode)                _canWep = false; break;
-			case wep_gun_gun              : if(crown_current != crwn_guns)        _canWep = false; break;
-		}
-		
-		 // Success:
-		if(_canWep){
-			_wepDecide = _wep;
-			break;
-		}
-	}
-	
-	ds_list_destroy(_list);
-	
-	return _wepDecide;

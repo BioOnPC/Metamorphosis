@@ -7,7 +7,7 @@
 #macro cursecolor `@(color:${make_color_rgb(136, 36, 174)})`
 
 #define skill_name    return cursecolor + "WEIRD SCIENCE";
-#define skill_text    return "@pSPLIT DEAD ENEMIES IN TWO@s#ENEMIES @rHEAL@s OVER TIME";
+#define skill_text    return "KILLS ARE SOMETIMES @gVIOLENTLY DOUBLED@s";
 #define skill_tip     return "IT'S ALIVE";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -18,12 +18,13 @@
 		sound_play(sndBigCursedChest);
 		sound_play(global.sndSkillSlct);
 	}
+
 #define skill_avail   return false;
 #define skill_cursed  return true; // for metamorphosis
 
 #define step
 	with(instances_matching_le(enemy, "my_health", 0)) {
-		if(random(min(20, maxhealth + 1)) < 1) {
+		if(call(scr.chance, 1, min(max(maxhealth * 0.25, 3), 15))) {
 			with(instance_copy(false)){
 				with(variable_instance_get_names(self)){
 					var	_value = variable_instance_get(other, self),
@@ -39,33 +40,26 @@
 			
 			sleep(maxhealth);
 			
+			repeat(2 + irandom(2)) with(call(scr.projectile_create, self, x + call(scr.orandom, sprite_width/3), y + call(scr.orandom, sprite_height/3), SmallExplosion)) {
+				sprite_index = sprExploderExplo;
+				mask_index   = mskSmallExplosion;
+				team = -1;
+			}
+			
+			repeat(3 + irandom(2)) with(call(scr.projectile_create, self, x + call(scr.orandom, sprite_width/3), y + call(scr.orandom, sprite_height/3), ThroneBeam, random(360), 2 + random(2))) {
+				sprite_index = sprExploGuardianBullet;
+				team = -1;
+			}
+			
 			motion_add(direction + 30, speed);
 			
-			instance_create(x, y, ExploderExplo);
 			sound_play_pitch(sndWheelPileBreak, 1.5 + random(0.3));
 			sound_play_pitch(sndToxicBoltGas, 1.8 + random(0.4));
+			sound_play_pitch(sndFreakPopoRevive, 1.2 + random(0.4));
+			sound_play_pitch(sndBloodLauncher, 0.6 + random(0.2));
 		}
 	}
-	
-    if((current_frame % (40 + (skill_get(mod_current) * 10))) < current_time_scale) {
-    	var amt = 0;
-    	with(instances_matching_ne(enemy, "object_index", RavenFly)) {
-    		if(my_health < maxhealth) {
-    			my_health += min(maxhealth - my_health, 5 + (instance_exists(GameCont) ? GameCont.loops : 0));
-    			amt++;
-    			instance_create(x, y, BloodLust);
-    		}
-    	}
-    	
-    	if(amt > 0) {
-    		sound_play_pitch(sndHitFlesh, 2.4 + random(0.4));
-    		sound_play_pitch(sndBoltHitWall, 1.7 + random(0.3));
-    		sound_play_pitch(sndMeatExplo, 2.4 + random(0.4));
-    	}
-    }
-	
-	
-	
+
 #define data_clone(_value)
 	/*
 		Returns an exact copy of the given value
@@ -146,3 +140,6 @@
 	surface_reset_target();
 	
 	return _new;
+
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call

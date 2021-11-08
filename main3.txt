@@ -29,7 +29,7 @@
 /loadskill cursed/falseprayer
 /loadskill cursed/portalinstability
 /loadskill cursed/weirdscience
-/loadskill cursed/bloodshotsclera
+//loadskill cursed/bloodshotsclera
 
 /load ultras
 /loadcrown crowns/evolution

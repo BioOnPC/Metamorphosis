@@ -47,7 +47,7 @@
 			with(instance_create(x, y, GuardianDeflect)) mask_index = mskNone;
 			sound_play(sndCocoonBreak);
 			
-			view_shake_at(x, y, damage);
+			view_shake_max_at(x, y, 5 * damage);
 			sleep(2 * damage);
 	    }
     }
