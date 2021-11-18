@@ -93,7 +93,7 @@
 				break;
 					
 				case "steroids":
-					with(Player){
+					with(instances_matching(Player, "race", "steroids")){
 						for(var i2 = 1; i2 < array_length(ammo); i2++){
 							ammo[i2] += typ_ammo[i2]*2;
 							ammo[i2] = min(ammo[i2], typ_amax[i2]);
@@ -131,7 +131,7 @@
 		for(var i = 0; i < array_length(raceList); i++){
 			switch(raceList[i]){
 				case "fish":
-					with(Player) {
+					with(instances_matching(Player, "race", "fish")) {
 						with(instances_matching_ne(ChestOpen, "craniumfish", 1)){
 							craniumfish = 1;
 							if(distance_to_point(other.x,other.y) < 16){
@@ -148,7 +148,7 @@
 					}
 					break;
 				case "crystal":
-					with(Player) {
+					with(instances_matching(Player, "race", "crystal")) {
 						var hp = my_health;
 						if(fork()){
 							wait(0);
@@ -216,18 +216,20 @@
 					with(Pickup){
 						if(object_index != WepPickup){
 							var p = instance_nearest(x,y,Player);
-							move_contact_solid(point_direction(x,y,p.x,p.y), 1);
-							if(irandom(4/current_time_scale) == 0) {
-								instance_create(x, y, Dust).depth = depth + 1;
-								sound_play_pitchvol(sndPortalFlyby1, 1.4 + random(0.2), 0.4);
-								sound_play_pitchvol(sndPortalFlyby2, 2.4 + random(0.2), 0.4);
+							if(instance_exists(p) and p.race = "eyes") {
+								move_contact_solid(point_direction(x,y,p.x,p.y), 1);
+								if(irandom(4/current_time_scale) == 0) {
+									instance_create(x, y, Dust).depth = depth + 1;
+									sound_play_pitchvol(sndPortalFlyby1, 1.4 + random(0.2), 0.4);
+									sound_play_pitchvol(sndPortalFlyby2, 2.4 + random(0.2), 0.4);
+								}
 							}
 						}
 					}
 					break;
 				case "plant":
 					if(instance_exists(enemy)){
-						with(Player) {
+						with(instances_matching(Player, "race", "plant")) {
 							if("craniumplant" not in self){
 								craniumplant = 0;		//how much plant has moved for charging
 								craniumplantcharge = 0;	//how much plant has killed for charging
@@ -273,7 +275,7 @@
 					}
 					break;
 				case "venuz":
-					with(Player) {
+					with(instances_matching(Player, "race", "venuz")) {
 						var modifier = reloadspeed/max(weapon_get_load(wep)/10,1)-reloadspeed;
 						reloadspeed -= modifier;
 						if(fork()){
@@ -299,7 +301,7 @@
 						}
 					break;
 				case "chicken":
-					with(Player) {
+					with(instances_matching(Player, "race", "chicken")) {
 						with(instances_matching_ne(ChestOpen, "craniumchicken", 1)){
 							craniumchicken = 1;
 							if(other.chickendeaths > 0 && sprite_index != sprHealthChestOpen && distance_to_point(other.x,other.y) < 16){
@@ -373,7 +375,7 @@
 						skelenecro = true;
 						if(irandom(8) == 0){
 							with(call(scr.obj_create, x, y, "FriendlyNecro")){
-								creator = instance_nearest(x, y, Player);
+								creator = call(scr.instance_nearest_array, x, y, instances_matching(Player, "race", "skeleton"));
 								team = creator.team;
 							}
 							

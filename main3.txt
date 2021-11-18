@@ -17,6 +17,7 @@
 /loadskill linkedlobes
 /loadskill thinktank
 /loadskill richtastes
+/loadskill blastingcaps
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline

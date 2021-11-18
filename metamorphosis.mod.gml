@@ -53,7 +53,7 @@
 	    
 	    call(scr.skill_set_category,
     	[
-    		["dividedelbows", "linkedlobes", "pyromania", "racingthoughts", "richtastes", "blastbile", "ignitionpoint", "thunderclap", "compoundelbow", "concentration", "excitedneurons", "powderedgums", "flamingpalms", "Brain Transfer", "Compressing Fist", "Confidence", "Double Vision", "Energized Intestines", "Fractured Fingers", "Neural Network", "Deep Convolutional Network", "Deep Residual Network", "Echo State Network", "Feed Forward Network", "Generative Adversarial Network", "Markov Chain", "Recurrent Neural Network", "Support Vector Machines", "Rocket Casings", "Shattered Skull", "Shocked Skin", "Sloppy Fingers", "Staked Chest", "Waste Gland", "Muscle Memory", "prismaticiris", "decayingflesh", "displacement"],
+    		["dividedelbows", "linkedlobes", "pyromania", "racingthoughts", "richtastes", "blastbile", "ignitionpoint", "thunderclap", "compoundelbow", "concentration", "excitedneurons", "powderedgums", "flamingpalms", "Brain Transfer", "Compressing Fist", "Confidence", "Double Vision", "Energized Intestines", "Fractured Fingers", "Neural Network", "Deep Convolutional Network", "Deep Residual Network", "Echo State Network", "Feed Forward Network", "Generative Adversarial Network", "Markov Chain", "Recurrent Neural Network", "Support Vector Machines", "Rocket Casings", "Shattered Skull", "Shocked Skin", "Sloppy Fingers", "Staked Chest", "Waste Gland", "Muscle Memory", "prismaticiris", "decayingflesh", "displacement", "blastingcaps"],
     	
 	    	["crystallinegrowths", "turtleshell", "perfectfreeze", "condensedmeat", "Garment Regenerator", "Sadism", "Steel Nerves", "tougherstuff", "scartissue", "vacuumvacuoles"],
 	    	
@@ -272,10 +272,12 @@
 	}
 	
 	if(skill_get("richtastes")) {
-		var _m = ceil(_t * 0.5);
+		var _m = min(ceil(_t * 0.1), 75 * max(GameCont.loops, 1)),
+			_e = instances_matching(enemy, "", undefined);
+			
 		
 		while(_m > 0) {
-			with(enemy) if(call(scr.chance, 1, 3)) {
+			with(_e[irandom(array_length(_e) - 1)]) {
 				_m -= my_health;
 				richtastes_select = true;
 			}
@@ -428,7 +430,7 @@
     		var _curhp = my_health;
     		if(fork()) {
     			wait 0;
-    			if(instance_exists(self) and _curhp > my_health) call(scr.heal, self, _curhp - my_health);
+    			if(instance_exists(self) and _curhp > my_health) call(scr.change_health, self, _curhp - my_health);
     			exit;
     		}
     		crystallinegrowth -= current_time_scale;
@@ -797,7 +799,7 @@
 				
 				other.hastened = call(scr.array_delete, other.hastened, array_find_index(other.hastened, self));
 				
-				if(array_length(other.hastened = 0)) {
+				if(array_length(other.hastened) = 0) {
 	                sound_play_pitch(sndLabsTubeBreak, 1.4 + random(0.2));
 					sound_play_pitch(sndSwapGold, 0.8 + random(0.1));
 				}
