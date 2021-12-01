@@ -620,7 +620,7 @@
 					
 					global.ignited = call(scr.array_delete_value, global.ignited, self);
 					
-					instance_destroy();
+					if(instance_is(self, Corpse)) instance_destroy();
 				}
 			}
 		}
