@@ -7,6 +7,8 @@
 	global.sprGoldAmmoChestSteroids = sprite_add("sprites/VFX/sprGoldAmmoChestSteroids.png", 7, 12, 8);
 	global.sndSkillSlct 			= sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 	global.sndGoldRush 				= sound_add("sounds/sndGoldRush.ogg");
+	
+	global.gold_draw				= script_bind_draw(gold_draw, -6);
 
 #define skill_name    return "RICH TASTES";
 #define skill_text    return "SOME KILLS GRANT @wHASTE@s#@yGOLDEN WEAPONS@s RELOAD FASTER";
@@ -20,6 +22,8 @@
 	}
 
 #define step
+	if(!instance_exists(global.gold_draw)) global.gold_draw = script_bind_draw(gold_draw, -6);
+
 	 // Speed up golden weapons gogogogogo:
 	with(Player) {
 		if(weapon_get_gold(wep) or (race = "steroids" and weapon_get_gold(bwep))) {
@@ -70,6 +74,102 @@
 			}
 		}
 	}
-	
+
+#define gold_draw
+	 // thanks spaz //
+	with(instances_matching_ne(enemy, "richtastes_select", null)) {
+		 //OUTLINE
+        d3d_set_fog(1,c_white,0,0)
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x + 1,
+            y,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha * (1 - sin(self + current_frame / (6* current_time_scale)))
+        )
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x - 1,
+            y,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha * (1 - sin(self + current_frame / (6* current_time_scale)))
+        )
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x,
+            y + 1,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha * (1 - sin(self + current_frame / (6* current_time_scale)))
+        )
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x,
+            y - 1,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha * (1 - sin(self + current_frame / (6* current_time_scale)))
+        )
+
+    	 //GOLD BASE
+        d3d_set_fog(1,55807,0,0)
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x,
+            y,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha
+        )
+        
+        d3d_set_fog(0,c_white,0,0)
+        
+         //GOLD EFFECT sin(self + current_frame / (6* current_time_scale))
+        draw_set_blend_mode(bm_inv_src_color)
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x,
+            y,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            0.7 + (0.3 * sin(self + current_frame / (6* current_time_scale)))
+        )
+        
+    	 //ADD DRAW TO MAKE STUFF NOT LOOK ASS
+        draw_set_blend_mode(bm_add)
+        draw_sprite_ext(
+            sprite_index,
+            image_index,
+            x,
+            y,
+            image_xscale * right,
+            image_yscale,
+            image_angle,
+            c_white,
+            image_alpha
+        )
+        draw_set_blend_mode(bm_normal)
+	}
+
 #macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
 #macro  call																					script_ref_call

@@ -114,6 +114,11 @@
 	//#region SPRITES
 		 // MUTATION EFFECTS //
 		global.sprMedpack		= sprite_add("sprites/VFX/sprFatHP.png",  7,  6,  6);
+		global.sprFatPizza		= sprite_add_weapon("sprites/VFX/sprFatPizza.png",  10,  10);
+		global.sprHPCrystalline    = sprite_add("sprites/VFX/sprCrystalHP.png", 7, 6, 7);
+		global.sprFatHPCrystalline = sprite_add("sprites/VFX/sprFatCrystalHP.png", 7, 9, 10);
+		global.sprCrizza		= sprite_add_weapon("sprites/VFX/sprCrizza.png",  8,  8);
+		global.sprFatCrizza		= sprite_add_weapon("sprites/VFX/sprFatCrizza.png",  10,  10);
 		global.sprSleep 		= sprite_add("sprites/VFX/sprSleep.png",  1,  4,  4);
 		global.sprCursedOutline = sprite_add("sprites/Icons/Cursed/sprCursedOutline.png",  5,  17,  23);
 		
@@ -153,6 +158,9 @@
 	 // GET EM //
 	global.mut_quest = mut_none;
 	
+	 // STATUS EFFECTS //
+	global.asleep    = [];
+	global.ignited   = [];
 	
 	//#region BEAM CONTROLLER
 		var _surface = surface_create(1, 4);
@@ -283,6 +291,12 @@
 			}
 		}
 	}
+	
+	if(skill_get("leadeyelids")) {
+		with(enemy) {
+			fall_asleep(100 + 50 * skill_get("leadeyelids") + random(30));
+		}
+	}
 
 #define step
 	if(!global.libLoaded){exit;}
@@ -358,9 +372,17 @@
 		if(area = 100 and array_length(instances_matching(Player, "race", "effigy")) and audio_is_playing(mus100) and !audio_is_playing(snd.Artificing)) sound_play_music(snd.Artificing);
 	}
 	
-    if(skill_get(mut_second_stomach)) { // Make Second Stomach medkits bigger
-        with(instances_matching_ne(HPPickup, "sprite_index", global.sprMedpack)) {
-            sprite_index = global.sprMedpack;
+    with(instances_matching(HPPickup, "meta_hp", null)) {
+    	meta_hp = true;
+        if(skill_get(mut_second_stomach)) {
+        	sprite_index = (sprite_index = sprSlice ? global.sprFatPizza : global.sprMedpack);
+        }
+        
+        if(skill_get("crystallinegrowths")) {
+        	sprite_index = (sprite_index = sprSlice ? global.sprCrizza : 
+        					sprite_index = global.sprFatPizza ? global.sprFatCrizza :
+        					sprite_index = global.sprMedpack ? global.sprFatHPCrystalline :
+        					global.sprHPCrystalline);
         }
     }
     
@@ -552,6 +574,57 @@
     		haste(210 * skill_get("strengthindeath"), 0.5);
     	}
     }
+	
+	with(global.ignited) {
+		 // If they're already ignited, do stuff!
+		if("metamorphosis_ignited" in self and metamorphosis_ignited > 0) {
+			 // This looks weird, but it's to mitigate how often it spawns fire. Should be once every 3 frames!
+			if((metamorphosis_ignited mod 5) = 0) {
+				var nplayer = instance_nearest(x, y, Player);
+
+				with(instance_create(x + random_range(8, -8), y + random_range(8, -8), Flame)) {
+					 // Makes sure there's a player that exists. No errors!
+					if(nplayer > 0) {
+						creator = nplayer;
+						team = creator.team;
+					}
+				}
+
+				 // Set the direction of the smoke, for visual reasons
+				var dir = ((direction > 90 and direction < 270) ? -30 : 30);
+
+				with(instance_create(x + random_range(6, -6), y + random_range(6, -6), SmokeOLD)) {
+					depth = -10;
+					motion_add(90 + (dir * speed), 5);
+					mask_index = mskNone;
+				}
+
+				sound_play_pitchvol(sndFiretrap, 1 + random(0.4), 1.4);
+			}
+
+			metamorphosis_ignited -= current_time_scale;
+
+			if(metamorphosis_ignited <= 0) {
+				 // SOFTLOCK PREVENTION
+				if(alarm_get(0) > -1) {
+					metamorphosis_ignited++;
+				}
+
+				else {
+					for(var i = 0; i < 360; i += 40/("size" in self ? size : 1)) {
+						with(instance_create(x + random_range(6, -6), y + random_range(6, -6), SmokeOLD)) {
+							motion_add(i, 3 * (("size" in other ? other.size : 1)/2));
+							friction = ("size" in other ? other.size : 1) * 0.2;
+						}
+					}
+					
+					global.ignited = call(scr.array_delete_value, global.ignited, self);
+					
+					instance_destroy();
+				}
+			}
+		}
+	}
 	
 	with(instances_matching(Corpse, "sprite_index", -5)){
 		instance_destroy();
@@ -806,6 +879,23 @@
             }
         }
     }
+    
+    with(global.asleep) {
+    	if(object_index != Van) alarm1 += current_time_scale;
+    	if("alrm1" in self) alrm1 += current_time_scale;
+    	
+    	metamorphosis_sleep -= current_time_scale;
+    	
+    	if(metamorphosis_sleep <= 0) {
+			instance_create(x, y, AssassinNotice).depth = depth - 1;
+			sound_play_pitchvol(sndImpWristHit, 1.4 + random(0.4), 1);
+			sound_play_pitchvol(sndDragonStart, 2 + random(0.4), 0.4);
+		}
+		
+		if(!instance_exists(self) or metamorphosis_sleep <= 0) {
+			global.asleep = call(scr.array_delete_value, global.asleep, self);
+		}
+    }
 
 #define draw
 	if(skill_get("grace") > 0 and instance_exists(Player)) { // Color projectiles being dodged while Muscle Memory is active
@@ -825,15 +915,15 @@
 								 view_yview_nonsync - (game_height), 
 								 view_xview_nonsync + (game_width), 
 								 view_yview_nonsync + (game_height), 
-								 instances_matching_gt(instances_matching_ne(enemy, "leadsleep", null), "leadsleep", 0))) {
+								 global.asleep)) {
 		var vis = 1;
-		if(leadsleep <= room_speed) vis = leadsleep mod (4 * leadsleep);
+		if(metamorphosis_sleep <= room_speed) vis = metamorphosis_sleep mod (4 * metamorphosis_sleep);
 		
-		draw_sprite_ext(global.sprSleep, 1, x + 6, y - 8 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 20) * 0.1), 1, 1, sin((leadsleep + 20) * 0.1) * 10, c_white, vis);
+		draw_sprite_ext(global.sprSleep, 1, x + 6, y - 8 - (sprite_get_height(sprite_index)/2) + sin((metamorphosis_sleep + 20) * 0.1), 1, 1, sin((metamorphosis_sleep + 20) * 0.1) * 10, c_white, vis);
 		
-		draw_sprite_ext(global.sprSleep, 1, x, y - 4 - (sprite_get_height(sprite_index)/2) + sin((leadsleep + 10) * 0.1), 1, 1, sin((leadsleep + 10) * 0.1) * 10, c_white, vis);
+		draw_sprite_ext(global.sprSleep, 1, x, y - 4 - (sprite_get_height(sprite_index)/2) + sin((metamorphosis_sleep + 10) * 0.1), 1, 1, sin((metamorphosis_sleep + 10) * 0.1) * 10, c_white, vis);
 		
-		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(leadsleep * 0.1), 1, 1, sin(leadsleep * 0.1) * 10, c_white, vis);
+		draw_sprite_ext(global.sprSleep, 1, x - 6, y - (sprite_get_height(sprite_index)/2) + sin(metamorphosis_sleep * 0.1), 1, 1, sin(metamorphosis_sleep * 0.1) * 10, c_white, vis);
 	}
 	
 #define effigy_token_draw
@@ -925,6 +1015,11 @@
 	}
 	
 	if(array_length(instances_matching(CustomObject, "name", "CustomBeam"))) with(instances_matching(CustomObject, "name", "CustomBeam")) draw_custombeam(image_blend, image_alpha * 0.1, 1.5);
+	
+	 // Blasting Caps:
+	with(instances_matching(CustomSlash, "name", "BlastingCap")){
+		draw_sprite_ext(sprite_index, image_index, x, y, 2 * image_xscale, 2 * image_yscale, image_angle, image_blend, 0.1 * image_alpha);
+	}
 
 #define cleanup
 	with(global.begin_step) instance_destroy();
@@ -2254,6 +2349,10 @@
 	
 	return metacolor + t[irandom(array_length(t) - 1)];
 
+#define alight(_time)
+	metamorphosis_ignited = "metamorphosis_ignited" in self ? metamorphosis_ignited + _time : _time;
+	array_push(global.ignited, self);
+
 #define haste(amt, pow)
 	if(amt > 0 and pow > 0) {
 		if("hastened" not in self) hastened = [];
@@ -2264,6 +2363,10 @@
 		    return self;
 		}
 	}
+
+#define fall_asleep(_time)
+	metamorphosis_sleep = "metamorphosis_sleep" in self ? metamorphosis_sleep + _time : _time;
+	array_push(global.asleep, self);
 
 #define current_cursed
 	var c = 0;

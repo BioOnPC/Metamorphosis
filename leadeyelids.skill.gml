@@ -14,34 +14,4 @@
 		sound_play(global.sndSkillSlct);
 	}
 #define step
-    if(instance_exists(GenCont) and GenCont.alarm0 > 0 and GenCont.alarm0 <= ceil(current_time_scale)) { 
-		if(fork()) {
-			wait 5;
-			with(instances_matching(enemy, "leadsleep", null)) {
-				leadsleep = 100 + 50 * skill_get(mod_current) + random(30);
-				leadalarm0 = alarm0;
-				leadalarm1 = alarm1;
-				
-				if("alrm0" in self) leadalrm0 = alrm0;
-				if("alrm1" in self) leadalrm1 = alrm1;
-			}
-			exit;
-		}
-    }
-	
-	with(enemy) {
-		if(variable_instance_exists(self, "leadsleep") and leadsleep > 0) {
-			alarm0 = leadalarm0;
-			alarm1 = leadalarm1;
-			
-			if("alrm0" in self) alrm0 = leadalrm0;
-			if("alrm1" in self) alrm1 = leadalrm1;
-			leadsleep -= current_time_scale;
-			
-			if(leadsleep <= 0) {
-				instance_create(x, y, AssassinNotice).depth = depth - 1;
-				sound_play_pitchvol(sndImpWristHit, 1.4 + random(0.4), 1);
-				sound_play_pitchvol(sndDragonStart, 2 + random(0.4), 0.4);
-			}
-		}
-	}
+ // No longer necessary, lol

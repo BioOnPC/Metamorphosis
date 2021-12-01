@@ -17,7 +17,7 @@
 #define step
 	with(Player) {
 	    with(instance_rectangle(x - 24, y - 24, x + 24, y + 24, instances_matching_ne(projectile, "team", team))) {
-	    	if(instance_exists(self)) {
+	    	if(instance_exists(self) and ("creator" not in self or creator != other)) {
 		    	if(!variable_instance_exists(self, "grace")) grace = 0;
 	
 		    	

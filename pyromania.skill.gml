@@ -20,57 +20,11 @@
 	with(instances_matching(CustomProjectile, "name", "Fire Bullet")) pyroflammable = true;
 
 	with(Corpse) {
-		 // Initialize variable, just make sure the game knows it exists
-		if(!variable_instance_exists(self, "pyroignite")) pyroignite = 0;
-
-		 // If they're already ignited, do stuff!
-		if(pyroignite > 0) {
-			 // This looks weird, but it's to mitigate how often it spawns fire. Should be once every 3 frames!
-			if((pyroignite mod 5) = 0) {
-				var nplayer = instance_nearest(x, y, Player);
-
-				with(instance_create(x + random_range(8, -8), y + random_range(8, -8), Flame)) {
-					 // Makes sure there's a player that exists. No errors!
-					if(nplayer > 0) {
-						creator = nplayer;
-						team = creator.team;
-					}
-				}
-
-				 // Set the direction of the smoke, for visual reasons
-				var dir = ((direction > 90 and direction < 270) ? -30 : 30);
-
-				with(instance_create(x + random_range(6, -6), y + random_range(6, -6), SmokeOLD)) {
-					depth = -10;
-					motion_add(90 + (dir * speed), 5);
-					mask_index = mskNone;
-				}
-
-				sound_play_pitchvol(sndFiretrap, 1 + random(0.4), 1.4);
-			}
-
-			pyroignite--;
-
-			if(pyroignite = 0) {
-				 // SOFTLOCK PREVENTION
-				if(alarm_get(0) > -1) {
-					pyroignite++;
-				}
-
-				else {
-					for(i = 0; i < 360; i += 40/size) {
-						with(instance_create(x + random_range(6, -6), y + random_range(6, -6), SmokeOLD)) {
-							motion_add(other.i, 3 * (other.size/2));
-							friction = other.size * 0.2;
-						}
-					}
-					instance_destroy();
-				}
-			}
-		}
-
 		 // Ignite corpse if they're not ignited!
-		else if((place_meeting(x, y, CustomProjectile) && variable_instance_exists(instance_nearest(x, y, CustomProjectile), "pyroflammable")) || place_meeting(x, y, Flame) || place_meeting(x, y, FlameShell) || place_meeting(x, y, TrapFire) || place_meeting(x, y, Explosion) || place_meeting(x, y, GreenExplosion) || place_meeting(x, y, SmallExplosion)) {
-			pyroignite = (30 + irandom(15)) * skill_get(mod_current);
+		if(("metamorphosis_ignited" not in self or metamorphosis_ignited <= 0) and ((place_meeting(x, y, CustomProjectile) && variable_instance_exists(instance_nearest(x, y, CustomProjectile), "pyroflammable")) || place_meeting(x, y, Flame) || place_meeting(x, y, FlameShell) || place_meeting(x, y, TrapFire) || place_meeting(x, y, Explosion) || place_meeting(x, y, GreenExplosion) || place_meeting(x, y, SmallExplosion))) {
+			mod_script_call("mod", "metamorphosis", "alight", (30 + irandom(15)) * skill_get(mod_current));
 		}
 	}
+	
+#macro  scr																						mod_variable_get("mod", "metamorphosis", "scr")
+#macro  call																					script_ref_call
