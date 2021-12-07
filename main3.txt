@@ -18,6 +18,7 @@
 /loadskill thinktank
 /loadskill richtastes
 /loadskill blastingcaps
+/loadskill steelwool
 
 // CURSED MUTATIONS
 /loadskill cursed/adrenaline

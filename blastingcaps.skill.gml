@@ -1,6 +1,6 @@
 #define init
-	//global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
-	//global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
+	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
+	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	//global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
 	
 	global.sprBlastingCap    = sprite_add("sprites/VFX/sprBlastingCap.png", 8, 16, 16);
@@ -8,8 +8,8 @@
 #define skill_name    return "BLASTING CAPS";
 #define skill_text    return "FIRING @wSHELL WEAPONS@s#REFLECTS @wNEARBY PROJECTILES@s";
 #define skill_tip     return "CAVITIES";
-//#define skill_icon    return global.sprSkillHUD;
-//#define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_icon    return global.sprSkillHUD;
+#define skill_button  sprite_index = global.sprSkillIcon;
 #define skill_wepspec return 1;
 #define skill_take    
 	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {

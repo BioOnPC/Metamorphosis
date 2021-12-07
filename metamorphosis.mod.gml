@@ -159,8 +159,9 @@
 	global.mut_quest = mut_none;
 	
 	 // STATUS EFFECTS //
-	global.asleep    = [];
-	global.ignited   = [];
+	global.asleep     = [];
+	global.ignited    = [];
+	global.steel_wool = [];
 	
 	//#region BEAM CONTROLLER
 		var _surface = surface_create(1, 4);
@@ -295,6 +296,21 @@
 	if(skill_get("leadeyelids")) {
 		with(enemy) {
 			fall_asleep(100 + 50 * skill_get("leadeyelids") + random(30));
+		}
+	}
+
+#define update(_newID)
+	if(skill_get("steelwool")) {
+		with(instances_matching(instances_matching_gt(projectile, "id", _newID), "object_index", Laser, EnergySlash, EnergyShank, EnergyHammerSlash, PlasmaBall, PlasmaBig, PlasmaHuge, PlasmaImpact, Lightning, LightningBall, LightningSlash, LightningSpawn)) {
+			array_push(global.steel_wool, self);
+		}
+		
+		with(instances_matching(instances_matching_gt(CustomProjectile, "id", _newID), "ammo_typ", 5)) {
+			array_push(global.steel_wool, self);
+		}
+		
+		with(instances_matching(instances_matching_gt(CustomProjectile, "id", _newID), "name", "Plasmite", "Lightning Bolt", "Lightning Bullet", "Laser Flak", "Vector", "Lightning Bullak", "Vector Beam")) {
+			array_push(global.steel_wool, self);
 		}
 	}
 
@@ -881,20 +897,22 @@
     }
     
     with(global.asleep) {
-    	if(object_index != Van) alarm1 += current_time_scale;
-    	if("alrm1" in self) alrm1 += current_time_scale;
-    	
-    	metamorphosis_sleep -= current_time_scale;
-    	
-    	if(metamorphosis_sleep <= 0) {
-			instance_create(x, y, AssassinNotice).depth = depth - 1;
-			sound_play_pitchvol(sndImpWristHit, 1.4 + random(0.4), 1);
-			sound_play_pitchvol(sndDragonStart, 2 + random(0.4), 0.4);
-		}
-		
-		if(!instance_exists(self) or metamorphosis_sleep <= 0) {
-			global.asleep = call(scr.array_delete_value, global.asleep, self);
-		}
+    	if(instance_exists(self)) {
+	    	if(object_index != Van) alarm1 += current_time_scale;
+	    	if("alrm1" in self) alrm1 += current_time_scale;
+	    	
+	    	metamorphosis_sleep -= current_time_scale;
+	    	
+	    	if(metamorphosis_sleep <= 0) {
+				instance_create(x, y, AssassinNotice).depth = depth - 1;
+				sound_play_pitchvol(sndImpWristHit, 1.4 + random(0.4), 1);
+				sound_play_pitchvol(sndDragonStart, 2 + random(0.4), 0.4);
+			}
+			
+			if(!instance_exists(self) or metamorphosis_sleep <= 0) {
+				global.asleep = call(scr.array_delete_value, global.asleep, self);
+			}
+    	}
     }
 
 #define draw
@@ -2345,7 +2363,7 @@
 	
   //				--- OTHER SCRIPTS ---			//
 #define tip_generate
-	var t = ["SYNERGY", "THIS IS THE RUN", "TRY SOMETHING NEW", `@sTHE VAULTS HAVE ${metacolor}VISITORS`, "FIND NEW COMBINATIONS", "THE META ISN'T EVERYTHING", `TRY WITH @w${choose("NT:TE", minicolor + "MINIMOD", "DEFPACK", "VAGABONDS")}!`, "THE AMMO ECONOMY IS IN SHAMBLES", `@sEVERY MUTANT HAS A NEW ${metacolor}ULTRA`, "SPECIALIZE", "SOMETHING SPECIAL", "ADAPT", "PARTS OF A WHOLE", "SUM OF ALL THE PARTS", "COMBINATORIAL EXPLOSION", "HOW DID WE GET HERE?", "INNOVATE", "STRANGE ANATOMY", "THANKS FOR PLAYING!", "ADVANCED PHYSIOLOGY", "WE CAN BECOME BETTER", "BECOME STRONGER"];
+	var t = ["SYNERGY", "THIS IS THE RUN", "TRY SOMETHING NEW", `@sTHE VAULTS HAVE ${metacolor}VISITORS`, "FIND NEW COMBINATIONS", "THE META ISN'T EVERYTHING", `TRY WITH @w${choose("NT:TE", minicolor + "MINIMOD", "DEFPACK", "VAGABONDS", "VARIA ADDONS")}!`, "THE AMMO ECONOMY IS IN SHAMBLES", `@sEVERY MUTANT HAS A NEW ${metacolor}ULTRA`, "SPECIALIZE", "SOMETHING SPECIAL", "ADAPT", "PARTS OF A WHOLE", "SUM OF ALL THE PARTS", "COMBINATORIAL EXPLOSION", "HOW DID WE GET HERE?", "INNOVATE", "STRANGE ANATOMY", "THANKS FOR PLAYING!", "ADVANCED PHYSIOLOGY", "WE CAN BECOME BETTER", "BECOME STRONGER"];
 	
 	return metacolor + t[irandom(array_length(t) - 1)];
 
