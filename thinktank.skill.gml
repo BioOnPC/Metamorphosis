@@ -2,11 +2,11 @@
 	global.sprSkillIcon = sprite_add("sprites/Icons/sprSkill" + string_upper(string(mod_current)) + "Icon.png", 1, 12, 16);
 	global.sprSkillHUD  = sprite_add("sprites/HUD/sprSkill" + string_upper(string(mod_current)) + "HUD.png",  1,  8,  8);
 	global.sndSkillSlct = sound_add("sounds/sndMut" + string_upper(string(mod_current)) + ".ogg");
-	global.visits = 1;
+	global.visits = 0;
 	global.level_start = false;
 
 #define skill_name    return "THINK TANK";
-#define skill_text    return "EXTRA @wCHEST@s SPAWNS#FOR EVERY AREA VISITED";
+#define skill_text    return "AN EXTRA @wCHEST@s SPAWNS#FOR EVERY AREA YOU'VE VISITED";
 #define skill_tip     return "AD HOMINEM";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
@@ -14,26 +14,11 @@
 	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
 		sound_play(sndMut);
 		sound_play(global.sndSkillSlct);
-		global.visits = 1;
+		//global.visits = 1;
 	}
 	
 	else {
 		if(!instance_exists(GenCont) and !instance_exists(LevCont)) place_chests(global.visits);
-	}
-
-#define step
-     // Level Start:
-	if(instance_exists(GenCont) || instance_exists(Menu)){
-		global.level_start = true;
-	}
-	else if(global.level_start){
-		global.level_start = false;
-		
-		if(instance_exists(GameCont) and GameCont.subarea = 1) global.visits++;
-		
-		if(instance_number(WeaponChest) + instance_number(AmmoChest) + instance_number(RadChest) > 0) {
-			place_chests(global.visits * skill_get(mod_current));
-		}
 	}
 
 #define place_chests(amt)
@@ -44,7 +29,13 @@
 	repeat(amt) {
 		c = choose(WeaponChest, AmmoChest, RadChest);
 		rf = f[irandom_range(0, array_length(f) - 1)];
-		with(instance_create(rf.x + 16, rf.y + 16, c)) instance_budge([chestprop, RadChest]);
+		with(instance_create(rf.x + (rf.sprite_width/2), rf.y + (rf.sprite_height/2), c)) {
+			instance_budge([chestprop, RadChest, hitme]);
+			with(instances_meeting(x, y, Wall)) {
+				instance_create(x, y, FloorExplo);
+				instance_destroy();
+			}
+		}
 	}
 
 #define instance_budge(_objAvoid)

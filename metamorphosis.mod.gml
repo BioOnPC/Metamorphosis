@@ -270,6 +270,8 @@
 	with(instances_matching_lt(instances_matching(CustomObject, "name", "MetaUnlock"), "id", GameCont.id)){
 		instance_delete(self);
 	}
+	
+	mod_variable_set("skill", "thinktank", "visits", 0);
 
 #define level_start
 	 // For powerup mutations:
@@ -296,6 +298,22 @@
 	if(skill_get("leadeyelids")) {
 		with(enemy) {
 			fall_asleep(100 + 50 * skill_get("leadeyelids") + random(30));
+		}
+	}
+	
+	if(skill_get("strengthindeath")) {
+		with(Player) { // Chicken ultra
+			haste(210 * skill_get("strengthindeath"), 1);
+		}
+	}
+	
+	if(instance_exists(GameCont) and GameCont.subarea = 1) mod_variable_set("skill", "thinktank", "visits", mod_variable_get("skill", "thinktank", "visits") + 1);
+	
+	if(skill_get("thinktank")) {
+		if(instance_number(WeaponChest) + instance_number(AmmoChest) + instance_number(RadChest) >= 3) {
+			trace(mod_variable_get("skill", "thinktank", "visits"))
+			
+			mod_script_call("skill", "thinktank", "place_chests", mod_variable_get("skill", "thinktank", "visits") * skill_get("thinktank"));
 		}
 	}
 
@@ -584,10 +602,6 @@
 					}
 				}
 	    	}
-    	}
-    	
-    	with(Player) { // Chicken ultra
-    		haste(210 * skill_get("strengthindeath"), 0.5);
     	}
     }
 	

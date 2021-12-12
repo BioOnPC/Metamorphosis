@@ -18,10 +18,19 @@
 
 #define step
 	with(Player) {
-		 // For when u are headless
-		if(my_health = 0) {
-			if(hastened = 0) sleep(100);
-			haste(30, 0.8);
+		var _php = my_health;
+		
+		if(my_health) {
+			if(fork()) {
+				wait 0;
+				
+				 // For when u are headless
+				if(my_health <= 0) {
+					sleep(100);
+					haste(120, 0.8);
+				}
+				exit;
+			}
 		}
 	}
 
