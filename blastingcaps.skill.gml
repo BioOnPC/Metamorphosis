@@ -23,15 +23,16 @@
 	    if(race == "steroids" && _auto >= 0){
 	        _auto = true;
 	    }
-	    if(race == "steroids" && weapon_get_type(bwep) = 2 && bcan_shoot && canspec && (_auto ? button_check(index, "fire") : button_pressed(index, "fire")) && (ammo[weapon_get_type(bwep)] >= weapon_get_cost(bwep) || infammo != 0)){
-	        blast_fire(bwepangle, weapon_get_load(bwep)); // secondary fire
+	    if(race == "steroids" && weapon_get_type(bwep) = 2 && bcan_shoot && canspec && (_auto ? button_check(index, "spec") : button_pressed(index, "spec")) && (ammo[weapon_get_type(bwep)] >= weapon_get_cost(bwep) || infammo != 0)){
+	        blast_fire(gunangle, weapon_get_load(bwep)); // secondary fire
 	    }
+	    
 	    if(weapon_get_type(wep) = 2 and can_shoot){
 	        if(race == "skeleton" && canspec && button_pressed(index, "spec") && weapon_get_cost(wep) > 0){
-	            blast_fire(wepangle, weapon_get_load(wep)); // skeleton fire
+	            blast_fire(gunangle, weapon_get_load(wep)); // skeleton fire
 	        }
 	        else if(race == "venuz" && canspec && button_pressed(index, "spec") && weapon_get_type(wep) != 0 && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) * floor(2 + (2 * skill_get(mut_throne_butt))) || infammo != 0)){
-	            blast_fire(wepangle, weapon_get_load(wep)); // YV fire
+	            blast_fire(gunangle, weapon_get_load(wep)); // YV fire
 	        }
 	        else if(canfire && (_auto ? button_check(index, "fire") : (clicked || button_pressed(index, "fire"))) && (ammo[weapon_get_type(wep)] >= weapon_get_cost(wep) || infammo != 0)){
 	            blast_fire(gunangle, weapon_get_load(wep)); // normal fire

@@ -33,6 +33,7 @@
 		
 		call(["mod", "lib", "getRef"], "mod", mod_current, "scr");
 		call(scr.obj_setup, mod_current, ["AdrenalinePickup", "BeamChild", "CheekPouch", "CrystallineEffect", "CrystallinePickup", "CustomBeam", "EffigyOrbital", "MutRefresher", "MetaButton", "Shopkeep", "Mutator"]);
+		call(scr.autoupdate, "Metamorphosis", "BioOnPC/Metamorphosis");
 		
 		call(scr.save_load, mod_current, {
 			proto_mutation      : mut_none, // Figure out which mut is saved for proto mutations
@@ -327,7 +328,7 @@
 			array_push(global.steel_wool, self);
 		}
 		
-		with(instances_matching(instances_matching_gt(CustomProjectile, "id", _newID), "name", "Plasmite", "Lightning Bolt", "Lightning Bullet", "Laser Flak", "Vector", "Lightning Bullak", "Vector Beam")) {
+		with(instances_matching(instances_matching_gt(CustomProjectile, "id", _newID), "name", "Plasmite", "Lightning Bolt", "Lightning Bullet", "Heavy Lightning Bullet", "Laser Flak", "Vector", "Lightning Bullak", "Vector Beam")) {
 			array_push(global.steel_wool, self);
 		}
 	}
@@ -923,9 +924,48 @@
 				sound_play_pitchvol(sndDragonStart, 2 + random(0.4), 0.4);
 			}
 			
-			if(!instance_exists(self) or metamorphosis_sleep <= 0) {
+			if(metamorphosis_sleep <= 0) {
 				global.asleep = call(scr.array_delete_value, global.asleep, self);
 			}
+    	}
+    	
+    	else {
+    		global.asleep = call(scr.array_delete_value, global.asleep, self);
+    	}
+    }
+    
+    with(global.steel_wool) {
+    	if(!instance_exists(self)) {
+    		global.steel_wool = call(scr.array_delete_value, global.steel_wool, self);
+    		exit;
+    	}
+    	
+    	var _e = [];
+    	
+    	with(call(scr.instances_meeting, x + hspeed, y + vspeed, enemy)) {
+    		array_push(_e, [self, x, y, sprite_width * 1.2, sprite_height * 1.2, depth]);
+    	}
+    	
+    	if(fork()) {
+    		wait 0;
+    		
+    		with(_e) {
+    			if(!instance_exists(self[0]) or self[0].my_health <= 0) {
+	    			repeat(max(1, min(self[3], self[4])/4)) with(mod_script_call("mod", "varia_particles", "varia_particle_create", self[1] + call(scr.orandom, self[3]), self[2] + call(scr.orandom, self[4]), "voltaic_spark")){
+						depth = other[5] - 1;
+					}
+					
+					sound_play_pitch(sndLightningCrystalHit, 1.4 + random(0.2));
+					sound_play_pitch(sndLightningHit, 1.2 + random(0.2));
+					sound_play_pitchvol(sndLightningCannon, 1.7 + random(0.2), 0.3);
+	    			
+	    			with(call(scr.instances_in_rectangle, self[1] - self[3], self[2] - self[4], self[1] + self[3], self[2] + self[4], enemy)) {
+	    				mod_script_call("mod", "varia_tools", "paralyze", 10 + (5 * skill_get(mod_current)) + random(8), 1);
+	    			}
+    			}
+    		}
+    		
+    		exit;
     	}
     }
 
@@ -1007,10 +1047,10 @@
 			var _x = x + sprite_xoffset;
 			var _y = y + sprite_yoffset;
 			
-			draw_sprite(global.sprCursedOutline, (current_frame * (0.4/current_time_scale)) mod 4, x, y - hover);
+			draw_sprite(global.sprCursedOutline, ((current_frame + id) * (0.4/current_time_scale)) mod 4, x, y - hover);
 			if(depth != -1002) depth = -1002;
-			if(current_frame * (0.2/current_time_scale)) {
-				with instance_create(x - 12 + 6 * ((current_frame * (0.2/current_time_scale)) mod 4), y - 16 - hover, Curse) {
+			if((current_frame + id) * (0.2/current_time_scale)) {
+				with instance_create(x - 12 + 6 * (((current_frame + id) * (0.2/current_time_scale)) mod 4), y - 16 - hover, Curse) {
 					depth = other.depth;
 				}
 			}
