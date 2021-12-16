@@ -950,7 +950,7 @@
     		wait 0;
     		
     		with(_e) {
-    			if(!instance_exists(self[0]) or self[0].my_health <= 0) {
+    			if(!instance_exists(self[0]) or (!instance_is(self[0], RavenFly) and self[0].my_health <= 0)) {
 	    			repeat(max(1, min(self[3], self[4])/4)) with(mod_script_call("mod", "varia_particles", "varia_particle_create", self[1] + call(scr.orandom, self[3]), self[2] + call(scr.orandom, self[4]), "voltaic_spark")){
 						depth = other[5] - 1;
 					}
