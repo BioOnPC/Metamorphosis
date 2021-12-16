@@ -950,7 +950,7 @@
     		wait 0;
     		
     		with(_e) {
-    			if(!instance_exists(self[0]) or (!instance_is(self[0], RavenFly) and self[0].my_health <= 0)) {
+    			if(!instance_exists(self[0]) or (self[0].object_index != RavenFly and self[0].my_health <= 0)) {
 	    			repeat(max(1, min(self[3], self[4])/4)) with(mod_script_call("mod", "varia_particles", "varia_particle_create", self[1] + call(scr.orandom, self[3]), self[2] + call(scr.orandom, self[4]), "voltaic_spark")){
 						depth = other[5] - 1;
 					}
@@ -960,7 +960,7 @@
 					sound_play_pitchvol(sndLightningCannon, 1.7 + random(0.2), 0.3);
 	    			
 	    			with(call(scr.instances_in_rectangle, self[1] - self[3], self[2] - self[4], self[1] + self[3], self[2] + self[4], enemy)) {
-	    				mod_script_call("mod", "varia_tools", "paralyze", 10 + (5 * skill_get(mod_current)) + random(8), 1);
+	    				mod_script_call("mod", "varia_tools", "paralyze", 10 + (5 * skill_get("steelwool")) + random(8), 1);
 	    			}
     			}
     		}
