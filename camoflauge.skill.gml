@@ -40,7 +40,7 @@
 	    			instance_create(x, y, Feather).sprite_index = sprLeaf;
 	    		}
 	    		
-	    		if(!audio_is_playing(sndJungleAssassinWake)) sound_play_pitchvol(sndJungleAssassinWake, 1.8 + random_nonsync(0.6), 0.08);
+	    		if(!audio_is_playing(sndJungleAssassinWake)) sound_play_pitchvol(sndJungleAssassinWake, 1.8 + random(0.6), 0.08);
     		}
     	}
     }

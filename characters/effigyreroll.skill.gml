@@ -33,9 +33,10 @@
 			GameCont.endpoints--;
 			
 			with(SkillIcon) {
+				NoToken = true; //LOMuts compat so that you don't get free mutation tokens
 				if(num < n) {
 					if(call(scr.skill_get_avail, skill)) {
-						skill = call(scr.skill_decide, 0, c);
+						skill = call(scr.skill_decide, 1, 1, c);
 						
 						if(skill = mut_none) { instance_destroy(); }
 						else {

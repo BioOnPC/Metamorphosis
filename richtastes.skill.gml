@@ -78,6 +78,7 @@
 #define gold_draw
 	 // thanks spaz //
 	with(instances_matching_ne(enemy, "richtastes_select", null)) {
+		if(visible == false){continue;}
 		 //OUTLINE
         d3d_set_fog(1,c_white,0,0)
         draw_sprite_ext(

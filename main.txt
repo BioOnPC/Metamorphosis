@@ -1,4 +1,4 @@
-/loadmod libLoader
+/loadmod LibLoader
 /loadmod metamorphosis_options
 /loadmod metamorphosis
 /load main2
