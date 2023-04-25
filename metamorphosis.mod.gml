@@ -2444,11 +2444,11 @@
 	var c = 0;
 	
 	with(Player) {
-		c += (curse + bcurse) * 20; 
+		c += (curse + bcurse) * 5;
 	}
 	
 	if(crown_current != crwn_none) {
-		c = (crown_current == crwn_curses) ? max(c, 6) * 3 : max(5, c);
+		c = (crown_current == crwn_curses) ? max(c, 5) * 2 : max(5, c);
 	}
 	
 	c = random(100) < c;
