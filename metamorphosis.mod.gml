@@ -717,6 +717,7 @@
 			 // Star of the Show:
 			maxselect++;
 			with(instance_create(0, 0, SkillIcon)){
+				NoToken = true; //LOMuts compat so that you don't get free mutation tokens
 				creator = other;
 				num     = other.maxselect;
 				alarm0	= num + 1;
@@ -743,11 +744,12 @@
 			if(_amt > 0) repeat(_amt) {
 				maxselect++;
 				with(instance_create(0, 0, SkillIcon)){
+					NoToken = true; //LOMuts compat so that you don't get free mutation tokens
 					creator = other;
 					num     = other.maxselect;
 					alarm0	= num + 1;
 					
-					skill   = call(scr.skill_decide, 0, call(scr.skill_get_category, _skill));
+					skill   = call(scr.skill_decide, 1, 1, call(scr.skill_get_category, _skill));
 					name    = skill_get_name(skill);
 					text    = skill_get_text(skill);
 					if(is_string(skill)) mod_script_call("skill", skill, "skill_button");
@@ -769,6 +771,7 @@
     		if(unavail < instance_number(SkillIcon)) {
     			maxselect++;
     			with(instance_create(0, 0, SkillIcon)){
+					NoToken = true; //LOMuts compat so that you don't get free mutation tokens
 					creator = other;
 					num     = other.maxselect;
 					alarm0	= num + 1;

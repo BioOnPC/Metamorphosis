@@ -10,6 +10,7 @@
 #define skill_tip     return "HAIL TO THE KING";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_type    return "utility";
 #define skill_avail   
 	with(instances_matching_gt(Player, "race_id", 16)) {
 		if(race != "parrot" and !mod_script_exists("race", race, "race_cc_text")) {

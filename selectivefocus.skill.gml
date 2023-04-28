@@ -27,6 +27,7 @@
 #define skill_tip     return choose("NO MORE DISTRACIONS", "THE TASK AT HAND", "OUT OF SIGHT OUT OF MIND");
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_type    return "utility";
 #define skill_take    
 	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
 		sound_play(sndMut);

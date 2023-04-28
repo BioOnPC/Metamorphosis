@@ -8,6 +8,7 @@
 #define skill_tip     return "FASTEST POPS IN THE WEST";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_type    return "offensive";
 #define skill_take    
 	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
 		sound_play(sndMut);

@@ -10,6 +10,7 @@
 #define skill_tip     return "DEAL WITH THE DEVIL";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_type    return "cursed";
 #define skill_take(_num)
 	if(_num > 0) {
 		if(instance_exists(LevCont)){

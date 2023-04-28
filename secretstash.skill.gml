@@ -12,6 +12,7 @@
 #define skill_tip       return choose("DRINK @wSODA!@s FOREVER", "@q@wRADICAL!");
 #define skill_icon      return global.sprSkillHUD;
 #define skill_button    sprite_index = global.sprSkillIcon;
+#define skill_type    return "utility";
 #define skill_take(_num)
 	if(global.taken and global.taken < _num) global.taken = 0;
 	

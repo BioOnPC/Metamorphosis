@@ -10,6 +10,7 @@
 #define skill_text    return "@wCLEANSE YOURSELF@s OF @pCURSE@s#TREAD THE @wSAFER PATH@s";
 #define skill_tip     return "CLEANSE THYSELF";
 #define skill_icon    return global.sprSkillHUD;
+#define skill_type    return "cursed";
 #define skill_button  
 	sprite_index = global.sprSkillIcon;
 	rephover = 0;

@@ -9,6 +9,7 @@
 #define skill_tip     return "OVERLOADED";
 #define skill_icon    return global.sprSkillHUD;
 #define skill_button  sprite_index = global.sprSkillIcon;
+#define skill_type    return "ammo";
 #define skill_take    
 	if(array_length(instances_matching(mutbutton, "skill", mod_current)) > 0) {
 		sound_play(sndMut);

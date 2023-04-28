@@ -7,6 +7,7 @@
 #define skill_tip     return "CAN'T STOP MOVING";
 //#define skill_icon    return global.sprSkillHUD;
 //#define skill_button  sprite_index = global.sprSkillIcon;
+//#define skill_type    return "ammo";
 #define skill_take    sound_play(sndMut);
 
 #define step
