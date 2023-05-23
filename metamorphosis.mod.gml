@@ -388,6 +388,43 @@
 		}
 	}
 	
+	//Effigy Starting Mutations
+	var muts = [noone, noone];
+	var i = 0;
+	//go until the end of the mutation list
+	while(!is_undefined(skill_get_at(i))){i++}
+	//and go back until there's a mutation you can get normally
+	i--;
+	while(is_string(skill_get_at(i)) && (mod_script_exists("skill", skill_get_at(i), "skill_avail") && !mod_script_call("skill", skill_get_at(i), "skill_avail"))){i--}
+	//check for if we have a mutation
+	if(!is_undefined(skill_get_at(i))){
+		muts[0] = skill_get_at(i);
+		//and keep going back for one more
+		i--;
+		while(is_string(skill_get_at(i)) && (mod_script_exists("skill", skill_get_at(i), "skill_avail") && !mod_script_call("skill", skill_get_at(i), "skill_avail"))){i--}
+		//check for if this second mutation is valid
+		if(!is_undefined(skill_get_at(i))){
+			muts[1] = skill_get_at(i);
+		}
+		
+		//this code is here so that shuffling only happens if we have at least one mutation in muts
+		var effigyMuts = call(scr.save_get, "metamorphosis", "effigy_mut");
+		//make sure we need to change anything
+		if(muts[0] != effigyMuts[0] || (muts[1] != noone && muts[1] != effigyMuts[1])){
+			if(muts[1] == noone && muts[0] != effigyMuts[0]){
+				effigyMuts[1] = effigyMuts[0];
+			}else if(muts[1] != noone){
+				effigyMuts[1] = muts[1];
+			}
+			effigyMuts[0] = muts[0];
+			trace(muts[0]);
+			trace(muts[1]);
+			trace(effigyMuts[0]);
+			trace(effigyMuts[1]);
+			call(scr.save_set, "metamorphosis", "effigy_mut", effigyMuts);
+		}
+	}
+	
 	 
 	with(GameCont) {
 		 // Avoid duplicating ultras by accident
